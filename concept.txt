@@ -1,0 +1,19 @@
+upgrade(upgrade, buyable+building, tree, select)
+
+prestige(upgrade+prestige bonus, spell, color, meta-prestige)
+generator(electron, darkness, antimatter dimention, quantum form)
+
+challenge(challenge+repeatable, exploration, hadronic challenge, dark run)  
+time(time upgrade+time reverse, blackhole, time dimention, overclock)
+milestone(milestone, extra milestone, meta milestone, challenge milestone)
+
+research  
+energy  
+skill  
+rune
+
+mastery  
+super-prestige  
+super-generator  
+rpg  
+resource

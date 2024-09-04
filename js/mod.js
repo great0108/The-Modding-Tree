@@ -1,14 +1,14 @@
 let modInfo = {
-	name: "The ??? Tree",
-	id: "mymod",
-	author: "nobody",
+	name: "The Incremental Tree",
+	id: "IncrementalTree",
+	author: "great",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
 	initialStartPoints: new Decimal (10), // Used for hard resets and new players
-	offlineLimit: 1,  // In hours
+	offlineLimit: 0,  // In hours
 }
 
 // Set your version in num and name
@@ -42,7 +42,14 @@ function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
 
-	let gain = new Decimal(1)
+	let gain = new Decimal(0)
+	if (hasUpgrade('u', 11)) gain = gain.plus(1)
+	if (hasUpgrade('u', 12)) gain = gain.plus(1)
+
+	if (hasUpgrade('u', 13)) gain = gain.times(2)
+	if (hasUpgrade('u', 14)) gain = gain.times(upgradeEffect('u', 14))
+	if (hasUpgrade('u', 15)) gain = gain.times(upgradeEffect('u', 15))
+	if (hasUpgrade('u', 23)) gain = gain.times(upgradeEffect('u', 23))
 	return gain
 }
 
