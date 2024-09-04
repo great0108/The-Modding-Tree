@@ -105,8 +105,8 @@ addLayer("u", {
             description: "boost your point gain based on itself.",
             cost: new Decimal(5),
             effect() {
-                let value = hasUpgrade('u', 24) ? 0.3 : 0.2
-                return player.points.add(1).pow(value)
+                let value = hasUpgrade('u', 24) ? 2 : 1
+                return Decimal.log10(player.points.add(1)).add(1).pow(value)
             },
             effectDisplay() {  // Add formatting to the effect 
                 // this.layer == p, this.id == 14
@@ -118,7 +118,7 @@ addLayer("u", {
             description: "upgrade points boost your point gain.",
             cost: new Decimal(10),
             effect() {
-                return player[this.layer].points.add(1).pow(0.3)
+                return Decimal.log10(player[this.layer].points.add(1)).add(1)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -161,22 +161,28 @@ addLayer("u", {
         24: {
             title: "Upgrade Upgrades",
             description: "boost the above upgrade effect.",
-            cost: new Decimal(500),
+            cost: new Decimal(300),
         },
         25: {
             title: "New type Upgrade!",
             description: "unlock buyable tab.",
-            cost: new Decimal(1000),
+            cost: new Decimal(500),
         },
         31: {
-            title: "Point Square",
+            title: "Point Squared",
             description: "base point gain is squared.",
             cost: new Decimal(2e4),
+            unlocked() {
+                return hasUpgrade(this.layer, 25)
+            }
         },
         32: {
             title: "Buyable Boost",
             description: "first buyable also multiply your point gain.",
-            cost: new Decimal(2e5),
+            cost: new Decimal(3e5),
+            unlocked() {
+                return hasUpgrade(this.layer, 25)
+            },
             effect() {
                 return getBuyableAmount(this.layer, 11)
             },
@@ -187,17 +193,26 @@ addLayer("u", {
         33: {
             title: "Need More Buyable",
             description: "unlock two new buyables.",
-            cost: new Decimal(2e6),
+            cost: new Decimal(1e7),
+            unlocked() {
+                return hasUpgrade(this.layer, 25)
+            }
         },
         34: {
             title: "Buyable Power",
             description: "boost second buyable effect.",
-            cost: new Decimal(2e7),
+            cost: new Decimal(1e10),
+            unlocked() {
+                return hasUpgrade(this.layer, 25)
+            }
         },
         35: {
             title: "New type Upgrade Again!",
             description: "unlock selection tab.",
-            cost: new Decimal(2e8),
+            cost: new Decimal(1e15),
+            unlocked() {
+                return hasUpgrade(this.layer, 25)
+            }
         }
     },
     buyables: {
@@ -255,7 +270,7 @@ addLayer("u", {
         13: {
             title: "Multiple Upgrade Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let value = new Decimal(4).add(x).pow(2)
+                let value = new Decimal(1).add(x).pow(2)
                 let cost = new Decimal(1000).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
@@ -279,7 +294,7 @@ addLayer("u", {
         14: {
             title: "Devide Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let value = new Decimal(2).add(x).pow(2)
+                let value = new Decimal(4).add(x)
                 let cost = new Decimal(1000).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
@@ -306,8 +321,8 @@ addLayer("u", {
         21: {
             title: "Add First Row",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let value = new Decimal(2).pow(x)
-                let cost = new Decimal(1e6).mul(value.pow(x))
+                let value = new Decimal(3).pow(x)
+                let cost = new Decimal(1e7).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
             },
@@ -332,7 +347,7 @@ addLayer("u", {
             title: "Devide Buyable Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).add(x).pow(2)
-                let cost = new Decimal(1e6).mul(value.pow(x))
+                let cost = new Decimal(1e7).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
             },
