@@ -4,7 +4,7 @@ addLayer("u", {
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
-		points: new Decimal(0),
+		points: new Decimal(1e15),
     }},
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -184,7 +184,7 @@ addLayer("u", {
                 return hasUpgrade(this.layer, 25)
             },
             effect() {
-                return getBuyableAmount(this.layer, 11)
+                return buyableEffect(this.layer, 11).add(1)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -209,7 +209,7 @@ addLayer("u", {
         35: {
             title: "New type Upgrade Again!",
             description: "unlock selection tab.",
-            cost: new Decimal(1e15),
+            cost: new Decimal(2e15),
             unlocked() {
                 return hasUpgrade(this.layer, 25)
             }
@@ -389,6 +389,10 @@ addLayer("u", {
             },
             onClick() {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : {
+                "width": "150px"
             }
         },
         12: {
@@ -408,6 +412,10 @@ addLayer("u", {
             },
             onClick() {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : {
+                "width": "150px"
             }
         },
         13: {
@@ -427,6 +435,10 @@ addLayer("u", {
             },
             onClick() {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : {
+                "width": "150px"
             }
         }
     }
