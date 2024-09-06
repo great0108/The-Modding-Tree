@@ -56,6 +56,7 @@ function getPointGen() {
 	if (hasUpgrade('u', 25)) gain = gain.times(buyableEffect("u", 12))
 	if (hasUpgrade('u', 32)) gain = gain.times(upgradeEffect("u", 32)) 
 	if (getClickableState("u", 11)) gain = gain.times(clickableEffect("u", 11))
+	if (getClickableState('u', 33)) gain = gain.times(clickableEffect('u', 33))
 	if (hasUpgrade('u', 41)) gain = gain.times(upgradeEffect("u", 41)) 
 
 	return gain

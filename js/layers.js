@@ -4,7 +4,7 @@ addLayer("u", {
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
-		points: new Decimal(1e15),
+		points: new Decimal(0),
         clickablesUnlock: [],
     }},
     color: "#4BDC13",
@@ -23,6 +23,7 @@ addLayer("u", {
             mult = mult.times(buyableEffect("u", 14))  
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
+        if (getClickableState('u', 33)) mult = mult.times(clickableEffect('u', 33))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -62,9 +63,10 @@ addLayer("u", {
                     function(){
                         let a = player[this.layer].clickablesUnlock.length
                         a = Math.floor(a / 3) - 1
-                        if (a in tmp.u.clickables.unlockCost) {
+                        if (!hasUpgrade("u", 43) && a >= 2) return "all selections are unlocked"
+                        if (a in tmp.u.unlockCost) {
                             return "next selection is unlocked at " +
-                             format(tmp.u.clickables.unlockCost[a]) + "points"
+                             format(tmp.u.unlockCost[a]) + " points"
                         }
                         return "all selections are unlocked"
                     }
@@ -73,8 +75,18 @@ addLayer("u", {
                 "blank",
                 "clickables",
             ],
-            unlocked() {return (hasUpgrade("u", 35))}
+            unlocked() {return hasUpgrade("u", 35)}
         },
+        "Tree" : {
+            content: [
+                "main-display",
+                "prestige-button",
+                "blank",
+                "blank",
+                "tree",
+            ],
+            unlocked() {return (hasUpgrade("u", 45))}
+        }
     },
     upgrades: {
         11: {
@@ -121,7 +133,7 @@ addLayer("u", {
             description: "points boost upgrade point gain.",
             cost: new Decimal(20),
             effect() {
-                return Decimal.log10(player.points.add(1)).times(0.5).add(1)
+                return Decimal.log10(player.points.add(1)).add(1).pow(0.8)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -132,7 +144,7 @@ addLayer("u", {
             description: "boost upgrade point gain based on itself.",
             cost: new Decimal(50),
             effect() {
-                return Decimal.log10(player[this.layer].points.add(1)).times(0.5).add(1)
+                return Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.8)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -153,12 +165,12 @@ addLayer("u", {
         24: {
             title: "Upgrade Upgrades",
             description: "boost the above upgrade effect.",
-            cost: new Decimal(300),
+            cost: new Decimal(500),
         },
         25: {
             title: "New type Upgrade!",
             description: "unlock buyable tab.",
-            cost: new Decimal(500),
+            cost: new Decimal(1000),
         },
         31: {
             title: "Point Squared",
@@ -193,7 +205,7 @@ addLayer("u", {
         34: {
             title: "Buyable Power",
             description: "boost second buyable effect.",
-            cost: new Decimal(1e10),
+            cost: new Decimal(1e13),
             unlocked() {
                 return hasUpgrade(this.layer, 25)
             }
@@ -201,7 +213,7 @@ addLayer("u", {
         35: {
             title: "New type Upgrade Again!",
             description: "unlock selection tab.",
-            cost: new Decimal(2e15),
+            cost: new Decimal(1e18),
             unlocked() {
                 return hasUpgrade(this.layer, 25)
             }
@@ -209,9 +221,9 @@ addLayer("u", {
         41: {
             title: "Counting Selection",
             description: "boost point gain based on unlocked selection number.",
-            cost: new Decimal(1e24),
+            cost: new Decimal(5e23),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 35)
             },
             effect() {
                 return new Decimal(player[this.layer].clickablesUnlock.length).add(1)
@@ -223,33 +235,33 @@ addLayer("u", {
         42: {
             title: "Buyable Power 2",
             description: "boost fourth buyable effect.",
-            cost: new Decimal(1e25),
+            cost: new Decimal(2e25),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 35)
             },
         },
         43: {
             title: "Need More Selection",
             description: "unlock two new selection.",
-            cost: new Decimal(2e31),
+            cost: new Decimal(1e33),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 35)
             }
         },
         44: {
             title: "Boost Selection",
-            description: "boost ? row selection effect.",
-            cost: new Decimal(1e70),
+            description: "boost fourth row selection effect.",
+            cost: new Decimal(5e38),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 35)
             }
         },
         45: {
             title: "Last type Upgrade!",
-            description: "unlock selection tab.",
-            cost: new Decimal(1e80),
+            description: "unlock tree tab.",
+            cost: new Decimal(2e41),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 35)
             }
         }
     },
@@ -259,7 +271,7 @@ addLayer("u", {
         11: {
             title: "Add Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let cost = new Decimal(10000).mul(new Decimal(4).pow(x))
+                let cost = new Decimal(10000).mul(new Decimal(5).pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
             },
@@ -283,7 +295,7 @@ addLayer("u", {
         12: {
             title: "Multiple Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let value = new Decimal(3).add(x)
+                let value = new Decimal(4).add(x)
                 let cost = new Decimal(10000).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
@@ -335,7 +347,7 @@ addLayer("u", {
         14: {
             title: "Devide Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let value = new Decimal(4).add(x)
+                let value = new Decimal(5).add(x)
                 let cost = new Decimal(1000).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
@@ -364,7 +376,7 @@ addLayer("u", {
         21: {
             title: "Add First Row",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let value = new Decimal(3).pow(x)
+                let value = new Decimal(3).pow(x.add(1))
                 let cost = new Decimal(1e7).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
@@ -416,21 +428,22 @@ addLayer("u", {
             }
         }
     },
+    unlockCost() {
+        return {
+            0 : 1e21,
+            1 : 1e27,
+            2 : 1e29,
+            3 : 1e33
+        }
+    },
     clickables : {
         rows: 10,
         cols: 3,
-        unlockCost() {
-            return {
-                0 : 1e21,
-                1 : 1e27,
-                2 : 1e29
-            }
-        },
         11: {
             title: "Replicate Point",
             effect() {
-                let value = Decimal.log10(player.points.add(1)).add(1).pow(0.6)
-                if (getClickableState('u', 33)) value = value.pow(clickableEffect('u', 33))
+                let value = Decimal.log10(player.points.add(1)).add(1)
+                if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))
                 return value
             },
             display() { 
@@ -439,9 +452,13 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 11) ||
-                   getClickableState(this.layer, 12) ||
-                   getClickableState(this.layer, 13)) return false
+                if (!getClickableState('u', 51)) {
+                    if(getClickableState(this.layer, 12) ||
+                       getClickableState(this.layer, 13)) return false
+                } else {
+                    if(getClickableState(this.layer, 12) &&
+                       getClickableState(this.layer, 13)) return false
+                }
                 return true
             },
             onClick() {
@@ -453,7 +470,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player[this.layer].unlocked) {
+                if (hasUpgrade("u", 35)) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -463,8 +480,8 @@ addLayer("u", {
         12: {
             title: "Replicate Upgrade Point",
             effect() {
-                let value = Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.3)
-                if (getClickableState('u', 33)) value = value.pow(clickableEffect('u', 33))
+                let value = Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.6)
+                if (getClickableState('u', 42)) value = value.pow(clickableEffect('u', 42))
                 return value
             },
             display() { 
@@ -473,9 +490,13 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 11) ||
-                   getClickableState(this.layer, 12) ||
-                   getClickableState(this.layer, 13)) return false
+                if (!getClickableState('u', 51)) {
+                    if(getClickableState(this.layer, 11) ||
+                       getClickableState(this.layer, 13)) return false
+                } else {
+                    if(getClickableState(this.layer, 11) &&
+                       getClickableState(this.layer, 13)) return false
+                }
                 return true
             },
             onClick() {
@@ -487,7 +508,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player[this.layer].unlocked) {
+                if (hasUpgrade("u", 35)) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -497,8 +518,8 @@ addLayer("u", {
         13: {
             title: "Replicate Buyable",
             effect() {
-                let value = new Decimal(2)
-                if (getClickableState('u', 33)) value = value.pow(clickableEffect('u', 33))
+                let value = new Decimal(3)
+                if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
             display() { 
@@ -507,9 +528,13 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 11) ||
-                   getClickableState(this.layer, 12) ||
-                   getClickableState(this.layer, 13)) return false
+                if (!getClickableState('u', 51)) {
+                    if(getClickableState(this.layer, 11) ||
+                       getClickableState(this.layer, 12)) return false
+                } else {
+                    if(getClickableState(this.layer, 11) &&
+                       getClickableState(this.layer, 12)) return false
+                }
                 return true
             },
             onClick() {
@@ -521,7 +546,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player[this.layer].unlocked) {
+                if (hasUpgrade("u", 35)) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -531,7 +556,9 @@ addLayer("u", {
         21: {
             title: "Free Second Buyable",
             effect() {
-                return Decimal.log10(player.points.add(1)).pow(0.2)
+                let value = Decimal.log10(player.points.add(1)).pow(0.3)
+                if (getClickableState('u', 41)) value = value.times(clickableEffect('u', 41))
+                return value
             },
             display() { 
                 return "gain free second buyables based on points\n" + 
@@ -539,9 +566,13 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 21) ||
-                   getClickableState(this.layer, 22) ||
-                   getClickableState(this.layer, 23)) return false
+                if (!getClickableState('u', 52)) {
+                    if(getClickableState(this.layer, 22) ||
+                       getClickableState(this.layer, 23)) return false
+                } else {
+                    if(getClickableState(this.layer, 22) &&
+                       getClickableState(this.layer, 23)) return false
+                }
                 return true
             },
             onClick() {
@@ -553,7 +584,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.clickables.unlockCost[0])) {
+                if (player.points.gte(tmp.u.unlockCost[0])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -564,7 +595,9 @@ addLayer("u", {
             title: "Free Third Buyable",
             effect() {
                 let value = getBuyableAmount(this.layer, 22)
-                return Decimal.log10(value.add(1)).times(1.5)
+                value = Decimal.log10(value.add(1)).times(3)
+                if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
+                return value
             },
             display() { 
                 return "gain free third buyables based on itself\n" + 
@@ -572,9 +605,13 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 21) ||
-                   getClickableState(this.layer, 22) ||
-                   getClickableState(this.layer, 23)) return false
+                if (!getClickableState('u', 52)) {
+                    if(getClickableState(this.layer, 21) ||
+                       getClickableState(this.layer, 23)) return false
+                } else {
+                    if(getClickableState(this.layer, 21) &&
+                       getClickableState(this.layer, 23)) return false
+                }
                 return true
             },
             onClick() {
@@ -586,7 +623,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.clickables.unlockCost[0])) {
+                if (player.points.gte(tmp.u.unlockCost[0])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -596,7 +633,9 @@ addLayer("u", {
         23: {
             title: "Free Fourth Buyable",
             effect() {
-                return Decimal.log10(player[this.layer].points.add(1)).pow(0.3)
+                let value = Decimal.log10(player[this.layer].points.add(1)).pow(0.5)
+                if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
+                return value
             },
             display() { 
                 return "gain free fourth buyables based on upgrade points\n" + 
@@ -604,9 +643,13 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 21) ||
-                   getClickableState(this.layer, 22) ||
-                   getClickableState(this.layer, 23)) return false
+                if (!getClickableState('u', 52)) {
+                    if(getClickableState(this.layer, 21) ||
+                       getClickableState(this.layer, 22)) return false
+                } else {
+                    if(getClickableState(this.layer, 21) &&
+                       getClickableState(this.layer, 22)) return false
+                }
                 return true
             },
             onClick() {
@@ -618,7 +661,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.clickables.unlockCost[0])) {
+                if (player.points.gte(tmp.u.unlockCost[0])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -628,7 +671,9 @@ addLayer("u", {
         31: {
             title: "Free fifth Buyable",
             effect() {
-                return Decimal.log10(player.points.add(1)).pow(0.2).times(0.5)
+                let value = Decimal.log10(player.points.add(1)).pow(0.2).times(0.7)
+                if (getClickableState('u', 41)) value = value.times(clickableEffect('u', 41))
+                return value
             },
             display() { 
                 return "gain free fifth buyables based on points\n" + 
@@ -636,9 +681,13 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 31) ||
-                   getClickableState(this.layer, 32) ||
-                   getClickableState(this.layer, 33)) return false
+                if (!getClickableState('u', 53)) {
+                    if(getClickableState(this.layer, 32) ||
+                       getClickableState(this.layer, 33)) return false
+                } else {
+                    if(getClickableState(this.layer, 32) &&
+                       getClickableState(this.layer, 33)) return false
+                }
                 return true
             },
             onClick() {
@@ -650,7 +699,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.clickables.unlockCost[0])) {
+                if (player.points.gte(tmp.u.unlockCost[1])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -660,7 +709,9 @@ addLayer("u", {
         32: {
             title: "Free sixth Buyable",
             effect() {
-                return Decimal.log10(player[this.layer].points.add(1)).pow(0.2)
+                let value = Decimal.log10(player[this.layer].points.add(1)).pow(0.2)
+                if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
+                return value
             },
             display() { 
                 return "gain free sixth buyables based on upgrade points\n" + 
@@ -668,9 +719,13 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 31) ||
-                   getClickableState(this.layer, 32) ||
-                   getClickableState(this.layer, 33)) return false
+                if (!getClickableState('u', 53)) {
+                    if(getClickableState(this.layer, 31) ||
+                       getClickableState(this.layer, 33)) return false
+                } else {
+                    if(getClickableState(this.layer, 31) &&
+                       getClickableState(this.layer, 33)) return false
+                }
                 return true
             },
             onClick() {
@@ -682,7 +737,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.clickables.unlockCost[0])) {
+                if (player.points.gte(tmp.u.unlockCost[1])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -690,19 +745,25 @@ addLayer("u", {
             }
         },
         33: {
-            title: "Boost first row",
+            title: "Big Boost",
             effect() {
-                return new Decimal(2)
+                let value = new Decimal(5)
+                if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
+                return value
             },
             display() { 
-                return "Boost first selection row effect\n" + 
-                "currently : ^" + format(clickableEffect(this.layer, this.id))
+                return "Boost point and upgrade point gain\n" + 
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 31) ||
-                   getClickableState(this.layer, 32) ||
-                   getClickableState(this.layer, 33)) return false
+                if (!getClickableState('u', 53)) {
+                    if(getClickableState(this.layer, 31) ||
+                       getClickableState(this.layer, 32)) return false
+                } else {
+                    if(getClickableState(this.layer, 31) &&
+                       getClickableState(this.layer, 32)) return false
+                }
                 return true
             },
             onClick() {
@@ -714,12 +775,231 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.clickables.unlockCost[0])) {
+                if (player.points.gte(tmp.u.unlockCost[1])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        41: {
+            title: "Enhance first column",
+            effect() {
+                let value = new Decimal(1.5)
+                if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                return value
+            },
+            display() { 
+                return "the above upgrades in first column is stronger\n" + 
+                "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 41) ||
+                   getClickableState(this.layer, 42) ||
+                   getClickableState(this.layer, 43)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : {
+                "width": "150px"
+            },
+            unlocked() {
+                if (!hasUpgrade(this.layer, 43)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player.points.gte(tmp.u.unlockCost[2])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        42: {
+            title: "Enhance second column",
+            effect() {
+                let value = new Decimal(1.5)
+                if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                return value
+            },
+            display() { 
+                return "the above upgrades in second column is stronger\n" + 
+                "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 41) ||
+                   getClickableState(this.layer, 42) ||
+                   getClickableState(this.layer, 43)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : {
+                "width": "150px"
+            },
+            unlocked() {
+                if (!hasUpgrade(this.layer, 43)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player.points.gte(tmp.u.unlockCost[2])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        43: {
+            title: "Enhance third column",
+            effect() {
+                let value = new Decimal(1.5)
+                if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                return value
+            },
+            display() { 
+                return "the above upgrades in third column is stronger\n" + 
+                "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 41) ||
+                   getClickableState(this.layer, 42) ||
+                   getClickableState(this.layer, 43)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : {
+                "width": "150px"
+            },
+            unlocked() {
+                if (!hasUpgrade(this.layer, 43)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player.points.gte(tmp.u.unlockCost[2])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        51: {
+            title: "More first selection",
+            effect() {
+                return new Decimal(1)
+            },
+            display() { 
+                return "one more selection in first row" 
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 51) ||
+                   getClickableState(this.layer, 52) ||
+                   getClickableState(this.layer, 53)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) {
+                    setClickableState(this.layer, 11, false)
+                    setClickableState(this.layer, 12, false)
+                    setClickableState(this.layer, 13, false)
+                    doReset(this.layer)
+                }
+            },
+            style : {
+                "width": "150px"
+            },
+            unlocked() {
+                if (!hasUpgrade(this.layer, 43)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player.points.gte(tmp.u.unlockCost[3])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        52: {
+            title: "More second selection",
+            effect() {
+                return new Decimal(1)
+            },
+            display() { 
+                return "one more selection in second row" 
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 51) ||
+                   getClickableState(this.layer, 52) ||
+                   getClickableState(this.layer, 53)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) {
+                    setClickableState(this.layer, 21, false)
+                    setClickableState(this.layer, 22, false)
+                    setClickableState(this.layer, 23, false)
+                    doReset(this.layer)
+                }
+            },
+            style : {
+                "width": "150px"
+            },
+            unlocked() {
+                if (!hasUpgrade(this.layer, 43)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player.points.gte(tmp.u.unlockCost[3])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        53: {
+            title: "More third selection",
+            effect() {
+                return new Decimal(1)
+            },
+            display() { 
+                return "one more selection in third row"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 51) ||
+                   getClickableState(this.layer, 52) ||
+                   getClickableState(this.layer, 53)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) {
+                    setClickableState(this.layer, 31, false)
+                    setClickableState(this.layer, 32, false)
+                    setClickableState(this.layer, 33, false)
+                    doReset(this.layer)
+                }
+            },
+            style : {
+                "width": "150px"
+            },
+            unlocked() {
+                if (!hasUpgrade(this.layer, 43)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player.points.gte(tmp.u.unlockCost[3])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
                 return false
             }
         }
-    }
+    },
+    tree : [["p"],
+    ["left", "blank", "right", "blank"]
+    ["a", "b", "blank", "c", "weirdButton"]]
 })
