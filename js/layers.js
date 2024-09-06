@@ -41,7 +41,10 @@ addLayer("u", {
                 "prestige-button",
                 "blank",
                 "blank",
-                "upgrades"
+                ["row", [["upgrade", 11], ["upgrade", 12], ["upgrade", 13], ["upgrade", 14], ["upgrade", 15]]],
+                ["row", [["upgrade", 21], ["upgrade", 22], ["upgrade", 23], ["upgrade", 24], ["upgrade", 25]]],
+                ["row", [["upgrade", 31], ["upgrade", 32], ["upgrade", 33], ["upgrade", 34], ["upgrade", 35]]],
+                ["row", [["upgrade", 41], ["upgrade", 42], ["upgrade", 43], ["upgrade", 44], ["upgrade", 45]]],
             ],
         },
         "Buyables": {
@@ -83,7 +86,8 @@ addLayer("u", {
                 "prestige-button",
                 "blank",
                 "blank",
-                "tree",
+                ["row", [["upgrade", 111]]],
+                ["row", [["upgrade", 121], "blank", ["upgrade", 122]]],
             ],
             unlocked() {return (hasUpgrade("u", 45))}
         }
@@ -263,6 +267,34 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade(this.layer, 35)
             }
+        },
+        111: {
+            title: "first",
+            description: "first.",
+            cost: new Decimal(2e41),
+            unlocked() {
+                return hasUpgrade(this.layer, 45)
+            },
+            branches : [121, 122],
+            style: { margin: "10px" }
+        },
+        121: {
+            title: "left",
+            description: "second.",
+            cost: new Decimal(2e41),
+            unlocked() {
+                return hasUpgrade(this.layer, 111)
+            },
+            style: { margin: "10px" }
+        },
+        122: {
+            title: "right",
+            description: "third.",
+            cost: new Decimal(2e41),
+            unlocked() {
+                return hasUpgrade(this.layer, 111)
+            },
+            style: { margin: "10px" }
         }
     },
     buyables: {
@@ -998,8 +1030,5 @@ addLayer("u", {
                 return false
             }
         }
-    },
-    tree : [["p"],
-    ["left", "blank", "right", "blank"]
-    ["a", "b", "blank", "c", "weirdButton"]]
+    }
 })
