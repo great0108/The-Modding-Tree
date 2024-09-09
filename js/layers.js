@@ -86,8 +86,8 @@ addLayer("u", {
                 "prestige-button",
                 "blank",
                 "blank",
-                ["row", [["upgrade", 111]]],
-                ["row", [["upgrade", 121], "blank", ["upgrade", 122]]],
+                ["row", [["upgrade", 1011]]],
+                ["row", [["upgrade", 1021], ["upgrade", 1022]]],
             ],
             unlocked() {return (hasUpgrade("u", 45))}
         }
@@ -268,7 +268,7 @@ addLayer("u", {
                 return hasUpgrade(this.layer, 35)
             }
         },
-        111: {
+        1011: {
             title: "first",
             description: "first.",
             cost: new Decimal(2e41),
@@ -278,7 +278,7 @@ addLayer("u", {
             branches : [121, 122],
             style: { margin: "10px" }
         },
-        121: {
+        1021: {
             title: "left",
             description: "second.",
             cost: new Decimal(2e41),
@@ -287,7 +287,7 @@ addLayer("u", {
             },
             style: { margin: "10px" }
         },
-        122: {
+        1022: {
             title: "right",
             description: "third.",
             cost: new Decimal(2e41),
