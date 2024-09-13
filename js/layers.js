@@ -6,6 +6,9 @@ addLayer("u", {
         unlocked: true,
 		points: new Decimal(0),
         clickablesUnlock: [],
+        treePoint: new Decimal(0),
+        treePointSpent : new Decimal(0),
+        treeUnlock : [],
     }},
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -53,7 +56,8 @@ addLayer("u", {
                 "prestige-button",
                 "blank",
                 "blank",
-                "buyables",
+                ["row", [["buyable", 11], ["buyable", 12], ["buyable", 13], ["buyable", 14]]],
+                ["row", [["buyable", 21], ["buyable", 22]]]
             ],
             unlocked() {return (hasUpgrade("u", 25))}
         },
@@ -85,6 +89,18 @@ addLayer("u", {
                 "main-display",
                 "prestige-button",
                 "blank",
+                "blank",
+                ["display-text",
+                    function(){
+                        let a = player[this.layer].treePoint
+                        return a + "tree point"
+                    }
+                ],
+                "blank",
+                ["row", [["buyable", 111], ["buyable", 112]]],
+                "blank",
+                "blank",
+                "respec-button",
                 "blank",
                 ["row", [["upgrade", 1011]]],
                 ["row", [["upgrade", 1021], ["upgrade", 1022]]],
@@ -271,33 +287,139 @@ addLayer("u", {
         1011: {
             title: "first",
             description: "first.",
-            cost: new Decimal(2e41),
-            unlocked() {
-                return hasUpgrade(this.layer, 45)
+            currencyDisplayName: "tree points",
+            cost: new Decimal(1),
+            req : [],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                console.log(this.cost)
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
             },
-            branches : [121, 122],
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePoint.add(cost) 
+            },
+            unlocked() {
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 45)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
+            },
+            branches : [1021, 1022],
             style: { margin: "10px" }
         },
         1021: {
             title: "left",
             description: "second.",
-            cost: new Decimal(2e41),
+            cost: new Decimal(2),
+            req : [1011],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+            },
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePoint.add(cost) 
+            },
             unlocked() {
-                return hasUpgrade(this.layer, 111)
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 1011)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
             },
             style: { margin: "10px" }
         },
         1022: {
             title: "right",
             description: "third.",
-            cost: new Decimal(2e41),
+            cost: new Decimal(2),
+            req : [1011],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+            },
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePoint.add(cost) 
+            },
             unlocked() {
-                return hasUpgrade(this.layer, 111)
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 1011)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
+            },
+            style: { margin: "10px" }
+        },
+        1031: {
+            title: "left",
+            description: "second.",
+            cost: new Decimal(2),
+            req : [1021],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+            },
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePoint.add(cost) 
+            },
+            unlocked() {
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 1011)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
+            },
+            style: { margin: "10px" }
+        },
+        1032: {
+            title: "right",
+            description: "third.",
+            cost: new Decimal(2),
+            req : [1022],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+            },
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePoint.add(cost) 
+            },
+            unlocked() {
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 1011)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
             },
             style: { margin: "10px" }
         }
     },
     buyables: {
+        showRespec() {
+            return true
+        },
+        respec() {
+            player[this.layer].upgrades = player[this.layer].upgrades.filter(x => +x < 1000)
+            doReset(this.layer)
+
+            player[this.layer].treePoint = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
+            player[this.layer].treePointSpent = new Decimal(0)
+        },
+        respecText() { return "Respec upgrade tree" },
         rows: 3,
         cols: 4,
         11: {
@@ -323,6 +445,7 @@ addLayer("u", {
                 player.points = player.points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            style: { margin: "7px" }
         },
         12: {
             title: "Multiple Point",
@@ -350,6 +473,7 @@ addLayer("u", {
                 player.points = player.points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            style: { margin: "7px" }
         },
         13: {
             title: "Multiple Upgrade Point",
@@ -375,6 +499,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            style: { margin: "7px" }
         },
         14: {
             title: "Devide Cost",
@@ -404,6 +529,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            style: { margin: "7px" }
         },
         21: {
             title: "Add First Row",
@@ -430,7 +556,8 @@ addLayer("u", {
             },
             unlocked() {
                 return hasUpgrade(this.layer, 33)
-            }
+            },
+            style: { margin: "7px" }
         },
         22: {
             title: "Devide Buyable Cost",
@@ -457,7 +584,56 @@ addLayer("u", {
             },
             unlocked() {
                 return hasUpgrade(this.layer, 33)
-            }
+            },
+            style: { margin: "7px" }
+        },
+        111: {
+            title: "Buy Tree Point",
+            cost(x=getBuyableAmount(this.layer, this.id)) { 
+                let value = new Decimal(10).add(x)
+                let cost = new Decimal(10).pow(value.mul(x.add(1)))
+                return cost
+            },
+            effect() {
+                player[this.layer].treePoint = player[this.layer].treePoint.add(1)
+            },
+            display() { 
+                return "+1 tree point\n" +
+                 "cost: " + format(this.cost()) + " upgrade points"
+            },
+            canAfford() { return player.points.gte(this.cost()) },
+            buy() {
+                player.points = player.points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            unlocked() {
+                return hasUpgrade(this.layer, 45)
+            },
+            style: { margin: "7px" }
+        },
+        112: {
+            title: "Buy Tree Point",
+            cost(x=getBuyableAmount(this.layer, this.id)) { 
+                let value = new Decimal(10).add(x)
+                let cost = new Decimal(10).pow(value.mul(x.add(1)))
+                return cost
+            },
+            effect() {
+                player[this.layer].treePoint = player[this.layer].treePoint.add(1)
+            },
+            display() { 
+                return "+1 tree point\n" +
+                 "cost: " + format(this.cost()) + " upgrade points"
+            },
+            canAfford() { return player[this.layer].points.gte(this.cost()) },
+            buy() {
+                player[this.layer].points = player[this.layer].points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            unlocked() {
+                return hasUpgrade(this.layer, 45)
+            },
+            style: { margin: "7px" }
         }
     },
     unlockCost() {
@@ -502,7 +678,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (hasUpgrade("u", 35)) {
+                if (hasUpgrade(this.layer, 35)) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -540,7 +716,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (hasUpgrade("u", 35)) {
+                if (hasUpgrade(this.layer, 35)) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -578,7 +754,7 @@ addLayer("u", {
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (hasUpgrade("u", 35)) {
+                if (hasUpgrade(this.layer, 35)) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
