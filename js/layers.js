@@ -105,6 +105,8 @@ addLayer("u", {
                 "blank",
                 ["row", [["upgrade", 1011]]],
                 ["row", [["upgrade", 1021], ["upgrade", 1022]]],
+                ["row", [["upgrade", 1031], ["upgrade", 1032]]],
+                ["row", [["upgrade", 1041], ["upgrade", 1042], ["upgrade", 1043]]],
             ],
             unlocked() {return (hasUpgrade("u", 45))}
         }
@@ -465,16 +467,14 @@ addLayer("u", {
             cost: new Decimal(2),
             req : [[1031], [1032]],
             canAfford() {
-                let check = true
                 for (let req of this.req) {
                     let check = true
                     for (let a of req) {
                         if (!hasUpgrade(this.layer, a)) check = false
                     }
-                    if (check) break
-                }
-                if (check) {
-                    return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+                    if (check) {
+                        return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+                    }
                 }
                 return false
             },
