@@ -27,7 +27,8 @@ addLayer("u", {
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
         if (getClickableState('u', 33)) mult = mult.times(clickableEffect('u', 33))
-        if (getClickableState('u', 1022)) mult = mult.times(clickableEffect('u', 1022))
+        if (hasUpgrade('u', 1022)) mult = mult.times(upgradeEffect('u', 1022))
+        if (hasUpgrade('u', 1032)) mult = mult.times(upgradeEffect('u', 1032))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -287,6 +288,14 @@ addLayer("u", {
                 return hasUpgrade(this.layer, 35)
             }
         },
+        51: {
+            title: "Always Boost",
+            description: "Fourth selection row is always activated and boost it's effect.",
+            cost: new Decimal(5e80),
+            unlocked() {
+                return hasUpgrade(this.layer, 45)
+            }
+        },
         1011: {
             title: "Buyable Power 3",
             description: "Boost third buyable effect.",
@@ -409,7 +418,7 @@ addLayer("u", {
         1032: {
             title: "Tree Power 2",
             description: "Total tree points boost upgrade point gain.",
-            cost: new Decimal(2),
+            cost: new Decimal(3),
             req : [1022],
             canAfford() {
                 for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
@@ -464,7 +473,7 @@ addLayer("u", {
         1042: {
             title: "Buyable Power 4",
             description: "Boost sixth buyable effect.",
-            cost: new Decimal(2),
+            cost: new Decimal(5),
             req : [[1031], [1032]],
             canAfford() {
                 for (let req of this.req) {
@@ -496,7 +505,7 @@ addLayer("u", {
         },
         1043: {
             title: "Tree Production",
-            description: "gain additional tree point based on point.",
+            description: "gain additional first six buyables based on tree point.",
             cost: new Decimal(2),
             req : [1032],
             canAfford() {
@@ -515,6 +524,12 @@ addLayer("u", {
                     return true
                 }
                 return false
+            },
+            effect() {
+                return player[this.layer].treePoint.pow(0.5)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return "+"+format(upgradeEffect(this.layer, this.id))
             },
             style: { margin: "10px" }
         },
@@ -535,7 +550,7 @@ addLayer("u", {
         11: {
             title: "Add Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let cost = new Decimal(10000).mul(new Decimal(3).add(x).pow(x))
+                let cost = new Decimal(1000).mul(new Decimal(3).add(x).pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
             },
@@ -543,6 +558,7 @@ addLayer("u", {
                 let value = getBuyableAmount(this.layer, this.id)
                 if (hasUpgrade(this.layer, 33)) value = value.add(buyableEffect(this.layer, 21))
                 if (getClickableState('u', 13)) value = value.times(clickableEffect('u', 13))
+                if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return value
             },
             display() { 
@@ -570,6 +586,7 @@ addLayer("u", {
                 let value = getBuyableAmount(this.layer, this.id)
                 if (hasUpgrade(this.layer, 33)) value = value.add(buyableEffect(this.layer, 21))
                 if (getClickableState('u', 21)) value = value.add(clickableEffect('u', 21))
+                if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return new Decimal(base).pow(value)
             },
             display() { 
@@ -598,6 +615,7 @@ addLayer("u", {
                 let value = getBuyableAmount(this.layer, this.id)
                 if (hasUpgrade(this.layer, 33)) value = value.add(buyableEffect(this.layer, 21))
                 if (getClickableState('u', 22)) value = value.add(clickableEffect('u', 22))
+                if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return new Decimal(base).pow(value)
             },
             display() { 
@@ -626,6 +644,7 @@ addLayer("u", {
                 let value = getBuyableAmount(this.layer, this.id)
                 if (hasUpgrade(this.layer, 33)) value = value.add(buyableEffect(this.layer, 21))
                 if (getClickableState('u', 23)) value = value.add(clickableEffect('u', 23))
+                if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return new Decimal(base).pow(value.times(tmp.u.exponent))
             },
             display() {
@@ -654,6 +673,7 @@ addLayer("u", {
             effect() {
                 let value = getBuyableAmount(this.layer, this.id)
                 if (getClickableState('u', 31)) value = value.add(clickableEffect('u', 31))
+                if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return value
             },
             display() { 
@@ -680,12 +700,15 @@ addLayer("u", {
                 return cost
             },
             effect() {
+                let base = hasUpgrade(this.layer, 1042) ? 3 : 2
                 let value = getBuyableAmount(this.layer, this.id)
                 if (getClickableState('u', 32)) value = value.add(clickableEffect('u', 32))
-                return new Decimal(2).pow(value)
+                if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
+                return new Decimal(base).pow(value)
             },
-            display() { 
-                return "/2 the buyable cost\n" +
+            display() {
+                let base = hasUpgrade(this.layer, 1042) ? "/3" : "/2"
+                return base + " the buyable cost\n" +
                  "currently: /" + format(buyableEffect(this.layer, this.id)) + "\n\n" +
                  "cost: " + format(this.cost()) + " upgrade points"
             },
@@ -703,6 +726,7 @@ addLayer("u", {
             title: "Buy Tree Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let cost = new Decimal(1e40).mul(new Decimal(1e5).pow(x))
+                if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.9)
                 return cost
             },
             display() { 
@@ -724,6 +748,7 @@ addLayer("u", {
             title: "Buy Tree Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let cost = new Decimal(1e40).mul(new Decimal(1e5).pow(x))
+                if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.9)
                 return cost
             },
             display() { 
@@ -1101,6 +1126,7 @@ addLayer("u", {
             effect() {
                 let value = new Decimal(1.5)
                 if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
@@ -1108,6 +1134,10 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
+                if (hasUpgrade(this.layer, 51)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 41) ||
                    getClickableState(this.layer, 42) ||
@@ -1136,6 +1166,7 @@ addLayer("u", {
             effect() {
                 let value = new Decimal(1.5)
                 if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
@@ -1143,6 +1174,10 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
+                if (hasUpgrade(this.layer, 51)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 41) ||
                    getClickableState(this.layer, 42) ||
@@ -1171,6 +1206,7 @@ addLayer("u", {
             effect() {
                 let value = new Decimal(1.5)
                 if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
@@ -1178,6 +1214,10 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
+                if (hasUpgrade(this.layer, 51)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 41) ||
                    getClickableState(this.layer, 42) ||
