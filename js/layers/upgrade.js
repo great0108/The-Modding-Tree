@@ -26,7 +26,7 @@ addLayer("u", {
             mult = mult.times(buyableEffect("u", 14))  
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
-        if (hasUpgrade('u', 1022)) mult = mult.times(upgradeEffect('u', 1022))
+
         if (hasUpgrade('u', 1032)) mult = mult.times(upgradeEffect('u', 1032))
         return mult
     },
@@ -109,6 +109,8 @@ addLayer("u", {
                 ["row", [["upgrade", 1021], ["upgrade", 1022]]],
                 ["row", [["upgrade", 1031], ["upgrade", 1032]]],
                 ["row", [["upgrade", 1041], ["upgrade", 1042], ["upgrade", 1043]]],
+                ["row", [["upgrade", 1051], ["upgrade", 1052], ["upgrade", 1053]]],
+                ["row", [["upgrade", 1061]]],
             ],
             unlocked() {return (hasUpgrade("u", 45))}
         }
@@ -135,6 +137,7 @@ addLayer("u", {
             cost: new Decimal(5),
             effect() {
                 let value = hasUpgrade('u', 24) ? 2 : 1
+                if(hasUpgrade("u", 1021)) value.mul(upgradeEffect("u", 1021))
                 return Decimal.log10(player.points.add(1)).add(1).pow(value)
             },
             effectDisplay() {  // Add formatting to the effect 
@@ -169,7 +172,9 @@ addLayer("u", {
             description: "Boost upgrade point gain based on itself.",
             cost: new Decimal(50),
             effect() {
-                return Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.8)
+                let value = Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.8)
+                if(hasUpgrade("u", 1022)) value.mul(upgradeEffect("u", 1022))
+                return value
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -471,6 +476,7 @@ addLayer("u", {
                 }
                 return false
             },
+            branches : [1051],
             style: { margin: "10px" }
         },
         1042: {
@@ -503,12 +509,12 @@ addLayer("u", {
                 }
                 return false
             },
-            branches : [1051, 1052, 1053],
+            branches : [1052],
             style: { margin: "10px" }
         },
         1043: {
             title: "Tree Products",
-            description: "gain first six buyables based on tree point.",
+            description: "gain first five buyables based on tree point.",
             cost: new Decimal(2),
             req : [1032],
             canAfford() {
@@ -534,6 +540,7 @@ addLayer("u", {
             effectDisplay() {  // Add formatting to the effect 
                 return "+"+format(upgradeEffect(this.layer, this.id))
             },
+            branches : [1053],
             style: { margin: "10px" }
         },
         1051: {
@@ -558,6 +565,7 @@ addLayer("u", {
                 }
                 return false
             },
+            branches : [1061],
             style: { margin: "10px" }
         },
         1052: {
@@ -582,6 +590,7 @@ addLayer("u", {
                 }
                 return false
             },
+            branches : [1061],
             style: { margin: "10px" }
         },
         1053: {
@@ -606,16 +615,25 @@ addLayer("u", {
                 }
                 return false
             },
+            branches : [1061],
             style: { margin: "10px" }
         },
         1061: {
             title: "Next Layer",
             description: "Unlock Next Layer.",
             cost: new Decimal(2),
-            req : [1043],
+            req : [[1051], [1052], [1053]],
             canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+                for (let req of this.req) {
+                    let check = true
+                    for (let a of req) {
+                        if (!hasUpgrade(this.layer, a)) check = false
+                    }
+                    if (check) {
+                        return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+                    }
+                }
+                return false
             },
             pay() { 
                 let cost = tmp.u.upgrades[this.id].cost
@@ -800,7 +818,6 @@ addLayer("u", {
             effect() {
                 let base = hasUpgrade(this.layer, 1042) ? 3 : 2
                 let value = getBuyableAmount(this.layer, this.id)
-                if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return new Decimal(base).pow(value)
             },
             display() {
@@ -888,10 +905,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 51)) {
+                let count = 1
+                if (getClickableState('u', 51)) count += 1
+                if (hasUpgrade("u", 1051)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 12) ||
                        getClickableState(this.layer, 13)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 12) &&
                        getClickableState(this.layer, 13)) return false
                 }
@@ -926,10 +947,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 51)) {
+                let count = 1
+                if (getClickableState('u', 51)) count += 1
+                if (hasUpgrade("u", 1051)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 11) ||
                        getClickableState(this.layer, 13)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 11) &&
                        getClickableState(this.layer, 13)) return false
                 }
@@ -964,10 +989,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 51)) {
+                let count = 1
+                if (getClickableState('u', 51)) count += 1
+                if (hasUpgrade("u", 1051)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 11) ||
                        getClickableState(this.layer, 12)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 11) &&
                        getClickableState(this.layer, 12)) return false
                 }
@@ -1002,10 +1031,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 52)) {
+                let count = 1
+                if (getClickableState('u', 52)) count += 1
+                if (hasUpgrade("u", 1052)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 22) ||
                        getClickableState(this.layer, 23)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 22) &&
                        getClickableState(this.layer, 23)) return false
                 }
@@ -1041,10 +1074,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 52)) {
+                let count = 1
+                if (getClickableState('u', 52)) count += 1
+                if (hasUpgrade("u", 1052)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 21) ||
                        getClickableState(this.layer, 23)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 21) &&
                        getClickableState(this.layer, 23)) return false
                 }
@@ -1079,10 +1116,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 52)) {
+                let count = 1
+                if (getClickableState('u', 52)) count += 1
+                if (hasUpgrade("u", 1052)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 21) ||
                        getClickableState(this.layer, 22)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 21) &&
                        getClickableState(this.layer, 22)) return false
                 }
@@ -1117,10 +1158,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 53)) {
+                let count = 1
+                if (getClickableState('u', 53)) count += 1
+                if (hasUpgrade("u", 1053)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 32) ||
                        getClickableState(this.layer, 33)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 32) &&
                        getClickableState(this.layer, 33)) return false
                 }
@@ -1155,10 +1200,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 53)) {
+                let count = 1
+                if (getClickableState('u', 53)) count += 1
+                if (hasUpgrade("u", 1053)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 31) ||
                        getClickableState(this.layer, 33)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 31) &&
                        getClickableState(this.layer, 33)) return false
                 }
@@ -1194,10 +1243,14 @@ addLayer("u", {
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
-                if (!getClickableState('u', 53)) {
+                let count = 1
+                if (getClickableState('u', 53)) count += 1
+                if (hasUpgrade("u", 1053)) count += 1
+
+                if (count == 1) {
                     if(getClickableState(this.layer, 31) ||
                        getClickableState(this.layer, 32)) return false
-                } else {
+                } else if (count == 2) {
                     if(getClickableState(this.layer, 31) &&
                        getClickableState(this.layer, 32)) return false
                 }
