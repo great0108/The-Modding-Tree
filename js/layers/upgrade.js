@@ -130,7 +130,7 @@ addLayer("u", {
             cost: new Decimal(3),
         },
         14: {
-            title: "Experience",
+            title: "Self Synergy",
             description: "Boost point gain based on itself.",
             cost: new Decimal(5),
             effect() {
@@ -324,8 +324,8 @@ addLayer("u", {
             style: { margin: "10px" }
         },
         1021: {
-            title: "Self Synergy",
-            description: "Points boost their own generation.",
+            title: "Boost Self Synergy",
+            description: "Boost \"Self Synergy\" upgrade. (upgrade 14)",
             cost: new Decimal(2),
             req : [1011],
             canAfford() {
@@ -355,8 +355,8 @@ addLayer("u", {
             style: { margin: "10px" }
         },
         1022: {
-            title: "Self Synergy 2",
-            description: "Upgrade points boost their own generation.",
+            title: "More More Upgrades",
+            description: "Boost \"More Upgrades\" upgrade. (upgrade 22)",
             cost: new Decimal(2),
             req : [1011],
             canAfford() {
@@ -408,7 +408,8 @@ addLayer("u", {
                 return false
             },
             effect() {
-                return player[this.layer].treePoint.add(player[this.layer].treePointSpent).add(1).pow(2).mul(10)
+                let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
+                return new Decimal(3).pow(total.add(1))
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -439,7 +440,8 @@ addLayer("u", {
                 return false
             },
             effect() {
-                return player[this.layer].treePoint.add(player[this.layer].treePointSpent).add(1).pow(2).mul(10)
+                let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
+                return new Decimal(3).pow(total.add(1))
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -505,8 +507,8 @@ addLayer("u", {
             style: { margin: "10px" }
         },
         1043: {
-            title: "Tree Production",
-            description: "gain additional first six buyables based on tree point.",
+            title: "Tree Products",
+            description: "gain first six buyables based on tree point.",
             cost: new Decimal(2),
             req : [1032],
             canAfford() {
@@ -531,6 +533,102 @@ addLayer("u", {
             },
             effectDisplay() {  // Add formatting to the effect 
                 return "+"+format(upgradeEffect(this.layer, this.id))
+            },
+            style: { margin: "10px" }
+        },
+        1051: {
+            title: "Additional First Selection",
+            description: "Additional selection in first row selection upgrades.",
+            cost: new Decimal(2),
+            req : [1041],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+            },
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
+            },
+            unlocked() {
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 1031)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
+            },
+            style: { margin: "10px" }
+        },
+        1052: {
+            title: "Additional Second Selection",
+            description: "Additional selection in second row selection upgrades.",
+            cost: new Decimal(2),
+            req : [1042],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+            },
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
+            },
+            unlocked() {
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 1031)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
+            },
+            style: { margin: "10px" }
+        },
+        1053: {
+            title: "Additional Third Selection",
+            description: "Additional selection in third row selection upgrades.",
+            cost: new Decimal(2),
+            req : [1043],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+            },
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
+            },
+            unlocked() {
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 1031)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
+            },
+            style: { margin: "10px" }
+        },
+        1061: {
+            title: "Next Layer",
+            description: "Unlock Next Layer.",
+            cost: new Decimal(2),
+            req : [1043],
+            canAfford() {
+                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+            },
+            pay() { 
+                let cost = tmp.u.upgrades[this.id].cost
+                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
+            },
+            unlocked() {
+                if (player[this.layer].treeUnlock.includes(this.id)) return true
+                if (hasUpgrade(this.layer, 1031)) {
+                    player[this.layer].treeUnlock.push(this.id)
+                    return true
+                }
+                return false
             },
             style: { margin: "10px" }
         },
