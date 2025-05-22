@@ -76,7 +76,7 @@ addLayer("u", {
                         if (!hasUpgrade("u", 43) && a >= 2) return "all selections are unlocked"
                         if (a in tmp.u.unlockCost) {
                             return "next selection is unlocked at " +
-                             format(tmp.u.unlockCost[a]) + " points"
+                             format(tmp.u.unlockCost[a]) + " upgrade points"
                         }
                         return "all selections are unlocked"
                     }
@@ -172,7 +172,7 @@ addLayer("u", {
             description: "Boost upgrade point gain based on itself.",
             cost: new Decimal(50),
             effect() {
-                let value = Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.8)
+                let value = Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.9)
                 if(hasUpgrade("u", 1022)) value.mul(upgradeEffect("u", 1022))
                 return value
             },
@@ -265,7 +265,7 @@ addLayer("u", {
         42: {
             title: "Buyable Power 2",
             description: "Boost fourth buyable effect.",
-            cost: new Decimal(2e25),
+            cost: new Decimal(1e26),
             unlocked() {
                 return hasUpgrade(this.layer, 35)
             },
@@ -281,7 +281,7 @@ addLayer("u", {
         44: {
             title: "Boost Selection",
             description: "Boost fourth selection row effect.",
-            cost: new Decimal(1e39),
+            cost: new Decimal(1e42),
             unlocked() {
                 return hasUpgrade(this.layer, 35)
             }
@@ -289,7 +289,7 @@ addLayer("u", {
         45: {
             title: "Last type Upgrade!",
             description: "Unlock tree tab.",
-            cost: new Decimal(5e41),
+            cost: new Decimal(1e48),
             unlocked() {
                 return hasUpgrade(this.layer, 35)
             }
@@ -884,9 +884,9 @@ addLayer("u", {
     unlockCost() {
         return {
             0 : 1e21,
-            1 : 1e27,
-            2 : 1e29,
-            3 : 1e33
+            1 : 1e30,
+            2 : 1e34,
+            3 : 1e38
         }
     },
     clickables : {
@@ -922,8 +922,11 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
@@ -964,8 +967,11 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
@@ -1006,8 +1012,11 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
@@ -1048,12 +1057,15 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[0])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[0])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1091,12 +1103,15 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[0])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[0])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1133,12 +1148,15 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[0])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[0])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1148,7 +1166,7 @@ addLayer("u", {
         31: {
             title: "Static Boost",
             effect() {
-                let value = new Decimal(10)
+                let value = new Decimal(40)
                 if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
                 return value
             },
@@ -1175,12 +1193,15 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[1])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[1])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1190,7 +1211,7 @@ addLayer("u", {
         32: {
             title: "Time Boost",
             effect() {
-                let value = new Decimal(player[this.layer].resetTime + 1).log10().mul(5).add(1)
+                let value = new Decimal(player[this.layer].resetTime + 1).log10().mul(25).add(1)
                 if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
                 return value
             },
@@ -1217,12 +1238,15 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[1])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[1])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1232,8 +1256,8 @@ addLayer("u", {
         33: {
             title: "Reverse Time Boost",
             effect() {
-                let value = new Decimal(player[this.layer].resetTime + 2).log10().mul(5).add(1)
-                value = new Decimal(100).div(value)
+                let value = new Decimal(player[this.layer].resetTime + 2).log10().mul(25).add(1)
+                value = new Decimal(1000).div(value)
                 if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
@@ -1260,12 +1284,15 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[1])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[1])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1275,8 +1302,8 @@ addLayer("u", {
         41: {
             title: "Enhance first row",
             effect() {
-                let value = new Decimal(1.5)
-                if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                let value = new Decimal(2)
+                if (hasUpgrade(this.layer, 44)) value = value.add(1)
                 if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
@@ -1299,13 +1326,16 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[2])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[2])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1315,8 +1345,8 @@ addLayer("u", {
         42: {
             title: "Enhance second row",
             effect() {
-                let value = new Decimal(1.5)
-                if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                let value = new Decimal(2)
+                if (hasUpgrade(this.layer, 44)) value = value.add(1)
                 if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
@@ -1339,13 +1369,16 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[2])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[2])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1355,8 +1388,8 @@ addLayer("u", {
         43: {
             title: "Enhance third row",
             effect() {
-                let value = new Decimal(1.5)
-                if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
+                let value = new Decimal(2)
+                if (hasUpgrade(this.layer, 44)) value = value.add(1)
                 if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
@@ -1379,13 +1412,16 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[2])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[2])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1416,13 +1452,16 @@ addLayer("u", {
                     doReset(this.layer)
                 }
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[3])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[3])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1453,13 +1492,16 @@ addLayer("u", {
                     doReset(this.layer)
                 }
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[3])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[3])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
@@ -1490,13 +1532,16 @@ addLayer("u", {
                     doReset(this.layer)
                 }
             },
-            style : {
-                "width": "150px"
+            style() {
+                let css = { width: "150px" }
+                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+                return css
             },
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
-                if (player.points.gte(tmp.u.unlockCost[3])) {
+                if (player[this.layer].points.gte(tmp.u.unlockCost[3])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }
