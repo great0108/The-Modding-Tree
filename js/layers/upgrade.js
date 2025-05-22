@@ -26,7 +26,6 @@ addLayer("u", {
             mult = mult.times(buyableEffect("u", 14))  
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
-        if (getClickableState('u', 33)) mult = mult.times(clickableEffect('u', 33))
         if (hasUpgrade('u', 1022)) mult = mult.times(upgradeEffect('u', 1022))
         if (hasUpgrade('u', 1032)) mult = mult.times(upgradeEffect('u', 1032))
         return mult
@@ -67,6 +66,8 @@ addLayer("u", {
             content: [
                 "main-display",
                 "prestige-button",
+                "blank",
+                ["display-test", "changing selection upgrade makes upgrade layer reset"],
                 "blank",
                 ["display-text",
                     function(){
@@ -672,7 +673,6 @@ addLayer("u", {
             },
             effect() {
                 let value = getBuyableAmount(this.layer, this.id)
-                if (getClickableState('u', 31)) value = value.add(clickableEffect('u', 31))
                 if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return value
             },
@@ -702,7 +702,6 @@ addLayer("u", {
             effect() {
                 let base = hasUpgrade(this.layer, 1042) ? 3 : 2
                 let value = getBuyableAmount(this.layer, this.id)
-                if (getClickableState('u', 32)) value = value.add(clickableEffect('u', 32))
                 if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return new Decimal(base).pow(value)
             },
@@ -820,7 +819,7 @@ addLayer("u", {
             title: "Replicate Upgrade Point",
             effect() {
                 let value = Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.6)
-                if (getClickableState('u', 42)) value = value.pow(clickableEffect('u', 42))
+                if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))
                 return value
             },
             display() { 
@@ -858,7 +857,7 @@ addLayer("u", {
             title: "Replicate Buyable",
             effect() {
                 let value = new Decimal(3)
-                if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
+                if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))
                 return value
             },
             display() { 
@@ -896,7 +895,7 @@ addLayer("u", {
             title: "Free Second Buyable",
             effect() {
                 let value = Decimal.log10(player.points.add(1)).pow(0.3)
-                if (getClickableState('u', 41)) value = value.times(clickableEffect('u', 41))
+                if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
                 return value
             },
             display() { 
@@ -973,7 +972,7 @@ addLayer("u", {
             title: "Free Fourth Buyable",
             effect() {
                 let value = Decimal.log10(player[this.layer].points.add(1)).pow(0.5)
-                if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
+                if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
                 return value
             },
             display() { 
@@ -1008,15 +1007,15 @@ addLayer("u", {
             }
         },
         31: {
-            title: "Free fifth Buyable",
+            title: "Static Boost",
             effect() {
-                let value = Decimal.log10(player.points.add(1)).pow(0.2).times(0.7)
-                if (getClickableState('u', 41)) value = value.times(clickableEffect('u', 41))
+                let value = new Decimal(10)
+                if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
                 return value
             },
             display() { 
-                return "Gain free fifth buyables based on points\n" + 
-                "currently : +" + format(clickableEffect(this.layer, this.id))
+                return "Static boost for points\n" + 
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
@@ -1046,15 +1045,15 @@ addLayer("u", {
             }
         },
         32: {
-            title: "Free sixth Buyable",
+            title: "Time Boost",
             effect() {
-                let value = Decimal.log10(player[this.layer].points.add(1)).pow(0.2)
-                if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
+                let value = new Decimal(player[this.layer].resetTime + 1).log10().mul(5).add(1)
+                if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
                 return value
             },
             display() { 
-                return "Gain free sixth buyables based on upgrade points\n" + 
-                "currently : +" + format(clickableEffect(this.layer, this.id))
+                return "Boost points based on time spent after upgrade layer reset\n" + 
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
@@ -1084,14 +1083,15 @@ addLayer("u", {
             }
         },
         33: {
-            title: "Big Boost",
+            title: "Reverse Time Boost",
             effect() {
-                let value = new Decimal(5)
+                let value = new Decimal(player[this.layer].resetTime + 2).log10().mul(5).add(1)
+                value = new Decimal(100).div(value)
                 if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
             display() { 
-                return "Boost point and upgrade point gain\n" + 
+                return "Boost point, decreasing based on time spent after upgrade layer reset\n" + 
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
@@ -1122,7 +1122,7 @@ addLayer("u", {
             }
         },
         41: {
-            title: "Enhance first column",
+            title: "Enhance first row",
             effect() {
                 let value = new Decimal(1.5)
                 if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
@@ -1130,7 +1130,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "The above upgrades in first column is stronger\n" + 
+                return "The selection upgrades in first row is stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
@@ -1162,7 +1162,7 @@ addLayer("u", {
             }
         },
         42: {
-            title: "Enhance second column",
+            title: "Enhance second row",
             effect() {
                 let value = new Decimal(1.5)
                 if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
@@ -1170,7 +1170,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "The above upgrades in second column is stronger\n" + 
+                return "The selection upgrades in second row is stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
@@ -1202,7 +1202,7 @@ addLayer("u", {
             }
         },
         43: {
-            title: "Enhance third column",
+            title: "Enhance third row",
             effect() {
                 let value = new Decimal(1.5)
                 if (hasUpgrade(this.layer, 44)) value = value.add(0.3)
@@ -1210,7 +1210,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "The above upgrades in third column is stronger\n" + 
+                return "The selection upgrades in third row is stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
