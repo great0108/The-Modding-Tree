@@ -23,7 +23,7 @@ addLayer("u", {
         if (hasUpgrade('u', 22)) mult = mult.times(upgradeEffect('u', 22))
         if (hasUpgrade('u', 25)) {
             mult = mult.times(buyableEffect("u", 13)) 
-            mult = mult.times(buyableEffect("u", 14))  
+            mult = mult.times(buyableEffect("u", 14).pow(this.exponent))  
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
 
@@ -213,7 +213,7 @@ addLayer("u", {
         32: {
             title: "Buyable Boost",
             description: "First buyable also multiply your point gain.",
-            cost: new Decimal(3e5),
+            cost: new Decimal(5e5),
             unlocked() {
                 return hasUpgrade(this.layer, 25)
             },
@@ -281,7 +281,7 @@ addLayer("u", {
         44: {
             title: "Boost Selection",
             description: "Boost fourth selection row effect.",
-            cost: new Decimal(1e42),
+            cost: new Decimal(1e43),
             unlocked() {
                 return hasUpgrade(this.layer, 35)
             }
@@ -782,7 +782,7 @@ addLayer("u", {
         21: {
             title: "Add First Row",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let value = new Decimal(3).pow(x.add(1))
+                let value = new Decimal(5).pow(x.add(1).pow(0.8))
                 let cost = new Decimal(1e7).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
