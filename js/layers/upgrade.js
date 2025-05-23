@@ -1,3 +1,46 @@
+const BuyableStyle = { margin: "7px" }
+const TreeStyle = { margin: "10px" }
+
+function SelectionStyle() {
+    let css = { width: "150px" }
+    if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+    else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
+    return css
+}
+function TreeAffold() {
+    for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
+    return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+}
+function TreeMultiAffold() {
+    for (let req of this.req) {
+        let check = true
+        for (let a of req) {
+            if (!hasUpgrade(this.layer, a)) check = false
+        }
+        if (check) {
+            return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
+        }
+    }
+    return false
+}
+function TreePay() {
+    let cost = tmp.u.upgrades[this.id].cost
+    player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
+    player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
+}
+function TreeUnlock(ids) {
+    function a() {
+        if (player[this.layer].treeUnlock.includes(this.id)) return true
+        if (ids.some(id => hasUpgrade(this.layer, id))) {
+            player[this.layer].treeUnlock.push(this.id)
+            return true
+        }
+        return false
+    }
+    return a
+}
+
+
 addLayer("u", {
     name: "upgrade", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "U", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -142,8 +185,8 @@ addLayer("u", {
                 if(hasUpgrade("u", 1021)) value = value.mul(upgradeEffect("u", 1021))
                 return value
             },
-            effectDisplay() {  // Add formatting to the effect 
-                // this.layer == p, this.id == 14
+            effectDisplay() {
+                // this.layer == u, this.id == 14
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             }, 
         },
@@ -154,7 +197,7 @@ addLayer("u", {
             effect() {
                 return Decimal.log10(player[this.layer].points.add(1)).add(1)
             },
-            effectDisplay() {  // Add formatting to the effect 
+            effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             }, 
         },
@@ -165,7 +208,7 @@ addLayer("u", {
             effect() {
                 return Decimal.log10(player.points.add(1)).add(1)
             },
-            effectDisplay() {  // Add formatting to the effect 
+            effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             }, 
         },
@@ -178,7 +221,7 @@ addLayer("u", {
                 if(hasUpgrade("u", 1022)) value = value.mul(upgradeEffect("u", 1022))
                 return value
             },
-            effectDisplay() {  // Add formatting to the effect 
+            effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             }, 
         },
@@ -190,7 +233,7 @@ addLayer("u", {
                 let effect = new Decimal(10000).div(Decimal.max(new Decimal(10), player.points.add(1))).pow(0.3)
                 return Decimal.max(new Decimal(1), effect)
             },
-            effectDisplay() {  // Add formatting to the effect 
+            effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             }, 
         },
@@ -222,7 +265,7 @@ addLayer("u", {
             effect() {
                 return buyableEffect(this.layer, 11).add(1)
             },
-            effectDisplay() {  // Add formatting to the effect 
+            effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             }, 
         },
@@ -260,7 +303,7 @@ addLayer("u", {
             effect() {
                 return new Decimal(player[this.layer].clickablesUnlock.length).add(1).pow(2)
             },
-            effectDisplay() {  // Add formatting to the effect 
+            effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             }, 
         },
@@ -302,48 +345,20 @@ addLayer("u", {
             currencyDisplayName: "tree points",
             cost: new Decimal(3),
             req : [],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 45)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([45]),
             branches : [1021, 1022],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1021: {
             title: "Boost Self Synergy",
             description: "Boost \"Self Synergy\" upgrade. (upgrade 14)",
             cost: new Decimal(2),
             req : [1011],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1011)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1011]),
             effect() {
                 return Decimal.log10(player.points.add(1)).add(1).pow(2)
             },
@@ -351,30 +366,16 @@ addLayer("u", {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             },
             branches : [1031],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1022: {
             title: "More More Upgrades",
             description: "Boost \"More Upgrades\" upgrade. (upgrade 22)",
             cost: new Decimal(2),
             req : [1011],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1011)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1011]),
             effect() {
                 return Decimal.log10(player.points.add(1)).add(1).pow(1.5)
             },
@@ -382,30 +383,16 @@ addLayer("u", {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             },
             branches : [1032],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1031: {
             title: "Tree Power",
             description: "Total tree points boost point gain.",
             cost: new Decimal(2),
             req : [1021],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1021)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1021]),
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
                 return new Decimal(2).pow(total.add(1))
@@ -414,30 +401,16 @@ addLayer("u", {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             },
             branches : [1041, 1042],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1032: {
             title: "Tree Power 2",
             description: "Total tree points boost upgrade point gain.",
             cost: new Decimal(3),
             req : [1022],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1022)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1022]),
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
                 return new Decimal(2).pow(total.add(1))
@@ -446,88 +419,38 @@ addLayer("u", {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             },
             branches : [1042, 1043],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1041: {
             title: "Cheap Tree",
             description: "Lower tree point cost ^0.95.",
             cost: new Decimal(2),
             req : [1031],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1031)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1031]),
             branches : [1051],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1042: {
             title: "Buyable Power 4",
             description: "Boost sixth buyable effect.",
             cost: new Decimal(5),
             req : [[1031], [1032]],
-            canAfford() {
-                for (let req of this.req) {
-                    let check = true
-                    for (let a of req) {
-                        if (!hasUpgrade(this.layer, a)) check = false
-                    }
-                    if (check) {
-                        return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-                    }
-                }
-                return false
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1031) || hasUpgrade(this.layer, 1032)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeMultiAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1031, 1032]),
             branches : [1052],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1043: {
             title: "Tree Products",
             description: "gain first five buyables based on tree point.",
             cost: new Decimal(2),
             req : [1032],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1032)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1032]),
             effect() {
                 return player[this.layer].treePoint.pow(0.5)
             },
@@ -535,126 +458,59 @@ addLayer("u", {
                 return "+"+format(upgradeEffect(this.layer, this.id))
             },
             branches : [1053],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1051: {
             title: "Additional First Selection",
             description: "Additional selection in first row selection upgrades.",
             cost: new Decimal(2),
             req : [1041],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1041)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1041]),
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(1)
             },
             branches : [1061],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1052: {
             title: "Additional Second Selection",
             description: "Additional selection in second row selection upgrades.",
             cost: new Decimal(2),
             req : [1042],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1042)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1042]),
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(2)
             },
             branches : [1061],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1053: {
             title: "Additional Third Selection",
             description: "Additional selection in third row selection upgrades.",
             cost: new Decimal(2),
             req : [1043],
-            canAfford() {
-                for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
-                return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1043)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1043]),
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(3)
             },
             branches : [1061],
-            style: { margin: "10px" }
+            style: TreeStyle
         },
         1061: {
             title: "Next Layer",
             description: "Unlock Next Layer.",
             cost: new Decimal(10),
             req : [[1051], [1052], [1053]],
-            canAfford() {
-                for (let req of this.req) {
-                    let check = true
-                    for (let a of req) {
-                        if (!hasUpgrade(this.layer, a)) check = false
-                    }
-                    if (check) {
-                        return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
-                    }
-                }
-                return false
-            },
-            pay() { 
-                let cost = tmp.u.upgrades[this.id].cost
-                player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
-                player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
-            },
-            unlocked() {
-                if (player[this.layer].treeUnlock.includes(this.id)) return true
-                if (hasUpgrade(this.layer, 1051) || hasUpgrade(this.layer, 1052) || hasUpgrade(this.layer, 1053)) {
-                    player[this.layer].treeUnlock.push(this.id)
-                    return true
-                }
-                return false
-            },
-            // effect() {
-            //     player["p"].unlocked = true
-            // },
-            style: { margin: "10px" }
+            canAfford : TreeMultiAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1051, 1052, 1053]),
+            style: TreeStyle
         },
     },
     buyables: {
@@ -704,7 +560,7 @@ addLayer("u", {
                 player.points = player.points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
-            style: { margin: "7px" }
+            style: BuyableStyle
         },
         12: {
             title: "Multiple Point",
@@ -733,7 +589,7 @@ addLayer("u", {
                 player.points = player.points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
-            style: { margin: "7px" }
+            style: BuyableStyle
         },
         13: {
             title: "Multiple Upgrade Point",
@@ -762,7 +618,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
-            style: { margin: "7px" }
+            style: BuyableStyle
         },
         14: {
             title: "Devide Cost",
@@ -793,7 +649,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
-            style: { margin: "7px" }
+            style: BuyableStyle
         },
         21: {
             title: "Add First Row",
@@ -821,7 +677,7 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade(this.layer, 33)
             },
-            style: { margin: "7px" }
+            style: BuyableStyle
         },
         22: {
             title: "Devide Buyable Cost",
@@ -850,7 +706,7 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade(this.layer, 33)
             },
-            style: { margin: "7px" }
+            style: BuyableStyle
         },
         111: {
             title: "Buy Tree Point",
@@ -872,7 +728,7 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade(this.layer, 45)
             },
-            style: { margin: "7px" }
+            style: BuyableStyle
         },
         112: {
             title: "Buy Tree Point",
@@ -894,7 +750,7 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade(this.layer, 45)
             },
-            style: { margin: "7px" }
+            style: BuyableStyle
         }
     },
     unlockCost() {
@@ -938,12 +794,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (hasUpgrade(this.layer, 35)) {
@@ -983,12 +834,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (hasUpgrade(this.layer, 35)) {
@@ -1028,12 +874,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (hasUpgrade(this.layer, 35)) {
@@ -1073,12 +914,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (player[this.layer].points.gte(tmp.u.unlockCost[0])) {
@@ -1119,12 +955,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (player[this.layer].points.gte(tmp.u.unlockCost[0])) {
@@ -1164,12 +995,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (player[this.layer].points.gte(tmp.u.unlockCost[0])) {
@@ -1209,12 +1035,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (player[this.layer].points.gte(tmp.u.unlockCost[1])) {
@@ -1254,12 +1075,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (player[this.layer].points.gte(tmp.u.unlockCost[1])) {
@@ -1300,12 +1116,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (player[this.layer].points.gte(tmp.u.unlockCost[1])) {
@@ -1342,12 +1153,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
@@ -1385,12 +1191,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
@@ -1428,12 +1229,7 @@ addLayer("u", {
                 setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
                 if (!getClickableState(this.layer, this.id)) doReset(this.layer)
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
@@ -1468,12 +1264,7 @@ addLayer("u", {
                     doReset(this.layer)
                 }
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
@@ -1508,12 +1299,7 @@ addLayer("u", {
                     doReset(this.layer)
                 }
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
@@ -1548,12 +1334,7 @@ addLayer("u", {
                     doReset(this.layer)
                 }
             },
-            style() {
-                let css = { width: "150px" }
-                if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-                else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
-                return css
-            },
+            style : SelectionStyle,
             unlocked() {
                 if (!hasUpgrade(this.layer, 43)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
