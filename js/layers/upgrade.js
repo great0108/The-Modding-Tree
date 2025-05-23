@@ -9,6 +9,7 @@ addLayer("u", {
         treePoint: new Decimal(0),
         treePointSpent : new Decimal(0),
         treeUnlock : [],
+        resetSelectionRows : []
     }},
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -299,7 +300,7 @@ addLayer("u", {
             title: "Buyable Power 3",
             description: "Boost third buyable effect.",
             currencyDisplayName: "tree points",
-            cost: new Decimal(2),
+            cost: new Decimal(3),
             req : [],
             canAfford() {
                 for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
@@ -449,8 +450,8 @@ addLayer("u", {
         },
         1041: {
             title: "Cheap Tree",
-            description: "Lower tree point cost ^0.9.",
-            cost: new Decimal(3),
+            description: "Lower tree point cost ^0.95.",
+            cost: new Decimal(2),
             req : [1031],
             canAfford() {
                 for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
@@ -508,7 +509,7 @@ addLayer("u", {
         1043: {
             title: "Tree Products",
             description: "gain first five buyables based on tree point.",
-            cost: new Decimal(3),
+            cost: new Decimal(2),
             req : [1032],
             canAfford() {
                 for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
@@ -558,6 +559,9 @@ addLayer("u", {
                 }
                 return false
             },
+            onPurchase() {
+                player[this.layer].resetSelectionRows.push(1)
+            },
             branches : [1061],
             style: { margin: "10px" }
         },
@@ -582,6 +586,9 @@ addLayer("u", {
                     return true
                 }
                 return false
+            },
+            onPurchase() {
+                player[this.layer].resetSelectionRows.push(2)
             },
             branches : [1061],
             style: { margin: "10px" }
@@ -608,13 +615,16 @@ addLayer("u", {
                 }
                 return false
             },
+            onPurchase() {
+                player[this.layer].resetSelectionRows.push(3)
+            },
             branches : [1061],
             style: { margin: "10px" }
         },
         1061: {
             title: "Next Layer",
             description: "Unlock Next Layer.",
-            cost: new Decimal(8),
+            cost: new Decimal(10),
             req : [[1051], [1052], [1053]],
             canAfford() {
                 for (let req of this.req) {
@@ -655,6 +665,16 @@ addLayer("u", {
             player[this.layer].upgrades = player[this.layer].upgrades.filter(x => +x < 1000)
             player[this.layer].treePoint = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
             player[this.layer].treePointSpent = new Decimal(0)
+
+            let rows = player[this.layer].resetSelectionRows
+            for(let row of rows) {
+                for(let i = 1; i < 4; i++) {
+                    let id = row * 10 + i
+                    setClickableState(this.layer, id, false)
+                }
+            }
+
+            player[this.layer].resetSelectionRows = []
             doReset(this.layer)
         },
         respecText() { return "Respec upgrade tree" },
@@ -836,7 +856,7 @@ addLayer("u", {
             title: "Buy Tree Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let cost = new Decimal(1e40).mul(new Decimal(1e5).pow(x))
-                if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.9)
+                if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.95)
                 return cost
             },
             display() { 
@@ -858,7 +878,7 @@ addLayer("u", {
             title: "Buy Tree Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let cost = new Decimal(1e40).mul(new Decimal(1e5).pow(x))
-                if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.9)
+                if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.95)
                 return cost
             },
             display() { 
