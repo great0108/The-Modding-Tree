@@ -23,7 +23,7 @@ addLayer("u", {
         if (hasUpgrade('u', 22)) mult = mult.times(upgradeEffect('u', 22))
         if (hasUpgrade('u', 25)) {
             mult = mult.times(buyableEffect("u", 13)) 
-            mult = mult.times(buyableEffect("u", 14).pow(this.exponent))  
+            mult = mult.times(buyableEffect("u", 14))  
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
 
