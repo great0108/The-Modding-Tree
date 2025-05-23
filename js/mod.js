@@ -3,7 +3,7 @@ let modInfo = {
 	id: "mechanicTree",
 	author: "great",
 	pointsName: "points",
-	modFiles: ["layers/upgrade.js", "tree.js"],
+	modFiles: ["layers/upgrade.js", "layers/prestige.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
