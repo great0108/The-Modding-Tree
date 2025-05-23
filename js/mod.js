@@ -23,7 +23,7 @@ let changelog = `<h1>Changelog:</h1><br>
 		- Added Upgrades tab.<br>
 		- Added Buyables tab.<br>
 		- Added Selection tab.<br>
-		- Added Tree tab.<br>`
+		- Added Tree tab.`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
