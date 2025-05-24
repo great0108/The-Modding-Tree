@@ -80,7 +80,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return hasUpgrade(this.layer, 1061)
+	return player.points.gte("1e10000")
 }
 
 

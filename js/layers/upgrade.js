@@ -1242,9 +1242,6 @@ addLayer("u", {
         },
         51: {
             title: "More first selection",
-            effect() {
-                return new Decimal(1)
-            },
             display() { 
                 return "One more selection in first row" 
             },
@@ -1277,9 +1274,6 @@ addLayer("u", {
         },
         52: {
             title: "More second selection",
-            effect() {
-                return new Decimal(1)
-            },
             display() { 
                 return "One more selection in second row" 
             },
@@ -1312,9 +1306,6 @@ addLayer("u", {
         },
         53: {
             title: "More third selection",
-            effect() {
-                return new Decimal(1)
-            },
             display() { 
                 return "One more selection in third row"
             },
