@@ -104,7 +104,9 @@ addLayer("u", {
                 ["row", [["buyable", 11], ["buyable", 12], ["buyable", 13], ["buyable", 14]]],
                 ["row", [["buyable", 21], ["buyable", 22]]]
             ],
-            unlocked() {return (hasUpgrade("u", 25))}
+            unlocked() {
+                return (hasUpgrade("u", 25))
+            }
         },
         "Selection": {
             content: [
@@ -129,7 +131,9 @@ addLayer("u", {
                 "blank",
                 "clickables",
             ],
-            unlocked() {return hasUpgrade("u", 35)}
+            unlocked() {
+                return hasUpgrade("u", 35)
+            }
         },
         "Tree" : {
             content: [
@@ -156,7 +160,9 @@ addLayer("u", {
                 ["row", [["upgrade", 1051], ["upgrade", 1052], ["upgrade", 1053]]],
                 ["row", [["upgrade", 1061]]],
             ],
-            unlocked() {return (hasUpgrade("u", 45))}
+            unlocked() {
+                return (hasUpgrade("u", 45))
+            }
         }
     },
     upgrades: {
@@ -252,7 +258,7 @@ addLayer("u", {
             description: "Base point gain is squared.",
             cost: new Decimal(2e4),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             }
         },
         32: {
@@ -260,7 +266,7 @@ addLayer("u", {
             description: "First buyable also multiply your point gain.",
             cost: new Decimal(5e5),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             },
             effect() {
                 return buyableEffect(this.layer, 11).add(1)
@@ -274,7 +280,7 @@ addLayer("u", {
             description: "Unlock two new buyables.",
             cost: new Decimal(1e7),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             }
         },
         34: {
@@ -282,7 +288,7 @@ addLayer("u", {
             description: "Boost second buyable effect.",
             cost: new Decimal(1e13),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             }
         },
         35: {
@@ -290,7 +296,7 @@ addLayer("u", {
             description: "Unlock selection tab.",
             cost: new Decimal(1e18),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             }
         },
         41: {
@@ -298,7 +304,7 @@ addLayer("u", {
             description: "Boost point gain based on unlocked selection number.",
             cost: new Decimal(1e23),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             },
             effect() {
                 return new Decimal(player[this.layer].clickablesUnlock.length).add(1).pow(2)
@@ -312,7 +318,7 @@ addLayer("u", {
             description: "Boost fourth buyable effect.",
             cost: new Decimal(1e26),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             },
         },
         43: {
@@ -320,7 +326,7 @@ addLayer("u", {
             description: "Unlock two new selection rows.",
             cost: new Decimal(1e33),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             }
         },
         44: {
@@ -328,7 +334,7 @@ addLayer("u", {
             description: "Boost fourth selection row effect.",
             cost: new Decimal(1e43),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             }
         },
         45: {
@@ -336,7 +342,7 @@ addLayer("u", {
             description: "Unlock tree tab.",
             cost: new Decimal(1e48),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             }
         },
         1011: {

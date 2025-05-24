@@ -21,6 +21,13 @@ addLayer("p", {
         return new Decimal(1)
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
+    effect() {
+        return player["p"].points.mul(2).add(1).pow(2)
+    },
+    effectDescription() { // Optional text to describe the effects
+        eff = this.effect()
+        return "which are boosting points by "+format(this.effect())
+    },
     branches: ["u"],
     hotkeys: [
         {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
@@ -28,9 +35,11 @@ addLayer("p", {
     unlocked() {
         return hasUpgrade("u", 1061)
     },
-    layerShown(){return hasUpgrade("u", 1061)},
+    layerShown() {
+        return hasUpgrade("u", 1061) || player["p"].unlocked
+    },
     tabFormat: {
-        "Upgrades": {
+        "Main": {
             content: [
                 "main-display",
                 "prestige-button",
