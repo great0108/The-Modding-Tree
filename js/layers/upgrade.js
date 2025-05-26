@@ -402,7 +402,7 @@ addLayer("u", {
             unlocked : TreeUnlock([1021]),
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-                return total.add(1).pow(3)
+                return total.add(2).pow(4).div(16)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -420,7 +420,7 @@ addLayer("u", {
             unlocked : TreeUnlock([1022]),
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-                return total.add(1).pow(3)
+                return total.add(2).pow(4).div(16)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
