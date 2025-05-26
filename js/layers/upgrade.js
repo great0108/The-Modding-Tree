@@ -1016,7 +1016,7 @@ addLayer("u", {
             title: "Static Boost",
             effect() {
                 let value = new Decimal(40)
-                if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
+                if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
             display() { 
@@ -1056,7 +1056,7 @@ addLayer("u", {
             title: "Time Boost",
             effect() {
                 let value = new Decimal(player[this.layer].resetTime + 1).log10().mul(25).add(1)
-                if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
+                if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
             display() { 

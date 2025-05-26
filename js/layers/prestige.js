@@ -22,7 +22,6 @@ addLayer("p", {
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
     effect() {
-        // return player["p"].points.mul(2).add(1).pow(2)
         return player["p"].points.add(1).log10().add(1).pow(10)
     },
     effectDescription() { // Optional text to describe the effects

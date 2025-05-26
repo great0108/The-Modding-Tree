@@ -38,30 +38,30 @@ addLayer("i", {
     infoboxes: {
         upgrades: {
             title: "Upgrades",
-            body() { return "Explore many unique upgrades, and get the biggest numbers possible! In this game, you will go through many different layers, unlock new and unique features like upgrades, milestones and buyables. Please visit this layer often." },
+            body() { return "Just collect upgrade points and buy upgrades. You can hold down U to get upgrade points fast" },
         },
         buyables: {
             title: "Buyables",
-            body() { return "Achievements give you a sense of progress. Every row of the achievements means a new stage. Achievements can have rewards. Red-bordered achievements unlock more achievements. Thick red-bordered achievements unlock a new ????" },
-            unlocked() { return hasUpgrade("u", 25)}
+            body() { return "Just collect upgrade points and buy buyables and upgrades similarly. Dont forget the first two buyables need points instead of upgrade points" },
+            unlocked() { return hasUpgrade("u", 25) || player["p"].unlocked}
         },
         selection: {
             title: "Selection",
-            body() { return "In every layer, there may or may not be one (or two) letters to identify the layer. This is given in the layer infobox. U stands for Upgrades, M stands for Milestones, B stands for buyables. In a milestone, the naming is just [Layer]M[MS#]. However, things get complicated in upgrades. First upgrades may say the upgrade number, while later upgrades will say [Layer]U[Row][Column]. Same goes with achievements. (Ach [Row][Column])" },
-            unlocked() { return hasUpgrade("u", 35)}
+            body() { return "Find the each setting that maximize points and upgrade points. I recommend 11, 21, 31, 33, 43, 53 for points and 12, 22, 23, 33, 42, 52 for upgrade points. But this setting may not be optimal in the early selection stage." },
+            unlocked() { return hasUpgrade("u", 35) || player["p"].unlocked}
         },
         tree: {
             title: "Tree",
-            body() { return "The first layer of the game, requires 10 Point Fragments. The start to big numbers." },
-            unlocked() { return hasUpgrade("u", 45)}
+            body() { return "Find the each setting that maximize points and upgrade points similarly. I recommend 11, 21, 31, 41, 51, 42 for points and 11, 22, 32, 21, 31, 41 for upgrade points. Don't forget to change selection setting when you change tree upgrades. You may buy 42 (Buyable Power 4) first to make buyables cheaper. If you collect 21 tree point, you can unlock next layer purchasing only the left upgrades of the tree." },
+            unlocked() { return hasUpgrade("u", 45) || player["p"].unlocked}
         },
         earlyPrestige: {
             title: "Early Prestige",
-            body() { return "Upgrades are basically a broad class that only can be bought once, and gives a boost. It could be static (x), to effects, non-static, power (^), or boosts to later features" },
+            body() { return "" },
         },
         goals: {
             title: "Goals",
-            body() { return "Upgrades are basically a broad class that only can be bought once, and gives a boost. It could be static (x), to effects, non-static, power (^), or boosts to later features" },
+            body() { return "" },
         }
     },
 }, 
