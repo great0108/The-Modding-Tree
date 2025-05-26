@@ -70,8 +70,9 @@ addLayer("u", {
             mult = mult.times(buyableEffect("u", 14))  
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
-
         if (hasUpgrade('u', 1032)) mult = mult.times(upgradeEffect('u', 1032))
+
+        if (player["p"].unlocked) mult = mult.mul(layers["p"].effect())
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -401,7 +402,7 @@ addLayer("u", {
             unlocked : TreeUnlock([1021]),
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-                return new Decimal(2).pow(total.add(1))
+                return total.add(1).pow(3)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -419,7 +420,7 @@ addLayer("u", {
             unlocked : TreeUnlock([1022]),
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-                return new Decimal(2).pow(total.add(1))
+                return total.add(1).pow(3)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
