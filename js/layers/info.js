@@ -38,11 +38,11 @@ addLayer("i", {
     infoboxes: {
         upgrades: {
             title: "Upgrades",
-            body() { return "Just collect upgrade points and buy upgrades. You can hold down U to get upgrade points fast" },
+            body() { return "Just collect upgrade points and buy upgrades. You can hold down U to get upgrade points fast." },
         },
         buyables: {
             title: "Buyables",
-            body() { return "Just collect upgrade points and buy buyables and upgrades similarly. Dont forget the first two buyables need points instead of upgrade points" },
+            body() { return "Just collect upgrade points and buy buyables and upgrades similarly. Dont forget the first two buyables need points instead of upgrade points." },
             unlocked() { return hasUpgrade("u", 25) || player["p"].unlocked}
         },
         selection: {
@@ -52,7 +52,7 @@ addLayer("i", {
         },
         tree: {
             title: "Tree",
-            body() { return "Find the each setting that maximize points and upgrade points similarly. I recommend 11, 21, 31, 41, 51, 42 for points and 11, 22, 32, 21, 31, 41 for upgrade points. Don't forget to change selection setting when you change tree upgrades. You may buy 42 (Buyable Power 4) first to make buyables cheaper. If you collect 21 tree point, you can unlock next layer purchasing only the left upgrades of the tree." },
+            body() { return "Find the each setting that maximize points and upgrade points similarly. I recommend 11, 21, 31, 41, 51, 42 for points and 11, 22, 32, 21, 31, 43 for upgrade points. Don't forget to change selection setting when you change tree upgrades. You may buy 42 (Buyable Power 4) first to make buyables cheaper. When you have 21 tree point, you can unlock next layer purchasing only the left upgrades of the tree." },
             unlocked() { return hasUpgrade("u", 45) || player["p"].unlocked}
         },
         earlyPrestige: {

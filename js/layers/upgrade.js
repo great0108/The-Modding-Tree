@@ -82,6 +82,21 @@ addLayer("u", {
     hotkeys: [
         {key: "u", description: "U: Reset for upgrade points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
+    doReset(prestige) {
+        // Stage 1, almost always needed, makes resetting this layer not delete your progress
+        if (layers[prestige].row <= this.row) return;
+      
+        // Stage 2, track which main features you want to keep - all upgrades, total points, specific toggles, etc.
+        let keep = ["treeUnlock"];
+        if (hasMilestone("p", 1)) keep.push("upgrades")
+      
+        // Stage 3, do the actual data reset
+        layerDataReset(this.layer, keep);
+        player[this.layer].clickablesUnlock = []
+    },
+    update(diff) {
+
+    },
     layerShown(){return true},
     tabFormat: {
         "Upgrades": {
@@ -94,6 +109,7 @@ addLayer("u", {
                 ["row", [["upgrade", 21], ["upgrade", 22], ["upgrade", 23], ["upgrade", 24], ["upgrade", 25]]],
                 ["row", [["upgrade", 31], ["upgrade", 32], ["upgrade", 33], ["upgrade", 34], ["upgrade", 35]]],
                 ["row", [["upgrade", 41], ["upgrade", 42], ["upgrade", 43], ["upgrade", 44], ["upgrade", 45]]],
+                ["row", [["upgrade", 51], ["upgrade", 52], ["upgrade", 53], ["upgrade", 54], ["upgrade", 55]]]
             ],
         },
         "Buyables": {
@@ -106,7 +122,7 @@ addLayer("u", {
                 ["row", [["buyable", 21], ["buyable", 22]]]
             ],
             unlocked() {
-                return (hasUpgrade("u", 25))
+                return hasUpgrade("u", 25)
             }
         },
         "Selection": {
@@ -162,7 +178,7 @@ addLayer("u", {
                 ["row", [["upgrade", 1061]]],
             ],
             unlocked() {
-                return (hasUpgrade("u", 45))
+                return hasUpgrade("u", 45)
             }
         }
     },
@@ -342,6 +358,46 @@ addLayer("u", {
             title: "Last type Upgrade!",
             description: "Unlock tree tab.",
             cost: new Decimal(1e48),
+            unlocked() {
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+            }
+        },
+        51: {
+            title: "New Layer Upgrade",
+            description: "Unlock 5 prestige upgrades.",
+            cost: new Decimal(1e110),
+            unlocked() {
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+            }
+        },
+        52: {
+            title: "Extend Selection",
+            description: "Unlock tree tab.",
+            cost: new Decimal(1e120),
+            unlocked() {
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+            }
+        },
+        53: {
+            title: "Extend Tree",
+            description: "Unlock tree tab.",
+            cost: new Decimal(1e130),
+            unlocked() {
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+            }
+        },
+        54: {
+            title: "Boost Prestige",
+            description: "Unlock tree tab.",
+            cost: new Decimal(1e140),
+            unlocked() {
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+            }
+        },
+        55: {
+            title: "???",
+            description: "Unlock tree tab.",
+            cost: new Decimal(1e150),
             unlocked() {
                 return hasUpgrade(this.layer, 35) || player["p"].unlocked
             }
