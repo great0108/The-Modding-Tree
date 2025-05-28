@@ -1,12 +1,44 @@
 const BuyableStyle = { margin: "7px" }
 const TreeStyle = { margin: "10px" }
 
+function PointBuyMax() {
+    if (!this.canAfford()) return
+    let x = getBuyableAmount(this.layer, this.id)
+    let amount = new Decimal(1)
+    while (true) {
+        let cost = this.cost(x.add(amount.mul(10)).sub(1))
+        if (player.points.lte(cost)) break
+        amount = amount.mul(10)
+    }
+
+    let cost = this.cost(x.add(amount).sub(1))
+    if (player.points.lte(cost)) return
+    player.points = player.points.sub(cost)
+    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
+}
+function UpgradePointBuyMax() {
+    if (!this.canAfford()) return
+    let x = getBuyableAmount(this.layer, this.id)
+    let amount = new Decimal(1)
+    while (true) {
+        let cost = this.cost(x.add(amount.mul(10)).sub(1))
+        if (player[this.layer].points.lte(cost)) break
+        amount = amount.mul(10)
+    }
+
+    let cost = this.cost(x.add(amount).sub(1))
+    if (player[this.layer].points.lte(cost)) return
+    player[this.layer].points = player[this.layer].points.sub(cost)
+    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
+}
+
 function SelectionStyle() {
     let css = { width: "150px" }
     if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
     else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
     return css
 }
+
 function TreeAffold() {
     for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
     return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
@@ -52,7 +84,8 @@ addLayer("u", {
         treePoint: new Decimal(0),
         treePointSpent : new Decimal(0),
         treeUnlock : [],
-        resetSelectionRows : []
+        resetSelectionRows : [],
+        autoBuyable : false
     }},
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -71,6 +104,7 @@ addLayer("u", {
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
         if (hasUpgrade('u', 1032)) mult = mult.times(upgradeEffect('u', 1032))
+        if (hasUpgrade('u', 1061)) mult = mult.times(upgradeEffect('u', 1061))
 
         if (player["p"].unlocked) mult = mult.mul(layers["p"].effect())
         return mult
@@ -85,17 +119,35 @@ addLayer("u", {
     doReset(prestige) {
         // Stage 1, almost always needed, makes resetting this layer not delete your progress
         if (layers[prestige].row <= this.row) return;
+
+        // Stage 2, track which specific subfeatures you want to keep, e.g. Upgrade 11, Challenge 32, Buyable 12
+        let keptUpgrades = []
+        if (hasMilestone("p", 1)) {
+            for(let i = 1; i <= 5; i++) {
+                for(let j = 1; j <= 5; j++) {
+                    let id = i * 10 + j
+                    if (hasUpgrade("u", id)) keptUpgrades.push(id)
+                }
+            }
+        }
       
-        // Stage 2, track which main features you want to keep - all upgrades, total points, specific toggles, etc.
+        // Stage 3, track which main features you want to keep - all upgrades, total points, specific toggles, etc.
         let keep = ["treeUnlock"];
-        if (hasMilestone("p", 1)) keep.push("upgrades")
       
-        // Stage 3, do the actual data reset
+        // Stage 4, do the actual data reset
         layerDataReset(this.layer, keep);
+      
+        // Stage 5, add back in the specific subfeatures you saved earlier
+        player[this.layer].upgrades.push(...keptUpgrades)
         player[this.layer].clickablesUnlock = []
     },
     update(diff) {
-
+        if (player["u"].autoBuyable && hasMilestone("p", 2)) {
+            let ids = [11, 12, 13, 14, 21, 22]
+            for(let id of ids) {
+                this.buyables[id].buyMax()
+            }
+        }
     },
     layerShown(){return true},
     tabFormat: {
@@ -176,6 +228,7 @@ addLayer("u", {
                 ["row", [["upgrade", 1041], ["upgrade", 1042], ["upgrade", 1043]]],
                 ["row", [["upgrade", 1051], ["upgrade", 1052], ["upgrade", 1053]]],
                 ["row", [["upgrade", 1061]]],
+                ["row", [["upgrade", 1071]]],
             ],
             unlocked() {
                 return hasUpgrade("u", 45)
@@ -319,7 +372,7 @@ addLayer("u", {
         41: {
             title: "Counting Selection",
             description: "Boost point gain based on unlocked selection number.",
-            cost: new Decimal(1e23),
+            cost: new Decimal(1e22),
             unlocked() {
                 return hasUpgrade(this.layer, 35) || player["p"].unlocked
             },
@@ -333,7 +386,7 @@ addLayer("u", {
         42: {
             title: "Buyable Power 2",
             description: "Boost fourth buyable effect.",
-            cost: new Decimal(1e26),
+            cost: new Decimal(1e25),
             unlocked() {
                 return hasUpgrade(this.layer, 35) || player["p"].unlocked
             },
@@ -349,7 +402,7 @@ addLayer("u", {
         44: {
             title: "Boost Selection",
             description: "Boost fourth selection row effect.",
-            cost: new Decimal(1e43),
+            cost: new Decimal(1e40),
             unlocked() {
                 return hasUpgrade(this.layer, 35) || player["p"].unlocked
             }
@@ -357,7 +410,7 @@ addLayer("u", {
         45: {
             title: "Last type Upgrade!",
             description: "Unlock tree tab.",
-            cost: new Decimal(1e48),
+            cost: new Decimal(1e45),
             unlocked() {
                 return hasUpgrade(this.layer, 35) || player["p"].unlocked
             }
@@ -367,7 +420,7 @@ addLayer("u", {
             description: "Unlock 5 prestige upgrades.",
             cost: new Decimal(1e110),
             unlocked() {
-                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+                return player["p"].unlocked
             }
         },
         52: {
@@ -375,31 +428,31 @@ addLayer("u", {
             description: "Unlock tree tab.",
             cost: new Decimal(1e120),
             unlocked() {
-                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+                return player["p"].unlocked
             }
         },
         53: {
             title: "Extend Tree",
             description: "Unlock tree tab.",
-            cost: new Decimal(1e130),
+            cost: new Decimal(1e150),
             unlocked() {
-                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+                return player["p"].unlocked
             }
         },
         54: {
-            title: "Boost Prestige",
+            title: "Extend buyable",
             description: "Unlock tree tab.",
-            cost: new Decimal(1e140),
+            cost: new Decimal(1e200),
             unlocked() {
-                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+                return player["p"].unlocked
             }
         },
         55: {
-            title: "???",
+            title: "Extend prestige upgrade",
             description: "Unlock tree tab.",
-            cost: new Decimal(1e150),
+            cost: new Decimal(1e250),
             unlocked() {
-                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+                return player["p"].unlocked
             }
         },
         1011: {
@@ -469,7 +522,7 @@ addLayer("u", {
         1032: {
             title: "Tree Power 2",
             description: "Total tree points boost upgrade point gain.",
-            cost: new Decimal(3),
+            cost: new Decimal(2),
             req : [1022],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -526,7 +579,7 @@ addLayer("u", {
         1051: {
             title: "Additional First Selection",
             description: "Additional selection in first row selection upgrades.",
-            cost: new Decimal(2),
+            cost: new Decimal(1),
             req : [1041],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -540,7 +593,7 @@ addLayer("u", {
         1052: {
             title: "Additional Second Selection",
             description: "Additional selection in second row selection upgrades.",
-            cost: new Decimal(2),
+            cost: new Decimal(1),
             req : [1042],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -554,7 +607,7 @@ addLayer("u", {
         1053: {
             title: "Additional Third Selection",
             description: "Additional selection in third row selection upgrades.",
-            cost: new Decimal(2),
+            cost: new Decimal(1),
             req : [1043],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -566,13 +619,27 @@ addLayer("u", {
             style: TreeStyle
         },
         1061: {
-            title: "Next Layer",
-            description: "Unlock Next Layer.",
-            cost: new Decimal(10),
+            title: "Final Boost",
+            description: "boost points and upgrade points by 10000.",
+            cost: new Decimal(5),
             req : [[1051], [1052], [1053]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
             unlocked : TreeUnlock([1051, 1052, 1053]),
+            effect() {
+                return new Decimal(10000)
+            },
+            branches : [1071],
+            style: TreeStyle
+        },
+        1071: {
+            title: "Next Layer",
+            description: "Unlock Next Layer.",
+            cost: new Decimal(7),
+            req : [1061],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1061]),
             style: TreeStyle
         },
     },
@@ -623,6 +690,7 @@ addLayer("u", {
                 player.points = player.points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : PointBuyMax,
             style: BuyableStyle
         },
         12: {
@@ -652,6 +720,7 @@ addLayer("u", {
                 player.points = player.points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : PointBuyMax,
             style: BuyableStyle
         },
         13: {
@@ -681,10 +750,11 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             style: BuyableStyle
         },
         14: {
-            title: "Devide Cost",
+            title: "Devide Upgrade Point Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).add(x)
                 let cost = new Decimal(1000).mul(value.pow(x))
@@ -712,6 +782,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             style: BuyableStyle
         },
         21: {
@@ -737,6 +808,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             unlocked() {
                 return hasUpgrade(this.layer, 33)
             },
@@ -766,6 +838,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             unlocked() {
                 return hasUpgrade(this.layer, 33)
             },
@@ -819,9 +892,9 @@ addLayer("u", {
     unlockCost() {
         return {
             0 : 1e21,
-            1 : 1e30,
-            2 : 1e34,
-            3 : 1e38
+            1 : 1e29,
+            2 : 1e33,
+            3 : 1e36
         }
     },
     clickables : {
@@ -990,8 +1063,8 @@ addLayer("u", {
         22: {
             title: "Free Third Buyable",
             effect() {
-                let value = getBuyableAmount(this.layer, 22)
-                value = Decimal.log10(value.add(1)).times(3)
+                let value = getBuyableAmount(this.layer, 13)
+                value = Decimal.log10(value.add(1)).times(2)
                 if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
                 return value
             },
@@ -1031,7 +1104,7 @@ addLayer("u", {
         23: {
             title: "Free Fourth Buyable",
             effect() {
-                let value = Decimal.log10(player[this.layer].points.add(1)).pow(0.5)
+                let value = Decimal.log10(player[this.layer].points.add(1)).pow(0.4)
                 if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
                 return value
             },
@@ -1111,7 +1184,7 @@ addLayer("u", {
         32: {
             title: "Time Boost",
             effect() {
-                let value = new Decimal(player[this.layer].resetTime + 1).log10().mul(25).add(1)
+                let value = new Decimal(player[this.layer].resetTime + 3).log10().mul(25).add(1)
                 if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
@@ -1151,7 +1224,7 @@ addLayer("u", {
         33: {
             title: "Reverse Time Boost",
             effect() {
-                let value = new Decimal(player[this.layer].resetTime + 2).log10().mul(25).add(1)
+                let value = new Decimal(player[this.layer].resetTime + 3).log10().mul(25).add(1)
                 value = new Decimal(1000).div(value)
                 if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
@@ -1194,7 +1267,6 @@ addLayer("u", {
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
-                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
@@ -1202,7 +1274,7 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
-                if (hasUpgrade(this.layer, 51)) {
+                if (hasUpgrade("p", 12)) {
                     setClickableState(this.layer, this.id, true)
                     return false
                 }
@@ -1232,7 +1304,6 @@ addLayer("u", {
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
-                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
@@ -1240,7 +1311,7 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
-                if (hasUpgrade(this.layer, 51)) {
+                if (hasUpgrade("p", 12)) {
                     setClickableState(this.layer, this.id, true)
                     return false
                 }
@@ -1270,7 +1341,6 @@ addLayer("u", {
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
-                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
@@ -1278,7 +1348,7 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
-                if (hasUpgrade(this.layer, 51)) {
+                if (hasUpgrade("p", 12)) {
                     setClickableState(this.layer, this.id, true)
                     return false
                 }

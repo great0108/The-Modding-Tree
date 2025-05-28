@@ -65,7 +65,8 @@ function getPointGen() {
 	if (getClickableState('u', 33)) gain = gain.times(clickableEffect('u', 33))
 	if (hasUpgrade('u', 41)) gain = gain.times(upgradeEffect("u", 41)) 
 
-	if (hasUpgrade('u', 1031)) gain = gain.times(upgradeEffect("u", 1031)) 
+	if (hasUpgrade('u', 1031)) gain = gain.times(upgradeEffect("u", 1031))
+	if (hasUpgrade('u', 1061)) gain = gain.times(upgradeEffect('u', 1061))
 
 	if (player["p"].unlocked) gain = gain.mul(layers["p"].effect())
 

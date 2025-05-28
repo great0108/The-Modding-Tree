@@ -16,6 +16,7 @@ addLayer("p", {
     exponent: 0.1, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
+        if (hasUpgrade("p", 11)) mult = mult.mul(upgradeEffect("p", 11))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -35,8 +36,8 @@ addLayer("p", {
     ],
     onPrestige(gain) {
         let count = 0
-        for(let i = 1; i < 4; i++) {
-            for(let j = 1; j < 5; j++) {
+        for(let i = 1; i <= 5; i++) {
+            for(let j = 1; j <= 5; j++) {
                 let id = i * 10 + j
                 if (hasUpgrade("u", id)) {
                     count += 1
@@ -44,12 +45,16 @@ addLayer("p", {
             }
         }
         if(count <= 14) player[this.layer].milestoneCond.push(1)
+
+        if(getBuyableAmount("u", 22).eq(0)) {
+            player[this.layer].milestoneCond.push(2)
+        }
     },
     unlocked() {
-        return hasUpgrade("u", 1061)
+        return hasUpgrade("u", 1071)
     },
     layerShown() {
-        return hasUpgrade("u", 1061) || player["p"].unlocked
+        return hasUpgrade("u", 1071) || player["p"].unlocked
     },
     tabFormat: {
         "Main": {
@@ -72,29 +77,50 @@ addLayer("p", {
             done() { 
                 return player[this.layer].milestoneCond.includes(1)
             }
+        },
+        2: {
+            requirementDescription: "prestige without sixth buyable",
+            effectDescription: "Unlock auto buyables.",
+            done() { 
+                return player[this.layer].milestoneCond.includes(2)
+            },
+            toggles : [["u", "autoBuyable"]]
         }
     },
     upgrades: {
-        unlocked() {
-            return hasUpgrade("u", 51)
-        },
         11: {
-            title: "Game Start",
-            description: "Gain 1 point per second.",
-            cost: new Decimal(100)
+            title: "Boost prestige",
+            description: "Boost prestige point gain based on points.",
+            cost: new Decimal(10),
+            effect() {
+                value = Decimal.log10(player.points.add(1)).div(20).add(1)
+                return value
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x" 
+            },
+            unlocked() {
+                return hasUpgrade("u", 51)
+            }
         },
         12: {
-            title: "Bonus Point",
-            description: "Gain another 1 point per second.",
+            title: "row 4 selection",
+            description: "You can activate all row 4 selection.",
             cost: new Decimal(200),
+            unlocked() {
+                return hasUpgrade("u", 51)
+            }
         },
         13: {
-            title: "Double Point",
-            description: "Point gain is doubled.",
-            cost: new Decimal(300),
+            title: "row 5 selection",
+            description: "You can activate all row 5 selection.",
+            cost: new Decimal(1000),
+            unlocked() {
+                return hasUpgrade("u", 51)
+            }
         },
         14: {
-            title: "Self Synergy",
+            title: "effect boost",
             description: "Boost point gain based on itself.",
             cost: new Decimal(500),
             effect() {
@@ -106,10 +132,13 @@ addLayer("p", {
             effectDisplay() {
                 // this.layer == u, this.id == 14
                 return format(upgradeEffect(this.layer, this.id))+"x" 
-            }, 
+            },
+            unlocked() {
+                return hasUpgrade("u", 51)
+            }
         },
         15: {
-            title: "Upgrade Boost",
+            title: "new type boost",
             description: "Upgrade points boost point gain.",
             cost: new Decimal(1000),
             effect() {
@@ -117,7 +146,10 @@ addLayer("p", {
             },
             effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
-            }, 
+            },
+            unlocked() {
+                return hasUpgrade("u", 51)
+            }
         },
     }
 })
