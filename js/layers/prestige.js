@@ -44,7 +44,7 @@ addLayer("p", {
                 }
             }
         }
-        if(count <= 14) player[this.layer].milestoneCond.push(1)
+        if(count <= 15) player[this.layer].milestoneCond.push(1)
 
         if(getBuyableAmount("u", 22).eq(0)) {
             player[this.layer].milestoneCond.push(2)
@@ -72,7 +72,7 @@ addLayer("p", {
     // keep upgrade, auto buyable, keep selection, keep tree, auto tree point
     milestones: {
         1: {
-            requirementDescription: "prestige with 14 or fewer upgrades in upgrades tab",
+            requirementDescription: "prestige with 15 or fewer upgrades in upgrades tab",
             effectDescription: "Keep upgrades in upgrades tab on reset.",
             done() { 
                 return player[this.layer].milestoneCond.includes(1)
