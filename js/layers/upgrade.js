@@ -107,6 +107,7 @@ addLayer("u", {
         if (hasUpgrade('u', 1061)) mult = mult.times(upgradeEffect('u', 1061))
 
         if (player["p"].unlocked) mult = mult.mul(layers["p"].effect())
+        if(getClickableState("u", 62)) mult = mult.mul(clickableEffect("u", 62))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -130,17 +131,34 @@ addLayer("u", {
                 }
             }
         }
+
+        if (hasMilestone("p", 4)) {
+            for(let id of player["u"].upgrades) {
+                if(Number(id) > 1000 && hasUpgrade("u", id)) keptUpgrades.push(id)
+            }
+        }
+
+        let keptBuyables = {}
+        if (hasMilestone("p", 4)) {
+            keptBuyables[111] = player["u"].buyables[111]
+            keptBuyables[112] = player["u"].buyables[112]
+        }
       
         // Stage 3, track which main features you want to keep - all upgrades, total points, specific toggles, etc.
         let keep = ["treeUnlock"];
         if (hasMilestone("p", 2)) keep.push("autoBuyable")
         if (hasMilestone("p", 3)) keep.push("clickables")
+        if (hasMilestone("p", 4)) {
+            keep.push("treePoint")
+            keep.push("treePointSpent")
+        }
       
         // Stage 4, do the actual data reset
         layerDataReset(this.layer, keep);
       
         // Stage 5, add back in the specific subfeatures you saved earlier
         player[this.layer].upgrades.push(...keptUpgrades)
+        Object.assign(player[this.layer].buyables, keptBuyables)
 
         if (!hasMilestone("p", 3)) player[this.layer].clickablesUnlock = []
     },
@@ -899,7 +917,7 @@ addLayer("u", {
             1 : 1e29,
             2 : 1e33,
             3 : 1e36,
-            4 : 1e164
+            4 : 1e163
         }
     },
     clickables : {
@@ -1275,7 +1293,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "The selection upgrades in first row is stronger\n" + 
+                return "The selection upgrades in first row are stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
@@ -1312,7 +1330,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "The selection upgrades in second row is stronger\n" + 
+                return "The selection upgrades in second row are stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
@@ -1349,7 +1367,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "The selection upgrades in third row is stronger\n" + 
+                return "The selection upgrades in third row are stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
@@ -1489,12 +1507,12 @@ addLayer("u", {
         61: {
             title: "Boost Prestige",
             effect() {
-                let value = new Decimal(2)
-                if (hasUpgrade(this.layer, 44)) value = value.add(1)
+                let value = new Decimal(1.5)
                 return value
             },
             display() { 
-                return "The effect of prestige points are stronger"
+                return "The effect of prestige points are stronger\n" +
+                "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
@@ -1521,12 +1539,12 @@ addLayer("u", {
         62: {
             title: "Prestige Boost",
             effect() {
-                let value = new Decimal(2)
-                if (hasUpgrade(this.layer, 44)) value = value.add(1)
+                let value = Decimal.log10(player["p"].points.add(1)).pow(5)
                 return value
             },
             display() { 
-                return "Upgrade point gain is boosted by prestige points"
+                return "Upgrade point gain is boosted by prestige points\n" +
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
@@ -1553,12 +1571,12 @@ addLayer("u", {
         63: {
             title: "Reverse Prestige Boost",
             effect() {
-                let value = new Decimal(2)
-                if (hasUpgrade(this.layer, 44)) value = value.add(1)
+                let value = Decimal.log10(player["u"].points.add(1)).pow(0.3)
                 return value
             },
             display() { 
-                return "Prestige point gain is boosted by upgrade points"
+                return "Prestige point gain is boosted by upgrade points\n" +
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true

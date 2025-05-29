@@ -17,6 +17,8 @@ addLayer("p", {
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
         if (hasUpgrade("p", 11)) mult = mult.mul(upgradeEffect("p", 11))
+        if (hasUpgrade("p", 14)) mult = mult.mul(upgradeEffect("p", 14))
+        if(getClickableState("u", 63)) mult = mult.mul(clickableEffect("u", 63))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -24,7 +26,9 @@ addLayer("p", {
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
     effect() {
-        return player["p"].points.add(1).log10().mul(2).add(1).pow(5)
+        let mult = player["p"].points.add(1).log10().mul(2).add(1).pow(5)
+        if(getClickableState("u", 61)) mult = mult.pow(clickableEffect("u", 61))
+        return mult
     },
     effectDescription() { // Optional text to describe the effects
         eff = this.effect()
@@ -61,6 +65,12 @@ addLayer("p", {
         }
         if(check && !player[this.layer].milestoneCond.includes(3)) {
             player[this.layer].milestoneCond.push(3)
+        }
+
+        if(player["u"].treePoint.eq(0) && player["u"].treePointSpent.eq(0) && !hasUpgrade("u", 1011)) {
+            if(!player[this.layer].milestoneCond.includes(4)) {
+                player[this.layer].milestoneCond.push(4)
+            }
         }
     },
     unlocked() {
@@ -106,6 +116,13 @@ addLayer("p", {
                 return player[this.layer].milestoneCond.includes(3)
 
             },
+        },
+        4: {
+            requirementDescription: "prestige without tree upgrades and tree points",
+            effectDescription: "Keep tree upgrades and tree points on reset.",
+            done() { 
+                return player[this.layer].milestoneCond.includes(4)
+            },
         }
     },
     upgrades: {
@@ -141,13 +158,11 @@ addLayer("p", {
             }
         },
         14: {
-            title: "effect boost",
-            description: "Boost point gain based on itself.",
-            cost: new Decimal(1e8),
+            title: "More Prestige",
+            description: "Boost Prestige point gain based on itself.",
+            cost: new Decimal(1e9),
             effect() {
-                let value = hasUpgrade('u', 24) ? 2 : 1
-                value = Decimal.log10(player.points.add(1)).add(1).pow(value)
-                if(hasUpgrade("u", 1021)) value = value.mul(upgradeEffect("u", 1021))
+                let value = Decimal.log10(player[this.layer].points.add(1)).add(1)
                 return value
             },
             effectDisplay() {
