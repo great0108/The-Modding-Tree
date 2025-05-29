@@ -44,10 +44,23 @@ addLayer("p", {
                 }
             }
         }
-        if(count <= 15) player[this.layer].milestoneCond.push(1)
+        if(count <= 15 && !player[this.layer].milestoneCond.includes(1)) {
+            player[this.layer].milestoneCond.push(1)
+        }
 
-        if(getBuyableAmount("u", 22).eq(0)) {
+        if(getBuyableAmount("u", 22).eq(0) && !player[this.layer].milestoneCond.includes(2)) {
             player[this.layer].milestoneCond.push(2)
+        }
+
+        let check = true
+        for(let i = 1; i <= 5; i++) {
+            for(let j = 1; j <= 3; j++) {
+                let id = i * 10 + j
+                if(!getClickableState('u', id)) check = false
+            }
+        }
+        if(check && !player[this.layer].milestoneCond.includes(3)) {
+            player[this.layer].milestoneCond.push(3)
         }
     },
     unlocked() {
@@ -85,6 +98,14 @@ addLayer("p", {
                 return player[this.layer].milestoneCond.includes(2)
             },
             toggles : [["u", "autoBuyable"]]
+        },
+        3: {
+            requirementDescription: "prestige with all selections are selected",
+            effectDescription: "Keep selection on reset.",
+            done() { 
+                return player[this.layer].milestoneCond.includes(3)
+
+            },
         }
     },
     upgrades: {
@@ -106,7 +127,7 @@ addLayer("p", {
         12: {
             title: "row 4 selection",
             description: "You can activate all row 4 selection.",
-            cost: new Decimal(200),
+            cost: new Decimal(100),
             unlocked() {
                 return hasUpgrade("u", 51)
             }
@@ -114,7 +135,7 @@ addLayer("p", {
         13: {
             title: "row 5 selection",
             description: "You can activate all row 5 selection.",
-            cost: new Decimal(1000),
+            cost: new Decimal(1e5),
             unlocked() {
                 return hasUpgrade("u", 51)
             }
@@ -122,7 +143,7 @@ addLayer("p", {
         14: {
             title: "effect boost",
             description: "Boost point gain based on itself.",
-            cost: new Decimal(500),
+            cost: new Decimal(1e8),
             effect() {
                 let value = hasUpgrade('u', 24) ? 2 : 1
                 value = Decimal.log10(player.points.add(1)).add(1).pow(value)
@@ -140,7 +161,7 @@ addLayer("p", {
         15: {
             title: "new type boost",
             description: "Upgrade points boost point gain.",
-            cost: new Decimal(1000),
+            cost: new Decimal(1e10),
             effect() {
                 return Decimal.log10(player[this.layer].points.add(1)).add(1)
             },

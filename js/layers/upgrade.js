@@ -133,13 +133,16 @@ addLayer("u", {
       
         // Stage 3, track which main features you want to keep - all upgrades, total points, specific toggles, etc.
         let keep = ["treeUnlock"];
+        if (hasMilestone("p", 2)) keep.push("autoBuyable")
+        if (hasMilestone("p", 3)) keep.push("clickables")
       
         // Stage 4, do the actual data reset
         layerDataReset(this.layer, keep);
       
         // Stage 5, add back in the specific subfeatures you saved earlier
         player[this.layer].upgrades.push(...keptUpgrades)
-        player[this.layer].clickablesUnlock = []
+
+        if (!hasMilestone("p", 3)) player[this.layer].clickablesUnlock = []
     },
     update(diff) {
         if (player["u"].autoBuyable && hasMilestone("p", 2)) {
@@ -425,8 +428,8 @@ addLayer("u", {
         },
         52: {
             title: "Extend Selection",
-            description: "Unlock tree tab.",
-            cost: new Decimal(1e120),
+            description: "Unlock new 2 selection.",
+            cost: new Decimal(1e170),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -434,7 +437,7 @@ addLayer("u", {
         53: {
             title: "Extend Tree",
             description: "Unlock tree tab.",
-            cost: new Decimal(1e150),
+            cost: new Decimal(1e200),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -894,7 +897,8 @@ addLayer("u", {
             0 : 1e21,
             1 : 1e29,
             2 : 1e33,
-            3 : 1e36
+            3 : 1e36,
+            4 : 1e170
         }
     },
     clickables : {
@@ -1379,6 +1383,10 @@ addLayer("u", {
                 return "One more selection in first row" 
             },
             canClick() {
+                if (hasUpgrade("p", 13)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 51) ||
                    getClickableState(this.layer, 52) ||
@@ -1411,6 +1419,10 @@ addLayer("u", {
                 return "One more selection in second row" 
             },
             canClick() {
+                if (hasUpgrade("p", 13)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 51) ||
                    getClickableState(this.layer, 52) ||
@@ -1443,6 +1455,10 @@ addLayer("u", {
                 return "One more selection in third row"
             },
             canClick() {
+                if (hasUpgrade("p", 13)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 51) ||
                    getClickableState(this.layer, 52) ||
@@ -1468,6 +1484,95 @@ addLayer("u", {
                 }
                 return false
             }
-        }
+        },
+        61: {
+            title: "More third selection",
+            display() { 
+                return "One more selection in third row"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 61) ||
+                   getClickableState(this.layer, 62) ||
+                   getClickableState(this.layer, 63)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[4])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        62: {
+            title: "More third selection",
+            display() { 
+                return "One more selection in third row"
+            },
+            canClick() {
+                if (hasUpgrade("p", 13)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 51) ||
+                   getClickableState(this.layer, 52) ||
+                   getClickableState(this.layer, 53)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[4])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        63: {
+            title: "More third selection",
+            display() { 
+                return "One more selection in third row"
+            },
+            canClick() {
+                if (hasUpgrade("p", 13)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 51) ||
+                   getClickableState(this.layer, 52) ||
+                   getClickableState(this.layer, 53)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[4])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
     }
 })
