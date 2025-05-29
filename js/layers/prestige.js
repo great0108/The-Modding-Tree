@@ -1,3 +1,10 @@
+function SelectionStyle() {
+    let css = { width: "150px" }
+    if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+    return css
+}
+
+
 addLayer("p", {
     name: "prestige", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "P", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -91,6 +98,15 @@ addLayer("p", {
                 "upgrades"
             ],
         },
+        "Spell": {
+            content: [
+                "main-display",
+                "prestige-button",
+                "blank",
+                "blank",
+                ["row", [["clickable", 11], ["clickable", 12], ["clickable", 13], ["clickable", 14]]],
+            ],
+        }
     },
     // keep upgrade, auto buyable, keep selection, keep tree, auto tree point
     milestones: {
@@ -175,7 +191,7 @@ addLayer("p", {
         },
         15: {
             title: "new type boost",
-            description: "Upgrade points boost point gain.",
+            description: "Unlock spell tab.",
             cost: new Decimal(1e10),
             effect() {
                 return Decimal.log10(player[this.layer].points.add(1)).add(1)
@@ -185,6 +201,27 @@ addLayer("p", {
             },
             unlocked() {
                 return hasUpgrade("u", 51)
+            }
+        },
+    },
+    clickables : {
+        11: {
+            title: "Replicate Point",
+            effect() {
+                
+            },
+            display() { 
+                
+            },
+            canClick() {
+                
+            },
+            onClick() {
+                
+            },
+            style : SelectionStyle,
+            unlocked() {
+                
             }
         },
     }
