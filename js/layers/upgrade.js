@@ -192,6 +192,7 @@ addLayer("u", {
                         let a = player[this.layer].clickablesUnlock.length
                         a = Math.floor(a / 3) - 1
                         if (!hasUpgrade("u", 43) && a >= 2) return "all selections are unlocked"
+                        if (!hasUpgrade("u", 52) && a >= 4) return "all selections are unlocked"
                         if (a in tmp.u.unlockCost) {
                             return "next selection is unlocked at " +
                              format(tmp.u.unlockCost[a]) + " upgrade points"
@@ -429,7 +430,7 @@ addLayer("u", {
         52: {
             title: "Extend Selection",
             description: "Unlock new 2 selection.",
-            cost: new Decimal(1e170),
+            cost: new Decimal(1e160),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -898,7 +899,7 @@ addLayer("u", {
             1 : 1e29,
             2 : 1e33,
             3 : 1e36,
-            4 : 1e170
+            4 : 1e164
         }
     },
     clickables : {
@@ -1486,9 +1487,14 @@ addLayer("u", {
             }
         },
         61: {
-            title: "More third selection",
+            title: "Boost Prestige",
+            effect() {
+                let value = new Decimal(2)
+                if (hasUpgrade(this.layer, 44)) value = value.add(1)
+                return value
+            },
             display() { 
-                return "One more selection in third row"
+                return "The effect of prestige points are stronger"
             },
             canClick() {
                 if(getClickableState(this.layer, this.id)) return true
@@ -1513,19 +1519,20 @@ addLayer("u", {
             }
         },
         62: {
-            title: "More third selection",
+            title: "Prestige Boost",
+            effect() {
+                let value = new Decimal(2)
+                if (hasUpgrade(this.layer, 44)) value = value.add(1)
+                return value
+            },
             display() { 
-                return "One more selection in third row"
+                return "Upgrade point gain is boosted by prestige points"
             },
             canClick() {
-                if (hasUpgrade("p", 13)) {
-                    setClickableState(this.layer, this.id, true)
-                    return false
-                }
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 51) ||
-                   getClickableState(this.layer, 52) ||
-                   getClickableState(this.layer, 53)) return false
+                if(getClickableState(this.layer, 61) ||
+                   getClickableState(this.layer, 62) ||
+                   getClickableState(this.layer, 63)) return false
                 return true
             },
             onClick() {
@@ -1544,19 +1551,20 @@ addLayer("u", {
             }
         },
         63: {
-            title: "More third selection",
+            title: "Reverse Prestige Boost",
+            effect() {
+                let value = new Decimal(2)
+                if (hasUpgrade(this.layer, 44)) value = value.add(1)
+                return value
+            },
             display() { 
-                return "One more selection in third row"
+                return "Prestige point gain is boosted by upgrade points"
             },
             canClick() {
-                if (hasUpgrade("p", 13)) {
-                    setClickableState(this.layer, this.id, true)
-                    return false
-                }
                 if(getClickableState(this.layer, this.id)) return true
-                if(getClickableState(this.layer, 51) ||
-                   getClickableState(this.layer, 52) ||
-                   getClickableState(this.layer, 53)) return false
+                if(getClickableState(this.layer, 61) ||
+                   getClickableState(this.layer, 62) ||
+                   getClickableState(this.layer, 63)) return false
                 return true
             },
             onClick() {
