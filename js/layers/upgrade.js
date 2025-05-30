@@ -108,6 +108,7 @@ addLayer("u", {
 
         if (player["p"].unlocked) mult = mult.mul(layers["p"].effect())
         if(getClickableState("u", 62)) mult = mult.mul(clickableEffect("u", 62))
+        if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 12))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -924,7 +925,7 @@ addLayer("u", {
         rows: 10,
         cols: 3,
         11: {
-            title: "Replicate Point",
+            title: "Select Point",
             effect() {
                 let value = Decimal.log10(player.points.add(1)).add(1)
                 if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))
@@ -964,7 +965,7 @@ addLayer("u", {
             }
         },
         12: {
-            title: "Replicate Upgrade Point",
+            title: "Select Upgrade Point",
             effect() {
                 let value = Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.6)
                 if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))
@@ -1004,7 +1005,7 @@ addLayer("u", {
             }
         },
         13: {
-            title: "Replicate Buyable",
+            title: "Select Buyable",
             effect() {
                 let value = new Decimal(3)
                 if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))

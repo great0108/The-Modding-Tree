@@ -1,6 +1,6 @@
 function SelectionStyle() {
-    let css = { width: "150px" }
-    if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+    let css = { margin: "7px", 'height':'150px', 'width':'150px' }
+    //if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
     return css
 }
 
@@ -12,7 +12,18 @@ addLayer("p", {
     startData() { return {
         unlocked: false,
 		points: new Decimal(0),
-        milestoneCond : []
+        milestoneCond : [],
+        magic : new Decimal(0),
+        spellTime : {
+            11: new Decimal(0),
+            12: new Decimal(0),
+            13: new Decimal(0)
+        },
+        spellInput : {
+            11: new Decimal(0),
+            12: new Decimal(0),
+            13: new Decimal(0)
+        }
     }},
     color: "#415a9e",
     requires() {return new Decimal(1e100)}, // Can be a function that takes requirement increases into account
@@ -26,6 +37,7 @@ addLayer("p", {
         if (hasUpgrade("p", 11)) mult = mult.mul(upgradeEffect("p", 11))
         if (hasUpgrade("p", 14)) mult = mult.mul(upgradeEffect("p", 14))
         if(getClickableState("u", 63)) mult = mult.mul(clickableEffect("u", 63))
+        if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 13))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -104,8 +116,15 @@ addLayer("p", {
                 "prestige-button",
                 "blank",
                 "blank",
-                ["row", [["clickable", 11], ["clickable", 12], ["clickable", 13], ["clickable", 14]]],
+                ["row", [["clickable", 11], ["clickable", 12], ["clickable", 13]]],
+                "blank",
+                ["display-text", function() {
+                    return "You have " + player[this.layer].magic + " magic, which are "
+                }]
             ],
+            unlocked() {
+                return hasUpgrade("p", 15)
+            }
         }
     },
     // keep upgrade, auto buyable, keep selection, keep tree, auto tree point
@@ -205,23 +224,93 @@ addLayer("p", {
         },
     },
     clickables : {
+        rows: 1,
+		cols: 6,
         11: {
             title: "Replicate Point",
             effect() {
-                
+                let value = player[this.layer].spellInput[11]
+                value = value.add(1).log10().div(2).add(1).pow(5)
+                return value
             },
             display() { 
-                
+                return "Effect : point x" + format(clickableEffect(this.layer, this.id)) + "\n" +
+                "Time : " + format(player[this.layer].spellTime[11]) + "s"
             },
             canClick() {
-                
+                let input = player[this.layer].points.div(10).ceil()
+                return input.gt(player[this.layer].spellInput[11])
             },
             onClick() {
-                
+                let input = player[this.layer].points.div(10).ceil()
+                let time = input.log10()
+
+                player[this.layer].spellInput[11] = input
+                player[this.layer].spellTime[11] = time
+                player[this.layer].magic = player[this.layer].magic.add(input)
+                player[this.layer].points = player[this.layer].points.sub(input)
             },
             style : SelectionStyle,
             unlocked() {
-                
+                return hasUpgrade("p", 15)
+            }
+        },
+        12: {
+            title: "Replicate Upgrade Point",
+            effect() {
+                let value = player[this.layer].spellInput[12]
+                value = value.add(1).log10().div(3).add(1).pow(5)
+                return value
+            },
+            display() { 
+                return "Effect : upgrade point x" + format(clickableEffect(this.layer, this.id)) + "\n" +
+                "Time : " + format(player[this.layer].spellTime[12]) + "s"
+            },
+            canClick() {
+                let input = player[this.layer].points.div(10).ceil()
+                return input.gt(player[this.layer].spellInput[12])
+            },
+            onClick() {
+                let input = player[this.layer].points.div(10).ceil()
+                let time = input.log10()
+
+                player[this.layer].spellInput[12] = input
+                player[this.layer].spellTime[12] = time
+                player[this.layer].magic = player[this.layer].magic.add(input)
+                player[this.layer].points = player[this.layer].points.sub(input)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                return hasUpgrade("p", 15)
+            }
+        },
+        13: {
+            title: "Replicate Prestige Point",
+            effect() {
+                let value = player[this.layer].spellInput[13]
+                value = value.add(1).log10().div(3).add(1).pow(0.5)
+                return value
+            },
+            display() { 
+                return "Effect : prestige point x" + format(clickableEffect(this.layer, this.id)) + "\n" +
+                "Time : " + format(player[this.layer].spellTime[13]) + "s"
+            },
+            canClick() {
+                let input = player[this.layer].points.div(10).ceil()
+                return input.gt(player[this.layer].spellInput[13])
+            },
+            onClick() {
+                let input = player[this.layer].points.div(10).ceil()
+                let time = input.log10()
+
+                player[this.layer].spellInput[13] = input
+                player[this.layer].spellTime[13] = time
+                player[this.layer].magic = player[this.layer].magic.add(input)
+                player[this.layer].points = player[this.layer].points.sub(input)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                return hasUpgrade("p", 15)
             }
         },
     }
