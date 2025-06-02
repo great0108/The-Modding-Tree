@@ -190,6 +190,9 @@ addLayer("p", {
             done() { 
                 return player[this.layer].milestoneCond.includes(2)
             },
+            unlocked() {
+                return hasMilestone("p", 11)
+            },
             toggles : [["u", "autoBuyable"]]
         },
         3: {
@@ -199,6 +202,9 @@ addLayer("p", {
                 return player[this.layer].milestoneCond.includes(3)
 
             },
+            unlocked() {
+                return hasMilestone("p", 12)
+            },
         },
         4: {
             requirementDescription: "prestige without tree upgrades and tree points",
@@ -206,12 +212,18 @@ addLayer("p", {
             done() { 
                 return player[this.layer].milestoneCond.includes(4)
             },
+            unlocked() {
+                return hasMilestone("p", 13)
+            },
         },
         5: {
             requirementDescription: "prestige with more than 50 tree points",
             effectDescription: "Unlock auto tree points.",
             done() { 
                 return player[this.layer].milestoneCond.includes(5)
+            },
+            unlocked() {
+                return hasMilestone("p", 14)
             },
             toggles : [["u", "autoTreePoint"]]
         }

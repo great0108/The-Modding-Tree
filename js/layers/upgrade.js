@@ -458,7 +458,7 @@ addLayer("u", {
         52: {
             title: "Extend Selection",
             description: "Unlock new 2 selection.",
-            cost: new Decimal(1e160),
+            cost: new Decimal(1e170),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -610,7 +610,7 @@ addLayer("u", {
         1051: {
             title: "Additional First Selection",
             description: "Additional selection in first row selection upgrades.",
-            cost: new Decimal(1),
+            cost: new Decimal(2),
             req : [1041],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -624,7 +624,7 @@ addLayer("u", {
         1052: {
             title: "Additional Second Selection",
             description: "Additional selection in second row selection upgrades.",
-            cost: new Decimal(1),
+            cost: new Decimal(2),
             req : [1042],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -638,7 +638,7 @@ addLayer("u", {
         1053: {
             title: "Additional Third Selection",
             description: "Additional selection in third row selection upgrades.",
-            cost: new Decimal(1),
+            cost: new Decimal(2),
             req : [1043],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -651,14 +651,14 @@ addLayer("u", {
         },
         1061: {
             title: "Final Boost",
-            description: "boost points and upgrade points by 10000.",
+            description: "boost points and upgrade points by 1e4.",
             cost: new Decimal(5),
             req : [[1051], [1052], [1053]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
             unlocked : TreeUnlock([1051, 1052, 1053]),
             effect() {
-                return new Decimal(10000)
+                return new Decimal(1e4)
             },
             branches : [1071],
             style: TreeStyle
@@ -667,7 +667,7 @@ addLayer("u", {
             title: "Next Layer",
             description: "Unlock next layer.",
             cost() {
-                return player["p"].unlocked ? new Decimal(0) : new Decimal(7)
+                return player["p"].unlocked ? new Decimal(0) : new Decimal(6)
             },
             req : [1061],
             canAfford : TreeAffold,
@@ -1223,7 +1223,7 @@ addLayer("u", {
         32: {
             title: "Time Boost",
             effect() {
-                let value = new Decimal(player[this.layer].resetTime + 3).log10().mul(25).add(1)
+                let value = new Decimal(player[this.layer].resetTime + 3).log10().mul(30).add(1)
                 if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
@@ -1263,7 +1263,7 @@ addLayer("u", {
         33: {
             title: "Reverse Time Boost",
             effect() {
-                let value = new Decimal(player[this.layer].resetTime + 3).log10().mul(25).add(1)
+                let value = new Decimal(player[this.layer].resetTime + 3).log10().mul(30).add(1)
                 value = new Decimal(1000).div(value)
                 if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
