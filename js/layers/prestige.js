@@ -350,7 +350,8 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[11]) + "s"
             },
             canClick() {
-                return player[this.layer].points.gt(0)
+                let time = player[this.layer].points.div(10).ceil().log10()
+                return player[this.layer].points.gt(0) && time.sub(player[this.layer].spellTime[11]).gt(1)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()
@@ -382,7 +383,8 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[12]) + "s"
             },
             canClick() {
-                return player[this.layer].points.gt(0)
+                let time = player[this.layer].points.div(10).ceil().log10()
+                return player[this.layer].points.gt(0) && time.sub(player[this.layer].spellTime[12]).gt(1)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()
@@ -414,7 +416,8 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[13]) + "s"
             },
             canClick() {
-                return player[this.layer].points.gt(0)
+                let time = player[this.layer].points.div(10).ceil().log10()
+                return player[this.layer].points.gt(0) && time.sub(player[this.layer].spellTime[13]).gt(1)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()

@@ -59,29 +59,33 @@ addLayer("i", {
         },
         earlyTree: {
             title: "Early Tree",
-            body() { return "Find the each setting that maximize points and upgrade points similarly. Recommend 11, 21, 31, 41, 51, 61, 42 for points and 11, 22, 32, 21, 31, 43, 53, 62 for upgrade points. Don't forget to change selection setting when you change tree upgrades. You may buy 42 (Buyable Power 4) to make buyables cheaper. When you have 22 tree point, you can unlock next layer purchasing only the left upgrades of the tree." },
+            body() { return "Find the each setting that maximize points and upgrade points similarly. Recommend 11, 21, 31, 41, 51, 61 for points and 11, 22, 32, 21, 31, 43 for upgrade points. Don't forget to set selection when you change tree upgrades. You may buy 42 (Buyable Power 4) to make buyables cheaper." },
             unlocked() { return hasUpgrade("u", 45) || player["p"].unlocked}
         },
         lateTree: {
             title: "Late Tree",
-            body() { return "Find the each setting that maximize points and upgrade points similarly. Recommend 11, 21, 31, 41, 51, 61, 42 for points and 11, 22, 32, 21, 31, 43, 53, 62 for upgrade points. Don't forget to change selection setting when you change tree upgrades. You may buy 42 (Buyable Power 4) to make buyables cheaper. When you have 22 tree point, you can unlock next layer purchasing only the left upgrades of the tree." },
+            body() { return "After 17 tree points, 11, 21, 31, 41, 51, 61, 42 for points and 11, 22, 32, 43, 53, 62, 21, 31 for upgrade points. To reach 2e71 points, You may change selection 43 to 42. When you have 22 tree point, You can unlock next layer purchasing only the left upgrades of the tree." },
             unlocked() { return hasUpgrade("u", 45) || player["p"].unlocked}
         },
         earlyMilestone: {
             title: "Early Milestone",
-            body() { return "" },
+            body() { return "After you have over 10 prestige points, You can get milestone 1 without upgrades 12, 13, 23, 24, 31. Then buy upgrade 51 and prestige upgrades. After buying prestige upgrade 12, You can get milestone 2." },
+            unlocked() { return player["p"].unlocked}
         },
         lateMilestone: {
             title: "Late Milestone",
-            body() { return "" },
+            body() { return "Third milestone is achieved naturally when you buy prestige upgrade 13. You can get fourth milestone easily with over 1e8 prestige points. You also unlock sixth selection row. Recommend selection 62 for upgrade points and change to 63 just before getting the prestige points" },
+            unlocked() { return hasMilestone("p", 2)}
         },
         spell: {
             title: "Spell",
-            body() { return "" },
+            body() { return "Activate first two spells and farm upgrade points. Then activate third spell and get prestige points. Don't forget to change selection between farming upgrade points and getting prestige points. If you don't have enough upgrade points, You can farm magic by activating the spell multiple times. Selection 61 is better than 62 after buying prestige upgrade 21, " },
+            unlocked() { return hasUpgrade("p", 15)}
         },
         color: {
             title: "Color",
             body() { return "Next Update" },
+            unlocked() { return hasUpgrade("p", 23)}
         }
     },
 }, 
