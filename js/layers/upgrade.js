@@ -351,7 +351,7 @@ addLayer("u", {
             cost: new Decimal(500),
         },
         25: {
-            title: "New type Upgrade!",
+            title: "New type Upgrade",
             description: "Unlock buyable tab.",
             cost: new Decimal(1000),
         },
@@ -394,7 +394,7 @@ addLayer("u", {
             }
         },
         35: {
-            title: "New type Upgrade Again!",
+            title: "New type Upgrade Again",
             description: "Unlock selection tab.",
             cost: new Decimal(1e18),
             unlocked() {
@@ -440,7 +440,7 @@ addLayer("u", {
             }
         },
         45: {
-            title: "Last type Upgrade!",
+            title: "Last type Upgrade",
             description: "Unlock tree tab.",
             cost: new Decimal(1e45),
             unlocked() {
@@ -472,9 +472,9 @@ addLayer("u", {
             }
         },
         54: {
-            title: "Extend prestige upgrade",
+            title: "Extend Prestige Upgrade",
             description: "Unlock 5 more prestige upgrades.",
-            cost: new Decimal(1e250),
+            cost: new Decimal(1e210),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -666,7 +666,9 @@ addLayer("u", {
         1071: {
             title: "Next Layer",
             description: "Unlock next layer.",
-            cost: new Decimal(7),
+            cost() {
+                return player["p"].unlocked ? new Decimal(0) : new Decimal(7)
+            },
             req : [1061],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -826,11 +828,13 @@ addLayer("u", {
             },
             effect() {
                 let value = getBuyableAmount(this.layer, this.id)
+                if (hasUpgrade("u", 53)) value = value.mul(1.5)
                 if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return value
             },
             display() { 
-                return "+1 all buyables in the first row\n" +
+                let value = hasUpgrade("u", 53) ? 1.5 : 1
+                return "+" + value + " all buyables in the first row\n" +
                  "currently: +" + format(buyableEffect(this.layer, this.id)) + "\n\n" +
                  "cost: " + format(this.cost()) + " upgrade points"
             },
@@ -1551,7 +1555,7 @@ addLayer("u", {
         62: {
             title: "Prestige Boost",
             effect() {
-                let value = player["p"].points.add(1).log10().add(1).pow(6).div(5)
+                let value = player["p"].points.add(1).log10().add(1).pow(6)
                 return value
             },
             display() { 

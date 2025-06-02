@@ -46,6 +46,7 @@ addLayer("p", {
     row: 1, // Row the layer is in on the tree (0 is the first row)
     effect() {
         let mult = player["p"].points.add(1).log10().mul(2).add(1).pow(5)
+        if(hasUpgrade("p", 21)) mult = mult.pow(1.2)
         if(getClickableState("u", 61)) mult = mult.pow(clickableEffect("u", 61))
         return mult
     },
@@ -58,9 +59,10 @@ addLayer("p", {
         return value
     },
     spellPower() {
-        let value = new Decimal(1)
-        value = value.add(this.magicEffect().div(100))
-        return value
+        let mult = new Decimal(1)
+        mult = mult.add(this.magicEffect().div(100))
+        if(hasUpgrade("p", 22)) mult = mult.add(upgradeEffect("p", 22))
+        return mult
     },
     branches: ["u"],
     hotkeys: [
@@ -127,8 +129,8 @@ addLayer("p", {
                 "main-display",
                 "prestige-button",
                 "blank",
-                "milestones",
                 "blank",
+                "milestones",
                 "blank",
                 "upgrades"
             ],
@@ -137,6 +139,11 @@ addLayer("p", {
             content: [
                 "main-display",
                 "prestige-button",
+                "blank",
+                "blank",
+                ["display-text", function() {
+                    return "When activate any spell, insert 10% of your prestige points into the spell"
+                }],
                 "blank",
                 ["display-text", function() {
                     return "Spell Power : " + format(tmp.p.spellPower.mul(100)) + "%"
@@ -152,7 +159,21 @@ addLayer("p", {
             unlocked() {
                 return hasUpgrade("p", 15)
             }
-        }
+        },
+        "Color": {
+            content: [
+                "main-display",
+                "prestige-button",
+                "blank",
+                "blank",
+                ["display-text", function() {
+                    return "next update"
+                }],
+            ],
+            unlocked() {
+                return hasUpgrade("p", 23)
+            }
+        },
     },
     // keep upgrade, auto buyable, keep selection, keep tree, auto tree point
     milestones: {
@@ -236,7 +257,6 @@ addLayer("p", {
                 return value
             },
             effectDisplay() {
-                // this.layer == u, this.id == 14
                 return format(upgradeEffect(this.layer, this.id))+"x" 
             },
             unlocked() {
@@ -244,11 +264,65 @@ addLayer("p", {
             }
         },
         15: {
-            title: "new type boost",
+            title: "New Type Boost",
             description: "Unlock spell tab.",
             cost: new Decimal(1e10),
             unlocked() {
                 return hasUpgrade("u", 51)
+            }
+        },
+        21: {
+            title: "Prestige Power",
+            description: "Raise the effect of prestige points ^1.2.",
+            cost: new Decimal(1e14),
+            unlocked() {
+                return hasUpgrade("u", 54)
+            }
+        },
+        22: {
+            title: "Spell Power",
+            description: "Spells are more effective.",
+            cost: new Decimal(1e15),
+            effect() {
+                let value = new Decimal(0.5)
+                return value
+            },
+            effectDisplay() {
+                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
+            },
+            unlocked() {
+                return hasUpgrade("u", 54)
+            }
+        },
+        23: {
+            title: "New Type Boost Again",
+            description: "Unlock color tab.",
+            cost: new Decimal(1e16),
+            unlocked() {
+                return hasUpgrade("u", 54)
+            }
+        },
+        24: {
+            title: "???",
+            description: "???.",
+            cost: new Decimal(1e50),
+            effect() {
+                let value = Decimal.log10(player[this.layer].points.add(1)).add(1)
+                return value
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x" 
+            },
+            unlocked() {
+                return hasUpgrade("u", 54)
+            }
+        },
+        25: {
+            title: "Last Type Boost",
+            description: "Unlock ??? tab.",
+            cost: new Decimal(1e60),
+            unlocked() {
+                return hasUpgrade("u", 54)
             }
         },
     },
@@ -294,7 +368,7 @@ addLayer("p", {
                     player[this.layer].spellInput[12] = new Decimal(0)
                 }
                 let value = player[this.layer].spellInput[12]
-                value = value.add(1).log10().div(2.5).add(1).pow(5)
+                value = value.add(1).log10().div(3).add(1).pow(5)
                 value = value.pow(tmp.p.spellPower)
                 return value
             },
@@ -326,7 +400,7 @@ addLayer("p", {
                     player[this.layer].spellInput[13] = new Decimal(0)
                 }
                 let value = player[this.layer].spellInput[13]
-                value = value.add(1).log10().div(2.5).add(1).pow(0.5)
+                value = value.add(1).log10().div(3).add(1).pow(0.5)
                 value = value.pow(tmp.p.spellPower)
                 return value
             },
