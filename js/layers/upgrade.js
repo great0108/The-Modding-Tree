@@ -85,7 +85,8 @@ addLayer("u", {
         treePointSpent : new Decimal(0),
         treeUnlock : [],
         resetSelectionRows : [],
-        autoBuyable : false
+        autoBuyable : false,
+        autoTreePoint : false
     }},
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -153,6 +154,7 @@ addLayer("u", {
             keep.push("treePoint")
             keep.push("treePointSpent")
         }
+        if (hasMilestone("p", 5)) keep.push("autoTreePoint")
       
         // Stage 4, do the actual data reset
         layerDataReset(this.layer, keep);
@@ -166,6 +168,13 @@ addLayer("u", {
     update(diff) {
         if (player["u"].autoBuyable && hasMilestone("p", 2)) {
             let ids = [11, 12, 13, 14, 21, 22]
+            for(let id of ids) {
+                this.buyables[id].buyMax()
+            }
+        }
+
+        if(player["u"].autoTreePoint && hasMilestone("p", 5)) {
+            let ids = [111, 112]
             for(let id of ids) {
                 this.buyables[id].buyMax()
             }
@@ -236,7 +245,7 @@ addLayer("u", {
                 ["display-text",
                     function(){
                         let a = player[this.layer].treePoint
-                        return a + " tree point"
+                        return a + " tree points"
                     }
                 ],
                 "blank",
@@ -457,7 +466,7 @@ addLayer("u", {
         53: {
             title: "Extend Tree",
             description: "Unlock tree tab.",
-            cost: new Decimal(1e200),
+            cost: new Decimal(1e185),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -884,6 +893,7 @@ addLayer("u", {
                 player[this.layer].treePoint = player[this.layer].treePoint.add(1)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : PointBuyMax,
             unlocked() {
                 return hasUpgrade(this.layer, 45)
             },
@@ -906,6 +916,7 @@ addLayer("u", {
                 player[this.layer].treePoint = player[this.layer].treePoint.add(1)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             unlocked() {
                 return hasUpgrade(this.layer, 45)
             },
@@ -918,7 +929,8 @@ addLayer("u", {
             1 : 1e29,
             2 : 1e33,
             3 : 1e36,
-            4 : 1e163
+            4 : 1e163,
+            5 : 1e300
         }
     },
     clickables : {
@@ -1540,7 +1552,7 @@ addLayer("u", {
         62: {
             title: "Prestige Boost",
             effect() {
-                let value = Decimal.log10(player["p"].points.add(1)).pow(5)
+                let value = Decimal.log10(player["p"].points.add(1)).add(1).pow(6).div(10)
                 return value
             },
             display() { 
@@ -1572,7 +1584,7 @@ addLayer("u", {
         63: {
             title: "Reverse Prestige Boost",
             effect() {
-                let value = Decimal.log10(player["u"].points.add(1)).pow(0.3)
+                let value = Decimal.log10(player["u"].points.add(1)).add(1).pow(0.3)
                 return value
             },
             display() { 

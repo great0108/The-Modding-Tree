@@ -47,12 +47,12 @@ addLayer("i", {
         },
         selection: {
             title: "Selection",
-            body() { return "Find the each setting that maximize points and upgrade points. I recommend 11, 21, 31, 33, 43, 53 for points and 12, 22, 23, 33, 42, 52 for upgrade points. But this setting may not be optimal in the early selection stage." },
+            body() { return "Find the each setting that maximize points and upgrade points. Recommend 11, 21, 31, 33, 43, 53 for points and 12, 22, 23, 33, 42, 52 for upgrade points. But this setting may not be optimal in the early selection stage." },
             unlocked() { return hasUpgrade("u", 35) || player["p"].unlocked}
         },
         tree: {
             title: "Tree",
-            body() { return "Find the each setting that maximize points and upgrade points similarly. I recommend 11, 21, 31, 41, 51, 61, 42 for points and 11, 22, 32, 21, 31, 43, 53, 62 for upgrade points. Don't forget to change selection setting when you change tree upgrades. You may buy 42 (Buyable Power 4) to make buyables cheaper. When you have 22 tree point, you can unlock next layer purchasing only the left upgrades of the tree." },
+            body() { return "Find the each setting that maximize points and upgrade points similarly. Recommend 11, 21, 31, 41, 51, 61, 42 for points and 11, 22, 32, 21, 31, 43, 53, 62 for upgrade points. Don't forget to change selection setting when you change tree upgrades. You may buy 42 (Buyable Power 4) to make buyables cheaper. When you have 22 tree point, you can unlock next layer purchasing only the left upgrades of the tree." },
             unlocked() { return hasUpgrade("u", 45) || player["p"].unlocked}
         },
         earlyPrestige: {

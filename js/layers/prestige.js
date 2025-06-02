@@ -50,8 +50,17 @@ addLayer("p", {
         return mult
     },
     effectDescription() { // Optional text to describe the effects
-        eff = this.effect()
         return "which are boosting points and upgrade points by "+format(this.effect())
+    },
+    magicEffect() {
+        let value = player[this.layer].magic
+        value = value.add(1).log10().div(3)
+        return value
+    },
+    spellPower() {
+        let value = new Decimal(1)
+        value = value.add(this.magicEffect().div(100))
+        return value
     },
     branches: ["u"],
     hotkeys: [
@@ -91,6 +100,20 @@ addLayer("p", {
                 player[this.layer].milestoneCond.push(4)
             }
         }
+
+        if(player["u"].treePoint.gte(50) && !player[this.layer].milestoneCond.includes(5)) {
+            player[this.layer].milestoneCond.push(5)
+        }
+    },
+    update(diff) {
+        let spellTime = player[this.layer].spellTime
+        for(let id in spellTime) {
+            if(spellTime[id].gt(diff)) {
+                spellTime[id] = spellTime[id].sub(diff)
+            } else {
+                spellTime[id] = new Decimal(0)
+            }
+        }
     },
     unlocked() {
         return hasUpgrade("u", 1071)
@@ -115,11 +138,15 @@ addLayer("p", {
                 "main-display",
                 "prestige-button",
                 "blank",
+                ["display-text", function() {
+                    return "Spell Power : " + format(tmp.p.spellPower.mul(100)) + "%"
+                }],
                 "blank",
                 ["row", [["clickable", 11], ["clickable", 12], ["clickable", 13]]],
                 "blank",
                 ["display-text", function() {
-                    return "You have " + player[this.layer].magic + " magic, which are "
+                    return "You have " + format(player[this.layer].magic) +
+                    " magic, which are boosting spells +" + format(tmp.p.magicEffect) + "%"
                 }]
             ],
             unlocked() {
@@ -158,6 +185,14 @@ addLayer("p", {
             done() { 
                 return player[this.layer].milestoneCond.includes(4)
             },
+        },
+        5: {
+            requirementDescription: "prestige with more than 50 tree points",
+            effectDescription: "Unlock auto tree points.",
+            done() { 
+                return player[this.layer].milestoneCond.includes(5)
+            },
+            toggles : [["u", "autoTreePoint"]]
         }
     },
     upgrades: {
@@ -229,8 +264,12 @@ addLayer("p", {
         11: {
             title: "Replicate Point",
             effect() {
+                if (player[this.layer].spellTime[11].eq(0)) {
+                    player[this.layer].spellInput[11] = new Decimal(0)
+                }
                 let value = player[this.layer].spellInput[11]
                 value = value.add(1).log10().div(2).add(1).pow(5)
+                value = value.pow(tmp.p.spellPower)
                 return value
             },
             display() { 
@@ -238,8 +277,7 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[11]) + "s"
             },
             canClick() {
-                let input = player[this.layer].points.div(10).ceil()
-                return input.gt(player[this.layer].spellInput[11])
+                return player[this.layer].points.gt(0)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()
@@ -247,7 +285,7 @@ addLayer("p", {
 
                 player[this.layer].spellInput[11] = input
                 player[this.layer].spellTime[11] = time
-                player[this.layer].magic = player[this.layer].magic.add(input)
+                player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
             style : SelectionStyle,
@@ -258,8 +296,12 @@ addLayer("p", {
         12: {
             title: "Replicate Upgrade Point",
             effect() {
+                if (player[this.layer].spellTime[12].eq(0)) {
+                    player[this.layer].spellInput[12] = new Decimal(0)
+                }
                 let value = player[this.layer].spellInput[12]
                 value = value.add(1).log10().div(3).add(1).pow(5)
+                value = value.pow(tmp.p.spellPower)
                 return value
             },
             display() { 
@@ -267,8 +309,7 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[12]) + "s"
             },
             canClick() {
-                let input = player[this.layer].points.div(10).ceil()
-                return input.gt(player[this.layer].spellInput[12])
+                return player[this.layer].points.gt(0)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()
@@ -276,7 +317,7 @@ addLayer("p", {
 
                 player[this.layer].spellInput[12] = input
                 player[this.layer].spellTime[12] = time
-                player[this.layer].magic = player[this.layer].magic.add(input)
+                player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
             style : SelectionStyle,
@@ -287,8 +328,12 @@ addLayer("p", {
         13: {
             title: "Replicate Prestige Point",
             effect() {
+                if (player[this.layer].spellTime[13].eq(0)) {
+                    player[this.layer].spellInput[13] = new Decimal(0)
+                }
                 let value = player[this.layer].spellInput[13]
                 value = value.add(1).log10().div(3).add(1).pow(0.5)
+                value = value.pow(tmp.p.spellPower)
                 return value
             },
             display() { 
@@ -296,8 +341,7 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[13]) + "s"
             },
             canClick() {
-                let input = player[this.layer].points.div(10).ceil()
-                return input.gt(player[this.layer].spellInput[13])
+                return player[this.layer].points.gt(0)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()
@@ -305,7 +349,7 @@ addLayer("p", {
 
                 player[this.layer].spellInput[13] = input
                 player[this.layer].spellTime[13] = time
-                player[this.layer].magic = player[this.layer].magic.add(input)
+                player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
             style : SelectionStyle,
