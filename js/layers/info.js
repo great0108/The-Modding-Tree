@@ -74,12 +74,12 @@ addLayer("i", {
         },
         lateMilestone: {
             title: "Late Milestone",
-            body() { return "Third milestone is achieved naturally when you buy prestige upgrade 13. You can get fourth milestone easily with over 1e8 prestige points. You also unlock sixth selection row. Recommend selection 62 for upgrade points and change to 63 just before getting the prestige points" },
+            body() { return "Third milestone is achieved naturally when you buy prestige upgrade 13. You can get fourth milestone easily with over 1e8 prestige points. You also unlock sixth selection row. Recommend selection 62 for upgrade points and change to 63 just before getting the prestige points." },
             unlocked() { return hasMilestone("p", 2)}
         },
         spell: {
             title: "Spell",
-            body() { return "Activate first two spells and farm upgrade points. Then activate third spell and get prestige points. Don't forget to change selection between farming upgrade points and getting prestige points. If you don't have enough upgrade points, You can farm magic by activating the spell multiple times. Selection 61 is better than 62 after buying prestige upgrade 21, " },
+            body() { return "Activate first two spells and farm upgrade points. Then activate third spell and get prestige points. Don't forget to change selection between farming upgrade points and getting prestige points. If you don't have enough upgrade points, You can farm magic by activating the spell multiple times. Selection 61 is better than 62 after buying prestige upgrade 21." },
             unlocked() { return hasUpgrade("p", 15)}
         },
         color: {
