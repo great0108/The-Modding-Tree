@@ -167,7 +167,7 @@ addLayer("p", {
                 "blank",
                 "blank",
                 ["display-text", function() {
-                    return "next update"
+                    return "Next Update"
                 }],
             ],
             unlocked() {
@@ -245,7 +245,7 @@ addLayer("p", {
             }
         },
         12: {
-            title: "row 4 selection",
+            title: "Row 4 Selection",
             description: "You can activate all row 4 selection.",
             cost: new Decimal(100),
             unlocked() {
@@ -253,7 +253,7 @@ addLayer("p", {
             }
         },
         13: {
-            title: "row 5 selection",
+            title: "Row 5 Selection",
             description: "You can activate all row 5 selection.",
             cost: new Decimal(1e6),
             unlocked() {
@@ -318,13 +318,6 @@ addLayer("p", {
             title: "???",
             description: "???.",
             cost: new Decimal(1e50),
-            effect() {
-                let value = Decimal.log10(player[this.layer].points.add(1)).add(1)
-                return value
-            },
-            effectDisplay() {
-                return format(upgradeEffect(this.layer, this.id))+"x" 
-            },
             unlocked() {
                 return hasUpgrade("u", 54)
             }

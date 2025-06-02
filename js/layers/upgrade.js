@@ -1302,7 +1302,7 @@ addLayer("u", {
             }
         },
         41: {
-            title: "Enhance first row",
+            title: "Enhance First Row",
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
@@ -1339,7 +1339,7 @@ addLayer("u", {
             }
         },
         42: {
-            title: "Enhance second row",
+            title: "Enhance Second Row",
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
@@ -1376,7 +1376,7 @@ addLayer("u", {
             }
         },
         43: {
-            title: "Enhance third row",
+            title: "Enhance Third Row",
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
@@ -1413,7 +1413,7 @@ addLayer("u", {
             }
         },
         51: {
-            title: "More first selection",
+            title: "More First Selection",
             display() { 
                 return "One more selection in first row" 
             },
@@ -1449,7 +1449,7 @@ addLayer("u", {
             }
         },
         52: {
-            title: "More second selection",
+            title: "More Second Selection",
             display() { 
                 return "One more selection in second row" 
             },
@@ -1485,7 +1485,7 @@ addLayer("u", {
             }
         },
         53: {
-            title: "More third selection",
+            title: "More Third Selection",
             display() { 
                 return "One more selection in third row"
             },
