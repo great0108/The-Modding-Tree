@@ -464,25 +464,25 @@ addLayer("u", {
             }
         },
         53: {
-            title: "Extend Tree",
-            description: "Unlock tree tab.",
-            cost: new Decimal(1e185),
+            title: "Buyable Power 5",
+            description: "Boost fifth buyable effect.",
+            cost: new Decimal(1e190),
             unlocked() {
                 return player["p"].unlocked
             }
         },
         54: {
-            title: "Extend buyable",
-            description: "Unlock tree tab.",
-            cost: new Decimal(1e200),
+            title: "Extend prestige upgrade",
+            description: "Unlock 5 more prestige upgrades.",
+            cost: new Decimal(1e250),
             unlocked() {
                 return player["p"].unlocked
             }
         },
         55: {
-            title: "Extend prestige upgrade",
-            description: "Unlock tree tab.",
-            cost: new Decimal(1e250),
+            title: "Other Next Layer",
+            description: "Unlock other next layer.",
+            cost: new Decimal(1e300),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -490,7 +490,6 @@ addLayer("u", {
         1011: {
             title: "Buyable Power 3",
             description: "Boost third buyable effect.",
-            currencyDisplayName: "tree points",
             cost: new Decimal(3),
             req : [],
             canAfford : TreeAffold,
@@ -666,7 +665,7 @@ addLayer("u", {
         },
         1071: {
             title: "Next Layer",
-            description: "Unlock Next Layer.",
+            description: "Unlock next layer.",
             cost: new Decimal(7),
             req : [1061],
             canAfford : TreeAffold,
@@ -1552,7 +1551,7 @@ addLayer("u", {
         62: {
             title: "Prestige Boost",
             effect() {
-                let value = Decimal.log10(player["p"].points.add(1)).add(1).pow(6).div(10)
+                let value = player["p"].points.add(1).log10().add(1).pow(6).div(5)
                 return value
             },
             display() { 

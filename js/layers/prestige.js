@@ -54,7 +54,7 @@ addLayer("p", {
     },
     magicEffect() {
         let value = player[this.layer].magic
-        value = value.add(1).log10().div(3)
+        value = value.add(1).log10().div(2).add(1).pow(2)
         return value
     },
     spellPower() {
@@ -247,12 +247,6 @@ addLayer("p", {
             title: "new type boost",
             description: "Unlock spell tab.",
             cost: new Decimal(1e10),
-            effect() {
-                return Decimal.log10(player[this.layer].points.add(1)).add(1)
-            },
-            effectDisplay() {
-                return format(upgradeEffect(this.layer, this.id))+"x" 
-            },
             unlocked() {
                 return hasUpgrade("u", 51)
             }
@@ -300,7 +294,7 @@ addLayer("p", {
                     player[this.layer].spellInput[12] = new Decimal(0)
                 }
                 let value = player[this.layer].spellInput[12]
-                value = value.add(1).log10().div(3).add(1).pow(5)
+                value = value.add(1).log10().div(2.5).add(1).pow(5)
                 value = value.pow(tmp.p.spellPower)
                 return value
             },
@@ -332,7 +326,7 @@ addLayer("p", {
                     player[this.layer].spellInput[13] = new Decimal(0)
                 }
                 let value = player[this.layer].spellInput[13]
-                value = value.add(1).log10().div(3).add(1).pow(0.5)
+                value = value.add(1).log10().div(2.5).add(1).pow(0.5)
                 value = value.pow(tmp.p.spellPower)
                 return value
             },
