@@ -13,17 +13,26 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
-	name: "Upgrade area",
+	num: "0.2",
+	name: "Prestige area",
 }
 
-let changelog = `<h1>Changelog:</h1><br>
+let changelog = `<h1>Changelog:</h1><br><br>
 	<h3>v0.1</h3><br>
-		- Added Upgrade layer.<br>
-		- Added Upgrades tab.<br>
-		- Added Buyables tab.<br>
-		- Added Selection tab.<br>
-		- Added Tree tab.`
+		- Added Upgrade Layer.<br>
+		- Added Upgrades.<br>
+		- Added Buyables.<br>
+		- Added Selection.<br>
+		- Added Tree Upgrades.<br>
+		<br>	
+
+	<h3>v0.2</h3><br>
+	    - Rebalance Upgrade layer.<br>
+		- Added Prestige Layer.<br>
+		- Added Prestige Upgrades.<br>
+		- Added Prestige Milestones.<br>
+		- Added Spell.<br>
+		- Added Info Layer.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
