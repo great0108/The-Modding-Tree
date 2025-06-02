@@ -191,7 +191,7 @@ addLayer("p", {
                 return player[this.layer].milestoneCond.includes(2)
             },
             unlocked() {
-                return hasMilestone("p", 11)
+                return hasMilestone("p", 1)
             },
             toggles : [["u", "autoBuyable"]]
         },
@@ -203,7 +203,7 @@ addLayer("p", {
 
             },
             unlocked() {
-                return hasMilestone("p", 12)
+                return hasMilestone("p", 2)
             },
         },
         4: {
@@ -213,7 +213,7 @@ addLayer("p", {
                 return player[this.layer].milestoneCond.includes(4)
             },
             unlocked() {
-                return hasMilestone("p", 13)
+                return hasMilestone("p", 3)
             },
         },
         5: {
@@ -223,7 +223,7 @@ addLayer("p", {
                 return player[this.layer].milestoneCond.includes(5)
             },
             unlocked() {
-                return hasMilestone("p", 14)
+                return hasMilestone("p", 4)
             },
             toggles : [["u", "autoTreePoint"]]
         }
@@ -255,7 +255,7 @@ addLayer("p", {
         13: {
             title: "row 5 selection",
             description: "You can activate all row 5 selection.",
-            cost: new Decimal(1e5),
+            cost: new Decimal(1e6),
             unlocked() {
                 return hasUpgrade("u", 51)
             }
@@ -285,8 +285,8 @@ addLayer("p", {
         },
         21: {
             title: "Prestige Power",
-            description: "Raise the effect of prestige points ^1.2.",
-            cost: new Decimal(1e14),
+            description: "Raise the effect of prestige points and sixth selection row ^1.2.",
+            cost: new Decimal(5e14),
             unlocked() {
                 return hasUpgrade("u", 54)
             }
@@ -294,9 +294,9 @@ addLayer("p", {
         22: {
             title: "Spell Power",
             description: "Spells are more effective.",
-            cost: new Decimal(1e15),
+            cost: new Decimal(1e16),
             effect() {
-                let value = new Decimal(0.5)
+                let value = new Decimal(0.6)
                 return value
             },
             effectDisplay() {
@@ -309,7 +309,7 @@ addLayer("p", {
         23: {
             title: "New Type Boost Again",
             description: "Unlock color tab.",
-            cost: new Decimal(1e16),
+            cost: new Decimal(1e17),
             unlocked() {
                 return hasUpgrade("u", 54)
             }
@@ -380,7 +380,7 @@ addLayer("p", {
                     player[this.layer].spellInput[12] = new Decimal(0)
                 }
                 let value = player[this.layer].spellInput[12]
-                value = value.add(1).log10().div(3).add(1).pow(5)
+                value = value.add(1).log10().div(2.5).add(1).pow(5)
                 value = value.pow(tmp.p.spellPower)
                 return value
             },
@@ -412,7 +412,7 @@ addLayer("p", {
                     player[this.layer].spellInput[13] = new Decimal(0)
                 }
                 let value = player[this.layer].spellInput[13]
-                value = value.add(1).log10().div(3).add(1).pow(0.5)
+                value = value.add(1).log10().div(2.5).add(1).pow(0.5)
                 value = value.pow(tmp.p.spellPower)
                 return value
             },

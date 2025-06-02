@@ -458,7 +458,7 @@ addLayer("u", {
         52: {
             title: "Extend Selection",
             description: "Unlock new 2 selection.",
-            cost: new Decimal(1e170),
+            cost: new Decimal(1e160),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -932,7 +932,7 @@ addLayer("u", {
             1 : 1e29,
             2 : 1e33,
             3 : 1e36,
-            4 : 1e163,
+            4 : 1e161,
             5 : 1e300
         }
     },
@@ -1524,6 +1524,7 @@ addLayer("u", {
             title: "Boost Prestige",
             effect() {
                 let value = new Decimal(1.5)
+                if (hasUpgrade("p", 21)) value = value.add(0.1)
                 return value
             },
             display() { 
@@ -1555,7 +1556,8 @@ addLayer("u", {
         62: {
             title: "Prestige Boost",
             effect() {
-                let value = player["p"].points.add(1).log10().add(1).pow(6)
+                let value = player["p"].points.add(1).log10().add(1).pow(6).div(5)
+                if (hasUpgrade("p", 21)) value = value.pow(1.2)
                 return value
             },
             display() { 
@@ -1588,6 +1590,7 @@ addLayer("u", {
             title: "Reverse Prestige Boost",
             effect() {
                 let value = Decimal.log10(player["u"].points.add(1)).add(1).pow(0.3)
+                if (hasUpgrade("p", 21)) value = value.pow(1.2)
                 return value
             },
             display() { 
