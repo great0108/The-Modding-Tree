@@ -3,27 +3,36 @@ let modInfo = {
 	id: "mechanicTree",
 	author: "great",
 	pointsName: "points",
-	modFiles: ["layers/upgrade.js", "layers/prestige.js", "tree.js"],
+	modFiles: ["layers/upgrade.js", "layers/prestige.js", "layers/info.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
-	initialStartPoints: new Decimal (10), // Used for hard resets and new players
+	initialStartPoints: new Decimal(10), // Used for hard resets and new players
 	offlineLimit: 0,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
-	name: "Upgrade area",
+	num: "0.2",
+	name: "Prestige area",
 }
 
-let changelog = `<h1>Changelog:</h1><br>
+let changelog = `<h1>Changelog:</h1><br><br>
 	<h3>v0.1</h3><br>
-		- Added Upgrade layer.<br>
-		- Added Upgrades tab.<br>
-		- Added Buyables tab.<br>
-		- Added Selection tab.<br>
-		- Added Tree tab.`
+		- Added Upgrade Layer.<br>
+		- Added Upgrades.<br>
+		- Added Buyables.<br>
+		- Added Selection.<br>
+		- Added Tree Upgrades.<br>
+		<br>	
+
+	<h3>v0.2</h3><br>
+	    - Rebalance Upgrade layer.<br>
+		- Added Prestige Layer.<br>
+		- Added Prestige Upgrades.<br>
+		- Added Prestige Milestones.<br>
+		- Added Spell.<br>
+		- Added Info Layer.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -65,7 +74,11 @@ function getPointGen() {
 	if (getClickableState('u', 33)) gain = gain.times(clickableEffect('u', 33))
 	if (hasUpgrade('u', 41)) gain = gain.times(upgradeEffect("u", 41)) 
 
-	if (hasUpgrade('u', 1031)) gain = gain.times(upgradeEffect("u", 1031)) 
+	if (hasUpgrade('u', 1031)) gain = gain.times(upgradeEffect("u", 1031))
+	if (hasUpgrade('u', 1061)) gain = gain.times(upgradeEffect('u', 1061))
+
+	if (player["p"].unlocked) gain = gain.mul(layers["p"].effect())
+	if (hasUpgrade("p", 15)) gain = gain.mul(clickableEffect("p", 11))
 
 	return gain
 }
@@ -80,7 +93,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return hasUpgrade(this.layer, 1061)
+	return hasUpgrade("p", 23)
 }
 
 

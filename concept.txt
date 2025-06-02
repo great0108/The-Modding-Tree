@@ -1,7 +1,7 @@
 upgrade(upgrade, buyable+building, tree, select)
 
-prestige(upgrade+prestige bonus, spell, color, meta-prestige)
-generator(electron, darkness, antimatter dimention, quantum form)
+prestige(upgrade+goals+prestige bonus, spell, color, meta-prestige)
+generator(electron, darkness + antimatter dimention, quantum form, chroma)
 
 challenge(challenge+repeatable, exploration, hadronic challenge, dark run)  
 time(time upgrade+time reverse, blackhole, time dimention, overclock)
@@ -13,7 +13,9 @@ skill
 rune
 
 mastery  
-super-prestige  
-super-generator  
+super-prestige  - 미정
+super-generator  - 미정
 rpg  
 resource
+
+multibus

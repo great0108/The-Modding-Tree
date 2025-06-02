@@ -1,12 +1,44 @@
 const BuyableStyle = { margin: "7px" }
 const TreeStyle = { margin: "10px" }
 
+function PointBuyMax() {
+    if (!this.canAfford()) return
+    let x = getBuyableAmount(this.layer, this.id)
+    let amount = new Decimal(1)
+    while (true) {
+        let cost = this.cost(x.add(amount.mul(10)).sub(1))
+        if (player.points.lte(cost)) break
+        amount = amount.mul(10)
+    }
+
+    let cost = this.cost(x.add(amount).sub(1))
+    if (player.points.lte(cost)) return
+    player.points = player.points.sub(cost)
+    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
+}
+function UpgradePointBuyMax() {
+    if (!this.canAfford()) return
+    let x = getBuyableAmount(this.layer, this.id)
+    let amount = new Decimal(1)
+    while (true) {
+        let cost = this.cost(x.add(amount.mul(10)).sub(1))
+        if (player[this.layer].points.lte(cost)) break
+        amount = amount.mul(10)
+    }
+
+    let cost = this.cost(x.add(amount).sub(1))
+    if (player[this.layer].points.lte(cost)) return
+    player[this.layer].points = player[this.layer].points.sub(cost)
+    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
+}
+
 function SelectionStyle() {
     let css = { width: "150px" }
     if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
     else if (this.canClick(this.layer, this.id)) css["background"] = "#4BDC13"
     return css
 }
+
 function TreeAffold() {
     for (let a of this.req) if (!hasUpgrade(this.layer, a)) return false
     return player[this.layer].treePoint.gte(tmp.u.upgrades[this.id].cost) 
@@ -52,7 +84,9 @@ addLayer("u", {
         treePoint: new Decimal(0),
         treePointSpent : new Decimal(0),
         treeUnlock : [],
-        resetSelectionRows : []
+        resetSelectionRows : [],
+        autoBuyable : false,
+        autoTreePoint : false
     }},
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -70,8 +104,12 @@ addLayer("u", {
             mult = mult.times(buyableEffect("u", 14))  
         }
         if (getClickableState('u', 12)) mult = mult.times(clickableEffect('u', 12))
-
         if (hasUpgrade('u', 1032)) mult = mult.times(upgradeEffect('u', 1032))
+        if (hasUpgrade('u', 1061)) mult = mult.times(upgradeEffect('u', 1061))
+
+        if (player["p"].unlocked) mult = mult.mul(layers["p"].effect())
+        if(getClickableState("u", 62)) mult = mult.mul(clickableEffect("u", 62))
+        if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 12))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -81,6 +119,67 @@ addLayer("u", {
     hotkeys: [
         {key: "u", description: "U: Reset for upgrade points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
+    doReset(prestige) {
+        // Stage 1, almost always needed, makes resetting this layer not delete your progress
+        if (layers[prestige].row <= this.row) return;
+
+        // Stage 2, track which specific subfeatures you want to keep, e.g. Upgrade 11, Challenge 32, Buyable 12
+        let keptUpgrades = []
+        if (hasMilestone("p", 1)) {
+            for(let i = 1; i <= 5; i++) {
+                for(let j = 1; j <= 5; j++) {
+                    let id = i * 10 + j
+                    if (hasUpgrade("u", id)) keptUpgrades.push(id)
+                }
+            }
+        }
+
+        if (hasMilestone("p", 4)) {
+            for(let id of player["u"].upgrades) {
+                if(Number(id) > 1000 && hasUpgrade("u", id)) keptUpgrades.push(id)
+            }
+        }
+
+        let keptBuyables = {}
+        if (hasMilestone("p", 4)) {
+            keptBuyables[111] = player["u"].buyables[111]
+            keptBuyables[112] = player["u"].buyables[112]
+        }
+      
+        // Stage 3, track which main features you want to keep - all upgrades, total points, specific toggles, etc.
+        let keep = ["treeUnlock"];
+        if (hasMilestone("p", 2)) keep.push("autoBuyable")
+        if (hasMilestone("p", 3)) keep.push("clickables")
+        if (hasMilestone("p", 4)) {
+            keep.push("treePoint")
+            keep.push("treePointSpent")
+        }
+        if (hasMilestone("p", 5)) keep.push("autoTreePoint")
+      
+        // Stage 4, do the actual data reset
+        layerDataReset(this.layer, keep);
+      
+        // Stage 5, add back in the specific subfeatures you saved earlier
+        player[this.layer].upgrades.push(...keptUpgrades)
+        Object.assign(player[this.layer].buyables, keptBuyables)
+
+        if (!hasMilestone("p", 3)) player[this.layer].clickablesUnlock = []
+    },
+    update(diff) {
+        if (player["u"].autoBuyable && hasMilestone("p", 2)) {
+            let ids = [11, 12, 13, 14, 21, 22]
+            for(let id of ids) {
+                this.buyables[id].buyMax()
+            }
+        }
+
+        if(player["u"].autoTreePoint && hasMilestone("p", 5)) {
+            let ids = [111, 112]
+            for(let id of ids) {
+                this.buyables[id].buyMax()
+            }
+        }
+    },
     layerShown(){return true},
     tabFormat: {
         "Upgrades": {
@@ -93,6 +192,7 @@ addLayer("u", {
                 ["row", [["upgrade", 21], ["upgrade", 22], ["upgrade", 23], ["upgrade", 24], ["upgrade", 25]]],
                 ["row", [["upgrade", 31], ["upgrade", 32], ["upgrade", 33], ["upgrade", 34], ["upgrade", 35]]],
                 ["row", [["upgrade", 41], ["upgrade", 42], ["upgrade", 43], ["upgrade", 44], ["upgrade", 45]]],
+                ["row", [["upgrade", 51], ["upgrade", 52], ["upgrade", 53], ["upgrade", 54], ["upgrade", 55]]]
             ],
         },
         "Buyables": {
@@ -104,7 +204,9 @@ addLayer("u", {
                 ["row", [["buyable", 11], ["buyable", 12], ["buyable", 13], ["buyable", 14]]],
                 ["row", [["buyable", 21], ["buyable", 22]]]
             ],
-            unlocked() {return (hasUpgrade("u", 25))}
+            unlocked() {
+                return hasUpgrade("u", 25)
+            }
         },
         "Selection": {
             content: [
@@ -118,6 +220,7 @@ addLayer("u", {
                         let a = player[this.layer].clickablesUnlock.length
                         a = Math.floor(a / 3) - 1
                         if (!hasUpgrade("u", 43) && a >= 2) return "all selections are unlocked"
+                        if (!hasUpgrade("u", 52) && a >= 4) return "all selections are unlocked"
                         if (a in tmp.u.unlockCost) {
                             return "next selection is unlocked at " +
                              format(tmp.u.unlockCost[a]) + " upgrade points"
@@ -129,7 +232,9 @@ addLayer("u", {
                 "blank",
                 "clickables",
             ],
-            unlocked() {return hasUpgrade("u", 35)}
+            unlocked() {
+                return hasUpgrade("u", 35)
+            }
         },
         "Tree" : {
             content: [
@@ -140,7 +245,7 @@ addLayer("u", {
                 ["display-text",
                     function(){
                         let a = player[this.layer].treePoint
-                        return a + " tree point"
+                        return a + " tree points"
                     }
                 ],
                 "blank",
@@ -155,8 +260,11 @@ addLayer("u", {
                 ["row", [["upgrade", 1041], ["upgrade", 1042], ["upgrade", 1043]]],
                 ["row", [["upgrade", 1051], ["upgrade", 1052], ["upgrade", 1053]]],
                 ["row", [["upgrade", 1061]]],
+                ["row", [["upgrade", 1071]]],
             ],
-            unlocked() {return (hasUpgrade("u", 45))}
+            unlocked() {
+                return hasUpgrade("u", 45)
+            }
         }
     },
     upgrades: {
@@ -243,7 +351,7 @@ addLayer("u", {
             cost: new Decimal(500),
         },
         25: {
-            title: "New type Upgrade!",
+            title: "New type Upgrade",
             description: "Unlock buyable tab.",
             cost: new Decimal(1000),
         },
@@ -252,7 +360,7 @@ addLayer("u", {
             description: "Base point gain is squared.",
             cost: new Decimal(2e4),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             }
         },
         32: {
@@ -260,7 +368,7 @@ addLayer("u", {
             description: "First buyable also multiply your point gain.",
             cost: new Decimal(5e5),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             },
             effect() {
                 return buyableEffect(this.layer, 11).add(1)
@@ -274,7 +382,7 @@ addLayer("u", {
             description: "Unlock two new buyables.",
             cost: new Decimal(1e7),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             }
         },
         34: {
@@ -282,23 +390,23 @@ addLayer("u", {
             description: "Boost second buyable effect.",
             cost: new Decimal(1e13),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             }
         },
         35: {
-            title: "New type Upgrade Again!",
+            title: "New type Upgrade Again",
             description: "Unlock selection tab.",
             cost: new Decimal(1e18),
             unlocked() {
-                return hasUpgrade(this.layer, 25)
+                return hasUpgrade(this.layer, 25) || player["p"].unlocked
             }
         },
         41: {
             title: "Counting Selection",
             description: "Boost point gain based on unlocked selection number.",
-            cost: new Decimal(1e23),
+            cost: new Decimal(1e22),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             },
             effect() {
                 return new Decimal(player[this.layer].clickablesUnlock.length).add(1).pow(2)
@@ -310,9 +418,9 @@ addLayer("u", {
         42: {
             title: "Buyable Power 2",
             description: "Boost fourth buyable effect.",
-            cost: new Decimal(1e26),
+            cost: new Decimal(1e25),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             },
         },
         43: {
@@ -320,29 +428,68 @@ addLayer("u", {
             description: "Unlock two new selection rows.",
             cost: new Decimal(1e33),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             }
         },
         44: {
             title: "Boost Selection",
             description: "Boost fourth selection row effect.",
-            cost: new Decimal(1e43),
+            cost: new Decimal(1e40),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
             }
         },
         45: {
-            title: "Last type Upgrade!",
+            title: "Last type Upgrade",
             description: "Unlock tree tab.",
-            cost: new Decimal(1e48),
+            cost: new Decimal(1e45),
             unlocked() {
-                return hasUpgrade(this.layer, 35)
+                return hasUpgrade(this.layer, 35) || player["p"].unlocked
+            }
+        },
+        51: {
+            title: "New Layer Upgrade",
+            description: "Unlock 5 prestige upgrades.",
+            cost: new Decimal(1e110),
+            unlocked() {
+                return player["p"].unlocked
+            }
+        },
+        52: {
+            title: "Extend Selection",
+            description: "Unlock new 2 selection.",
+            cost: new Decimal(1e160),
+            unlocked() {
+                return player["p"].unlocked
+            }
+        },
+        53: {
+            title: "Buyable Power 5",
+            description: "Boost fifth buyable effect.",
+            cost: new Decimal(1e190),
+            unlocked() {
+                return player["p"].unlocked
+            }
+        },
+        54: {
+            title: "Extend Prestige Upgrade",
+            description: "Unlock 5 more prestige upgrades.",
+            cost: new Decimal(1e210),
+            unlocked() {
+                return player["p"].unlocked
+            }
+        },
+        55: {
+            title: "Other Next Layer",
+            description: "Unlock other next layer.",
+            cost: new Decimal(1e300),
+            unlocked() {
+                return player["p"].unlocked
             }
         },
         1011: {
             title: "Buyable Power 3",
             description: "Boost third buyable effect.",
-            currencyDisplayName: "tree points",
             cost: new Decimal(3),
             req : [],
             canAfford : TreeAffold,
@@ -395,7 +542,7 @@ addLayer("u", {
             unlocked : TreeUnlock([1021]),
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-                return new Decimal(2).pow(total.add(1))
+                return total.add(2).pow(4).div(16)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -406,14 +553,14 @@ addLayer("u", {
         1032: {
             title: "Tree Power 2",
             description: "Total tree points boost upgrade point gain.",
-            cost: new Decimal(3),
+            cost: new Decimal(2),
             req : [1022],
             canAfford : TreeAffold,
             pay : TreePay,
             unlocked : TreeUnlock([1022]),
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-                return new Decimal(2).pow(total.add(1))
+                return total.add(2).pow(4).div(16)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -503,13 +650,29 @@ addLayer("u", {
             style: TreeStyle
         },
         1061: {
-            title: "Next Layer",
-            description: "Unlock Next Layer.",
-            cost: new Decimal(10),
+            title: "Final Boost",
+            description: "boost points and upgrade points by 1e4.",
+            cost: new Decimal(5),
             req : [[1051], [1052], [1053]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
             unlocked : TreeUnlock([1051, 1052, 1053]),
+            effect() {
+                return new Decimal(1e4)
+            },
+            branches : [1071],
+            style: TreeStyle
+        },
+        1071: {
+            title: "Next Layer",
+            description: "Unlock next layer.",
+            cost() {
+                return player["p"].unlocked ? new Decimal(0) : new Decimal(6)
+            },
+            req : [1061],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked : TreeUnlock([1061]),
             style: TreeStyle
         },
     },
@@ -560,6 +723,7 @@ addLayer("u", {
                 player.points = player.points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : PointBuyMax,
             style: BuyableStyle
         },
         12: {
@@ -589,6 +753,7 @@ addLayer("u", {
                 player.points = player.points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : PointBuyMax,
             style: BuyableStyle
         },
         13: {
@@ -618,10 +783,11 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             style: BuyableStyle
         },
         14: {
-            title: "Devide Cost",
+            title: "Devide Upgrade Point Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).add(x)
                 let cost = new Decimal(1000).mul(value.pow(x))
@@ -649,6 +815,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             style: BuyableStyle
         },
         21: {
@@ -661,11 +828,13 @@ addLayer("u", {
             },
             effect() {
                 let value = getBuyableAmount(this.layer, this.id)
+                if (hasUpgrade("u", 53)) value = value.mul(1.5)
                 if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
                 return value
             },
             display() { 
-                return "+1 all buyables in the first row\n" +
+                let value = hasUpgrade("u", 53) ? 1.5 : 1
+                return "+" + value + " all buyables in the first row\n" +
                  "currently: +" + format(buyableEffect(this.layer, this.id)) + "\n\n" +
                  "cost: " + format(this.cost()) + " upgrade points"
             },
@@ -674,6 +843,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             unlocked() {
                 return hasUpgrade(this.layer, 33)
             },
@@ -703,6 +873,7 @@ addLayer("u", {
                 player[this.layer].points = player[this.layer].points.sub(this.cost())
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             unlocked() {
                 return hasUpgrade(this.layer, 33)
             },
@@ -725,6 +896,7 @@ addLayer("u", {
                 player[this.layer].treePoint = player[this.layer].treePoint.add(1)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : PointBuyMax,
             unlocked() {
                 return hasUpgrade(this.layer, 45)
             },
@@ -747,6 +919,7 @@ addLayer("u", {
                 player[this.layer].treePoint = player[this.layer].treePoint.add(1)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            buyMax : UpgradePointBuyMax,
             unlocked() {
                 return hasUpgrade(this.layer, 45)
             },
@@ -756,16 +929,18 @@ addLayer("u", {
     unlockCost() {
         return {
             0 : 1e21,
-            1 : 1e30,
-            2 : 1e34,
-            3 : 1e38
+            1 : 1e29,
+            2 : 1e33,
+            3 : 1e36,
+            4 : 1e161,
+            5 : 1e300
         }
     },
     clickables : {
         rows: 10,
         cols: 3,
         11: {
-            title: "Replicate Point",
+            title: "Select Point",
             effect() {
                 let value = Decimal.log10(player.points.add(1)).add(1)
                 if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))
@@ -805,7 +980,7 @@ addLayer("u", {
             }
         },
         12: {
-            title: "Replicate Upgrade Point",
+            title: "Select Upgrade Point",
             effect() {
                 let value = Decimal.log10(player[this.layer].points.add(1)).add(1).pow(0.6)
                 if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))
@@ -845,7 +1020,7 @@ addLayer("u", {
             }
         },
         13: {
-            title: "Replicate Buyable",
+            title: "Select Buyable",
             effect() {
                 let value = new Decimal(3)
                 if (getClickableState('u', 41)) value = value.pow(clickableEffect('u', 41))
@@ -927,8 +1102,8 @@ addLayer("u", {
         22: {
             title: "Free Third Buyable",
             effect() {
-                let value = getBuyableAmount(this.layer, 22)
-                value = Decimal.log10(value.add(1)).times(3)
+                let value = getBuyableAmount(this.layer, 13)
+                value = Decimal.log10(value.add(1)).times(2)
                 if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
                 return value
             },
@@ -968,7 +1143,7 @@ addLayer("u", {
         23: {
             title: "Free Fourth Buyable",
             effect() {
-                let value = Decimal.log10(player[this.layer].points.add(1)).pow(0.5)
+                let value = Decimal.log10(player[this.layer].points.add(1)).pow(0.4)
                 if (getClickableState('u', 42)) value = value.times(clickableEffect('u', 42))
                 return value
             },
@@ -1009,7 +1184,7 @@ addLayer("u", {
             title: "Static Boost",
             effect() {
                 let value = new Decimal(40)
-                if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
+                if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
             display() { 
@@ -1048,8 +1223,8 @@ addLayer("u", {
         32: {
             title: "Time Boost",
             effect() {
-                let value = new Decimal(player[this.layer].resetTime + 1).log10().mul(25).add(1)
-                if (getClickableState('u', 43)) value = value.times(clickableEffect('u', 43))
+                let value = new Decimal(player[this.layer].resetTime + 3).log10().mul(30).add(1)
+                if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
             },
             display() { 
@@ -1088,7 +1263,7 @@ addLayer("u", {
         33: {
             title: "Reverse Time Boost",
             effect() {
-                let value = new Decimal(player[this.layer].resetTime + 2).log10().mul(25).add(1)
+                let value = new Decimal(player[this.layer].resetTime + 3).log10().mul(30).add(1)
                 value = new Decimal(1000).div(value)
                 if (getClickableState('u', 43)) value = value.pow(clickableEffect('u', 43))
                 return value
@@ -1127,19 +1302,18 @@ addLayer("u", {
             }
         },
         41: {
-            title: "Enhance first row",
+            title: "Enhance First Row",
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
-                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
-                return "The selection upgrades in first row is stronger\n" + 
+                return "The selection upgrades in first row are stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
-                if (hasUpgrade(this.layer, 51)) {
+                if (hasUpgrade("p", 12)) {
                     setClickableState(this.layer, this.id, true)
                     return false
                 }
@@ -1165,19 +1339,18 @@ addLayer("u", {
             }
         },
         42: {
-            title: "Enhance second row",
+            title: "Enhance Second Row",
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
-                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
-                return "The selection upgrades in second row is stronger\n" + 
+                return "The selection upgrades in second row are stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
-                if (hasUpgrade(this.layer, 51)) {
+                if (hasUpgrade("p", 12)) {
                     setClickableState(this.layer, this.id, true)
                     return false
                 }
@@ -1203,19 +1376,18 @@ addLayer("u", {
             }
         },
         43: {
-            title: "Enhance third row",
+            title: "Enhance Third Row",
             effect() {
                 let value = new Decimal(2)
                 if (hasUpgrade(this.layer, 44)) value = value.add(1)
-                if (hasUpgrade(this.layer, 51)) value = value.add(0.2)
                 return value
             },
             display() { 
-                return "The selection upgrades in third row is stronger\n" + 
+                return "The selection upgrades in third row are stronger\n" + 
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
-                if (hasUpgrade(this.layer, 51)) {
+                if (hasUpgrade("p", 12)) {
                     setClickableState(this.layer, this.id, true)
                     return false
                 }
@@ -1241,14 +1413,15 @@ addLayer("u", {
             }
         },
         51: {
-            title: "More first selection",
-            effect() {
-                return new Decimal(1)
-            },
+            title: "More First Selection",
             display() { 
                 return "One more selection in first row" 
             },
             canClick() {
+                if (hasUpgrade("p", 13)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 51) ||
                    getClickableState(this.layer, 52) ||
@@ -1276,14 +1449,15 @@ addLayer("u", {
             }
         },
         52: {
-            title: "More second selection",
-            effect() {
-                return new Decimal(1)
-            },
+            title: "More Second Selection",
             display() { 
                 return "One more selection in second row" 
             },
             canClick() {
+                if (hasUpgrade("p", 13)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 51) ||
                    getClickableState(this.layer, 52) ||
@@ -1311,14 +1485,15 @@ addLayer("u", {
             }
         },
         53: {
-            title: "More third selection",
-            effect() {
-                return new Decimal(1)
-            },
+            title: "More Third Selection",
             display() { 
                 return "One more selection in third row"
             },
             canClick() {
+                if (hasUpgrade("p", 13)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 51) ||
                    getClickableState(this.layer, 52) ||
@@ -1344,6 +1519,105 @@ addLayer("u", {
                 }
                 return false
             }
-        }
+        },
+        61: {
+            title: "Boost Prestige",
+            effect() {
+                let value = new Decimal(1.5)
+                if (hasUpgrade("p", 21)) value = value.add(0.1)
+                return value
+            },
+            display() { 
+                return "The effect of prestige points are stronger\n" +
+                "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 61) ||
+                   getClickableState(this.layer, 62) ||
+                   getClickableState(this.layer, 63)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[4])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        62: {
+            title: "Prestige Boost",
+            effect() {
+                let value = player["p"].points.add(1).log10().add(1).pow(6).div(5)
+                if (hasUpgrade("p", 21)) value = value.pow(1.2)
+                return value
+            },
+            display() { 
+                return "Upgrade point gain is boosted by prestige points\n" +
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 61) ||
+                   getClickableState(this.layer, 62) ||
+                   getClickableState(this.layer, 63)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[4])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        63: {
+            title: "Reverse Prestige Boost",
+            effect() {
+                let value = Decimal.log10(player["u"].points.add(1)).add(1).pow(0.3)
+                if (hasUpgrade("p", 21)) value = value.pow(1.2)
+                return value
+            },
+            display() { 
+                return "Prestige point gain is boosted by upgrade points\n" +
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 61) ||
+                   getClickableState(this.layer, 62) ||
+                   getClickableState(this.layer, 63)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[4])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
     }
 })
