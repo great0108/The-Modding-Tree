@@ -11,6 +11,9 @@ addLayer("i", {
     tabFormat: {
         "Upgrade Layer": {
             content: [
+                ["infobox", "general"],
+                "blank",
+                "blank",
                 ["infobox", "upgrades"],
                 "blank",
                 "blank",
@@ -43,6 +46,10 @@ addLayer("i", {
         },
     },
     infoboxes: {
+        general: {
+            title: "General",
+            body() { return "To simplify the notation of upgrades, upgrades are specified by listing rows and columns. For example, upgrade 14 is the upgrade in the fourth column of the first row." },
+        },
         upgrades: {
             title: "Upgrades",
             body() { return "Just collect upgrade points and buy upgrades. You can hold down U to get upgrade points fast." },
@@ -64,7 +71,7 @@ addLayer("i", {
         },
         lateTree: {
             title: "Late Tree",
-            body() { return "After 17 tree points, 11, 21, 31, 41, 51, 61, 42 for points and 11, 22, 32, 43, 53, 62, 21, 31 for upgrade points. To reach 2e71 points, You may change selection 43 to 42. When you have 22 tree point, You can unlock next layer purchasing only the left upgrades of the tree." },
+            body() { return "After 17 tree points, 11, 21, 31, 41, 51, 61, 42 for points and 11, 22, 32, 43, 53, 61, 21, 31 for upgrade points. To reach 2e71 points, You may change selection 43 to 42. When you have 22 tree point, You can unlock next layer purchasing only the left upgrades of the tree." },
             unlocked() { return hasUpgrade("u", 45) || player["p"].unlocked}
         },
         earlyMilestone: {
