@@ -1,8 +1,6 @@
-function SelectionStyle() {
-    let css = { margin: "7px", 'height':'150px', 'width':'150px' }
-    //if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
-    return css
-}
+const SpellStyle = { margin: "7px", 'height':'150px', 'width':'150px' }
+const ColorClickableStyle = {'height':'50px !important', 'width':'50px' }
+
 
 
 addLayer("p", {
@@ -23,7 +21,10 @@ addLayer("p", {
             11: new Decimal(0),
             12: new Decimal(0),
             13: new Decimal(0)
-        }
+        },
+        colors : [new Decimal(0), new Decimal(0), new Decimal(0)],
+        max_colors : [new Decimal(10), new Decimal(10), new Decimal(10)],
+        colorPoint : new Decimal(0)
     }},
     color: "#415a9e",
     requires() {return new Decimal(1e100)}, // Can be a function that takes requirement increases into account
@@ -169,6 +170,8 @@ addLayer("p", {
                 ["display-text", function() {
                     return "Next Update"
                 }],
+                "blank",
+                ["row", [["bar", "redBar"], ["clickable", 111], "blank", ["bar", "greenBar"], "blank", ["bar", "blueBar"]]]
             ],
             unlocked() {
                 return hasUpgrade("p", 23)
@@ -362,7 +365,7 @@ addLayer("p", {
                 player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SelectionStyle,
+            style : SpellStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
             }
@@ -395,7 +398,7 @@ addLayer("p", {
                 player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SelectionStyle,
+            style : SpellStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
             }
@@ -428,9 +431,55 @@ addLayer("p", {
                 player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SelectionStyle,
+            style : SpellStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
+            }
+        },
+        111: {
+            display: "+",
+            canClick() {
+                return player[this.layer].colorPoint.gt(0) && player[this.layer].colors[0].lt(player[this.layer].max_colors[0])
+            },
+            onClick() {
+                player[this.layer].colorPoint = player[this.layer].colorPoint.sub(1)
+                player[this.layer].colors[0] = player[this.layer].colors[0].add(1)
+            },
+            style : ColorClickableStyle
+        }
+    },
+    bars: {
+        redBar: {
+            direction: UP,
+            width: 50,
+            height: 200,
+            progress() { 
+                return player[this.layer].colors[0]+1 / player[this.layer].max_colors[0]
+            },
+            fillStyle : {
+                "background-color" : "#ff0000"
+            }
+        },
+        greenBar: {
+            direction: UP,
+            width: 50,
+            height: 200,
+            progress() { 
+                return player[this.layer].colors[1]+1 / player[this.layer].max_colors[1]
+            },
+            fillStyle : {
+                "background-color" : "#00ff00"
+            }
+        },
+        blueBar: {
+            direction: UP,
+            width: 50,
+            height: 200,
+            progress() { 
+                return player[this.layer].colors[2]+1 / player[this.layer].max_colors[2]
+            },
+            fillStyle : {
+                "background-color" : "#0000ff"
             }
         },
     }
