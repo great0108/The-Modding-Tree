@@ -702,7 +702,8 @@ addLayer("u", {
         11: {
             title: "Add Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let cost = new Decimal(1000).mul(new Decimal(3).add(x).pow(x))
+                let value = new Decimal(3).add(x)
+                let cost = new Decimal(1000).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
             },
