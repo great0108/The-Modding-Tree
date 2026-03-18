@@ -3,7 +3,7 @@ let modInfo = {
 	id: "mechanicTree",
 	author: "great",
 	pointsName: "points",
-	modFiles: ["layers/upgrade.js", "layers/prestige.js", "layers/info.js", "tree.js"],
+	modFiles: ["layers/upgrade.js", "layers/prestige.js", "layers/generator.js", "layers/info.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
@@ -13,8 +13,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.2",
-	name: "Prestige area",
+	num: "0.2.1",
+	name: "Color area",
 }
 
 let changelog = `<h1>Changelog:</h1><br><br>
@@ -27,12 +27,22 @@ let changelog = `<h1>Changelog:</h1><br><br>
 		<br>	
 
 	<h3>v0.2</h3><br>
-	    - Rebalance Upgrade layer.<br>
 		- Added Prestige Layer.<br>
 		- Added Prestige Upgrades.<br>
 		- Added Prestige Milestones.<br>
 		- Added Spell.<br>
-		- Added Info Layer.<br>`
+		- Added Info Layer.<br>
+		- Rebalance Upgrade layer.<br>
+		- Added 4 Upgrades.<br>
+		- Added 2 selection row.<br>
+		<br>
+
+	<h3>v0.2.1</h3><br>
+	    - Added Color.<br>
+		- Added Color Upgrades.<br>
+		- Added 2 Prestige Upgrades.<br>
+		- Added 1 Upgrade.<br>
+		- Upgrade Bug fix.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -79,6 +89,8 @@ function getPointGen() {
 
 	if (player["p"].unlocked) gain = gain.mul(layers["p"].effect())
 	if (hasUpgrade("p", 15)) gain = gain.mul(clickableEffect("p", 11))
+	if (hasUpgrade("p", 23)) gain = gain.mul(layers["p"].yellowEffect())
+	if (hasUpgrade('u', 55)) gain = gain.mul(upgradeEffect('u', 55))
 
 	return gain
 }
@@ -93,7 +105,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return hasUpgrade("p", 23)
+	return player["g"].unlocked
 }
 
 

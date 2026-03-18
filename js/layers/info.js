@@ -41,7 +41,10 @@ addLayer("i", {
                 ["infobox", "spell"],
                 "blank",
                 "blank",
-                ["infobox", "color"],
+                ["infobox", "earlyColor"],
+                "blank",
+                "blank",
+                ["infobox", "lateColor"],
             ],
         },
     },
@@ -89,9 +92,14 @@ addLayer("i", {
             body() { return "Activate first two spells and farm upgrade points. Then activate third spell and get prestige points. Don't forget to change selection between farming upgrade points and getting prestige points. If you don't have enough upgrade points, You can farm magic by activating the spell multiple times. Selection 61 is better than 62 after buying prestige upgrade 21." },
             unlocked() { return hasUpgrade("p", 15)}
         },
-        color: {
-            title: "Color",
-            body() { return "Next Update" },
+        earlyColor: {
+            title: "Early Color",
+            body() { return "Start with all blue until 6 color points. Half green and half blue setting makes color points cheaper. After 6 color points, assign 3 blue, and the rest for red. At 9 color points, all green and the rest for blue setting is the more powerful." },
+            unlocked() { return hasUpgrade("p", 23)}
+        },
+        lateColor: {
+            title: "Late Color",
+            body() { return "After 13 color points, assign 6 blue, 6 red and the rest for green. Don't forget to change to cheap color points setting. If you fill up the green, allocate the remaining points to red. After 25 color points, assigning 9 blue and 9 red makes color points more cheaper. Collect at least 29 color points and then buy remaining upgrades. If you are short on points, farming magic by spamming the spell." },
             unlocked() { return hasUpgrade("p", 23)}
         }
     },
