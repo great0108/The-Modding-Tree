@@ -356,7 +356,7 @@ addLayer("u", {
             cost: new Decimal(1000),
         },
         31: {
-            title: "Point Squared",
+            title: "Square Point",
             description: "Base point gain is squared.",
             cost: new Decimal(2e4),
             unlocked() {
@@ -480,17 +480,25 @@ addLayer("u", {
             }
         },
         55: {
-            title: "Other Next Layer",
-            description: "Unlock other next layer.",
-            cost: new Decimal(1e300),
+            title: "Color Boost",
+            description: "Multiply point gain based on total color points",
+            cost: new Decimal(1e270),
             unlocked() {
                 return player["p"].unlocked
-            }
+            },
+            effect() {
+                let value = player["p"].colorPoint.add(player["p"].colors[0]).add(player["p"].colors[1]).add(player["p"].colors[2])
+                return new Decimal(2).pow(value)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x" 
+            }, 
         },
         1011: {
             title: "Buyable Power 3",
             description: "Boost third buyable effect.",
             cost: new Decimal(3),
+            currencyDisplayName: "tree points",
             req : [],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -502,6 +510,7 @@ addLayer("u", {
             title: "Boost Self Synergy",
             description: "Boost \"Self Synergy\" upgrade. (upgrade 14)",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1011],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -519,6 +528,7 @@ addLayer("u", {
             title: "More More Upgrades",
             description: "Boost \"More Upgrades\" upgrade. (upgrade 22)",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1011],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -536,6 +546,7 @@ addLayer("u", {
             title: "Tree Power",
             description: "Total tree points boost point gain.",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1021],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -554,6 +565,7 @@ addLayer("u", {
             title: "Tree Power 2",
             description: "Total tree points boost upgrade point gain.",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1022],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -572,6 +584,7 @@ addLayer("u", {
             title: "Cheap Tree",
             description: "Lower tree point cost ^0.95.",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1031],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -583,6 +596,7 @@ addLayer("u", {
             title: "Buyable Power 4",
             description: "Boost sixth buyable effect.",
             cost: new Decimal(5),
+            currencyDisplayName: "tree points",
             req : [[1031], [1032]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
@@ -594,6 +608,7 @@ addLayer("u", {
             title: "Tree Products",
             description: "gain first five buyables based on tree point.",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1032],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -611,6 +626,7 @@ addLayer("u", {
             title: "Additional First Selection",
             description: "Additional selection in first row selection upgrades.",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1041],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -625,6 +641,7 @@ addLayer("u", {
             title: "Additional Second Selection",
             description: "Additional selection in second row selection upgrades.",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1042],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -639,6 +656,7 @@ addLayer("u", {
             title: "Additional Third Selection",
             description: "Additional selection in third row selection upgrades.",
             cost: new Decimal(2),
+            currencyDisplayName: "tree points",
             req : [1043],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -653,6 +671,7 @@ addLayer("u", {
             title: "Final Boost",
             description: "boost points and upgrade points by 1e4.",
             cost: new Decimal(5),
+            currencyDisplayName: "tree points",
             req : [[1051], [1052], [1053]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
@@ -669,6 +688,7 @@ addLayer("u", {
             cost() {
                 return player["p"].unlocked ? new Decimal(0) : new Decimal(6)
             },
+            currencyDisplayName: "tree points",
             req : [1061],
             canAfford : TreeAffold,
             pay : TreePay,
@@ -702,7 +722,8 @@ addLayer("u", {
         11: {
             title: "Add Point",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
-                let cost = new Decimal(1000).mul(new Decimal(3).add(x).pow(x))
+                let value = new Decimal(3).add(x)
+                let cost = new Decimal(1000).mul(value.pow(x))
                 if (hasUpgrade(this.layer, 33)) cost = cost.div(buyableEffect(this.layer, 22))
                 return cost
             },
@@ -1532,6 +1553,10 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
+                if (hasUpgrade("p", 25)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 61) ||
                    getClickableState(this.layer, 62) ||
@@ -1565,6 +1590,10 @@ addLayer("u", {
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
+                if (hasUpgrade("p", 25)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 61) ||
                    getClickableState(this.layer, 62) ||
@@ -1598,6 +1627,10 @@ addLayer("u", {
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
+                if (hasUpgrade("p", 25)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 61) ||
                    getClickableState(this.layer, 62) ||

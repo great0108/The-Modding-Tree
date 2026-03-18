@@ -1,6 +1,20 @@
-function SelectionStyle() {
-    let css = { margin: "7px", 'height':'150px', 'width':'150px' }
-    //if (getClickableState(this.layer, this.id)) css["background"] = "#33FF99"
+// const ColorBuyableStyle = {'height':'150px', 'width':'150px'}
+const SpellStyle = { margin: "7px", 'height':'150px', 'width':'150px' }
+
+function ColorBuyableStyle() {
+    let css = {}
+    if(this.canAfford(this.layer, this.id)) css["background"] = "white"
+    return css
+}
+
+function ColorClickableStyle() {
+    let css = {'height':'50px', 'width':'50px', 'min-height':'50px'}
+    let color = ""
+    if(this.id == 111 || this.id == 112 || this.id == 113) color = "red"
+    else if(this.id == 121 || this.id == 122 || this.id == 123) color = "green"
+    else if(this.id == 131 || this.id == 132 || this.id == 133) color = "blue"
+
+    if(this.canClick(this.layer, this.id)) css["background"] = color
     return css
 }
 
@@ -23,7 +37,12 @@ addLayer("p", {
             11: new Decimal(0),
             12: new Decimal(0),
             13: new Decimal(0)
-        }
+        },
+        energy : new Decimal(0),
+        colors : [new Decimal(0), new Decimal(0), new Decimal(0)],
+        maxColors : [new Decimal(10), new Decimal(10), new Decimal(10)],
+        colorPoint : new Decimal(0),
+        timeAfterChange : new Decimal(0.1)
     }},
     color: "#415a9e",
     requires() {return new Decimal(1e100)}, // Can be a function that takes requirement increases into account
@@ -63,6 +82,46 @@ addLayer("p", {
         mult = mult.add(this.magicEffect().div(100))
         if(hasUpgrade("p", 22)) mult = mult.add(upgradeEffect("p", 22))
         return mult
+    },
+    energyGain() {
+        let value = new Decimal(0.1)
+        value = value.mul(this.redEffect())
+        value = value.mul(this.greenEffect())
+        value = value.mul(this.blueEffect())
+        if(hasUpgrade("p", 112) && Array.isArray(upgradeEffect("p", 112))) {
+            value = value.mul(upgradeEffect("p", 112)[1])
+            value = value.pow(upgradeEffect("p", 112)[0])
+        }
+        return value
+    },
+    redEffect() {
+        let value = new Decimal(3)
+        if(hasUpgrade("p", 111)) value = value.mul(upgradeEffect("p", 111))
+        return value.pow(player[this.layer].colors[0])
+    },
+    greenEffect() {
+        let value = player[this.layer].energy.log10().add(1).div(Decimal.log10(15)).max(1)
+        return value.pow(player[this.layer].colors[1])
+    },
+    blueEffect() {
+        let value = player[this.layer].timeAfterChange.log10().div(Decimal.log10(5)).add(2)
+        return value.pow(player[this.layer].colors[2])
+    },
+    yellowEffect() {
+        let value = Decimal.min(player[this.layer].colors[0], player[this.layer].colors[1])
+        value = new Decimal(10).pow(value)
+        if(hasUpgrade("p", 113)) value = value.pow(upgradeEffect("p", 113))
+        return value
+    },
+    nextPurpleUnlock() {
+        let value = Decimal.min(player[this.layer].colors[0], player[this.layer].colors[2])
+        return value.div(3).floor().mul(3).add(3)
+    },
+    cyanEffect() {
+        let value = Decimal.min(player[this.layer].colors[1], player[this.layer].colors[2])
+        value = new Decimal(2).pow(value)
+        if(hasUpgrade("p", 113)) value = value.pow(upgradeEffect("p", 113))
+        return value
     },
     branches: ["u"],
     hotkeys: [
@@ -116,6 +175,8 @@ addLayer("p", {
                 spellTime[id] = new Decimal(0)
             }
         }
+        player[this.layer].energy = player[this.layer].energy.add(tmp.p.energyGain.mul(diff))
+        player[this.layer].timeAfterChange = player[this.layer].timeAfterChange.add(diff)
     },
     unlocked() {
         return hasUpgrade("u", 1071)
@@ -132,7 +193,8 @@ addLayer("p", {
                 "blank",
                 "milestones",
                 "blank",
-                "upgrades"
+                ["row", [["upgrade", 11], ["upgrade", 12], ["upgrade", 13], ["upgrade", 14], ["upgrade", 15]]],
+                ["row", [["upgrade", 21], ["upgrade", 22], ["upgrade", 23], ["upgrade", 24], ["upgrade", 25]]],
             ],
         },
         "Spell": {
@@ -167,8 +229,65 @@ addLayer("p", {
                 "blank",
                 "blank",
                 ["display-text", function() {
-                    return "Next Update"
+                    return "You have unspent " + player[this.layer].colorPoint + " color points"
                 }],
+                "blank",
+                ["display-text", function() {
+                    return "You have " + format(player[this.layer].energy) + " energy (" + format(tmp.p.energyGain) + "/s)"
+                }],
+                "blank",
+                "blank",
+                "buyables",
+                "blank",
+                "blank",
+                ["row", [
+                 ["bar", "redBar"], ["column", [["blank", "50px"], ["clickable", 111], ["clickable", 112], ["clickable", 113]]],
+                 ["blank", ["50px", "50px"]], ["bar", "greenBar"], ["column", [["blank", "50px"], ["clickable", 121], ["clickable", 122], ["clickable", 123]]],
+                 ["blank", ["50px", "50px"]], ["bar", "blueBar"], ["column", [["blank", "50px"], ["clickable", 131], ["clickable", 132], ["clickable", 133]]]
+                ]],
+                "blank",
+                ["row", [
+                 ["column", [
+                    ["display-text", function() {return "Red"}],
+                    ["display-text", function() {return "static x" + format(tmp.p.redEffect)}]
+                 ]],
+                 ["blank", ["50px", "50px"]],
+                 ["column", [
+                    ["display-text", function() {return "Green"}],
+                    ["display-text", function() {return "x" + format(tmp.p.greenEffect) + " based energy"}]
+                 ]],
+                 ["blank", ["50px", "50px"]],
+                 ["column", [
+                    ["display-text", function() {return "Blue"}],
+                    ["display-text", function() {return "x" + format(tmp.p.blueEffect) + " based time"}]
+                 ]],
+                ]],
+                "blank",
+                ["row", [
+                 ["column", [
+                    ["display-text", function() {return "Yellow"}],
+                    ["display-text", function() {return "boost points"}],
+                    ["display-text", function() {return "x" + format(tmp.p.yellowEffect)}]
+                 ]],
+                 ["blank", ["50px", "50px"]],
+                 ["column", [
+                    ["display-text", function() {return "Purple"}],
+                    ["display-text", function() {return "unlock upgrades"}],
+                    ["display-text", function() {
+                        if(tmp.p.nextPurpleUnlock.gt(10)) return "all unlocked"
+                        return "next : " + format(tmp.p.nextPurpleUnlock, 0)
+                    }]
+                 ]],
+                 ["blank", ["50px", "50px"]],
+                 ["column", [
+                    ["display-text", function() {return "Cyan"}],
+                    ["display-text", function() {return "divide cost"}],
+                    ["display-text", function() {return "/" + format(tmp.p.cyanEffect)}]
+                 ]],
+                ]],
+                "blank",
+                "blank",
+                ["row", [["upgrade", 111], ["upgrade", 112], ["upgrade", 113]]]
             ],
             unlocked() {
                 return hasUpgrade("p", 23)
@@ -315,20 +434,131 @@ addLayer("p", {
             }
         },
         24: {
-            title: "???",
-            description: "???.",
-            cost: new Decimal(1e50),
+            title: "Longer Spell",
+            description: "Increase duration of the spells",
+            cost: new Decimal(1e19),
+            effect() {
+                let value = new Decimal(3)
+                return value
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id)) + "x" 
+            },
             unlocked() {
                 return hasUpgrade("u", 54)
             }
         },
         25: {
-            title: "Last Type Boost",
-            description: "Unlock ??? tab.",
-            cost: new Decimal(1e60),
+            title: "Row 7 Selection",
+            description: "You can activate all row 7 selection.",
+            cost: new Decimal(1e20),
             unlocked() {
                 return hasUpgrade("u", 54)
             }
+        },
+        111: {
+            title: "Boost Red",
+            description: "Red effect is tripled",
+            cost: new Decimal(1e3),
+            effect() {
+                if(!this.unlocked()) return new Decimal(1)
+                return new Decimal(3)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x" 
+            },
+            currencyDisplayName: "energy",
+            currencyInternalName: "energy",
+            currencyLayer: "p",
+            unlocked() {
+                let value = Decimal.min(player[this.layer].colors[0], player[this.layer].colors[2])
+                return value.gte(3)
+            },
+            canAfford() { 
+                return player[this.layer].energy.gte(this.cost) 
+            },
+            buy() {
+                player[this.layer].energy = player[this.layer].energy.sub(this.cost())
+            },
+        },
+        112: {
+            title: "White",
+            description: "Energy gain is stronger",
+            cost: new Decimal(1e12),
+            effect() {
+                if(!this.unlocked()) return new Decimal(1)
+                let value = player[this.layer].colors[0].min(player[this.layer].colors[1]).min(player[this.layer].colors[2])
+                return [new Decimal(1).add(value.add(1).log10().div(10)), new Decimal(100).mul(value).max(1)]
+            },
+            effectDisplay() {
+                return "^" + format(upgradeEffect(this.layer, this.id)[0]) + ", " + format(upgradeEffect(this.layer, this.id)[1]) + "x"
+            },
+            currencyDisplayName: "energy",
+            currencyInternalName: "energy",
+            currencyLayer: "p",
+            unlocked() {
+                let value = Decimal.min(player[this.layer].colors[0], player[this.layer].colors[2])
+                return value.gte(6)
+            },
+            canAfford() { 
+                return player[this.layer].energy.gte(this.cost) 
+            },
+            buy() {
+                player[this.layer].energy = player[this.layer].energy.sub(this.cost())
+            },
+        },
+        113: {
+            title: "Color Mixer",
+            description: "Yellow & Cyan effect is squared",
+            cost: new Decimal(1e33),
+            effect() {
+                if(!this.unlocked()) return new Decimal(1)
+                return new Decimal(2)
+            },
+            effectDisplay() {
+                return "^" + format(upgradeEffect(this.layer, this.id))
+            },
+            currencyDisplayName: "energy",
+            currencyInternalName: "energy",
+            currencyLayer: "p",
+            unlocked() {
+                let value = Decimal.min(player[this.layer].colors[0], player[this.layer].colors[2])
+                return value.gte(9)
+            },
+            canAfford() { 
+                return player[this.layer].energy.gte(this.cost) 
+            },
+            buy() {
+                player[this.layer].energy = player[this.layer].energy.sub(this.cost())
+            },
+        },
+    },
+    buyables : {
+        11: {
+            title: "Buy Color Point",
+            cost(x=getBuyableAmount(this.layer, this.id)) {
+                let value = new Decimal(2).add(x)
+                let cost = new Decimal(1).mul(value.pow(x))
+                cost = cost.div(tmp.p.cyanEffect)
+                return cost
+            },
+            effect() {
+                let value = getBuyableAmount(this.layer, this.id)
+                if (hasUpgrade(this.layer, 33)) value = value.add(buyableEffect(this.layer, 21))
+                if (getClickableState('u', 13)) value = value.times(clickableEffect('u', 13))
+                if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
+                return value
+            },
+            display() { 
+                return "cost: " + format(this.cost()) + " energy"
+            },
+            canAfford() { return player[this.layer].energy.gte(this.cost()) },
+            buy() {
+                player[this.layer].energy = player[this.layer].energy.sub(this.cost())
+                player[this.layer].colorPoint = player[this.layer].colorPoint.add(1)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            style : ColorBuyableStyle
         },
     },
     clickables : {
@@ -350,19 +580,19 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[11]) + "s"
             },
             canClick() {
-                let time = player[this.layer].points.div(10).ceil().log10()
-                return player[this.layer].points.gt(0) && time.sub(player[this.layer].spellTime[11]).gt(1)
+                return player[this.layer].points.gt(0)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()
                 let time = input.log10()
+                if(hasUpgrade("p", 24)) time = time.mul(3)
 
                 player[this.layer].spellInput[11] = input
                 player[this.layer].spellTime[11] = time
                 player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SelectionStyle,
+            style : SpellStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
             }
@@ -383,19 +613,19 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[12]) + "s"
             },
             canClick() {
-                let time = player[this.layer].points.div(10).ceil().log10()
-                return player[this.layer].points.gt(0) && time.sub(player[this.layer].spellTime[12]).gt(1)
+                return player[this.layer].points.gt(0)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()
                 let time = input.log10()
+                if(hasUpgrade("p", 24)) time = time.mul(3)
 
                 player[this.layer].spellInput[12] = input
                 player[this.layer].spellTime[12] = time
                 player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SelectionStyle,
+            style : SpellStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
             }
@@ -416,21 +646,167 @@ addLayer("p", {
                 "Time : " + format(player[this.layer].spellTime[13]) + "s"
             },
             canClick() {
-                let time = player[this.layer].points.div(10).ceil().log10()
-                return player[this.layer].points.gt(0) && time.sub(player[this.layer].spellTime[13]).gt(1)
+                return player[this.layer].points.gt(0)
             },
             onClick() {
                 let input = player[this.layer].points.div(10).ceil()
                 let time = input.log10()
+                if(hasUpgrade("p", 24)) time = time.mul(3)
 
                 player[this.layer].spellInput[13] = input
                 player[this.layer].spellTime[13] = time
                 player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SelectionStyle,
+            style : SpellStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
+            }
+        },
+        111: {
+            title: "+",
+            canClick() {
+                return player[this.layer].colorPoint.gt(0) && player[this.layer].colors[0].lt(player[this.layer].maxColors[0])
+            },
+            onClick() {
+                player[this.layer].colorPoint = player[this.layer].colorPoint.sub(1)
+                player[this.layer].colors[0] = player[this.layer].colors[0].add(1)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        },
+        112: {
+            title: "-",
+            canClick() {
+                return player[this.layer].colors[0].gt(0)
+            },
+            onClick() {
+                player[this.layer].colorPoint = player[this.layer].colorPoint.add(1)
+                player[this.layer].colors[0] = player[this.layer].colors[0].sub(1)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        },
+        113: {
+            title: "0",
+            canClick() {
+                return player[this.layer].colors[0].gt(0)
+            },
+            onClick() {
+                let value = player[this.layer].colors[0]
+                player[this.layer].colorPoint = player[this.layer].colorPoint.add(value)
+                player[this.layer].colors[0] = player[this.layer].colors[0].sub(value)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        },
+        121: {
+            title: "+",
+            canClick() {
+                return player[this.layer].colorPoint.gt(0) && player[this.layer].colors[1].lt(player[this.layer].maxColors[1])
+            },
+            onClick() {
+                player[this.layer].colorPoint = player[this.layer].colorPoint.sub(1)
+                player[this.layer].colors[1] = player[this.layer].colors[1].add(1)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        },
+        122: {
+            title: "-",
+            canClick() {
+                return player[this.layer].colors[1].gt(0)
+            },
+            onClick() {
+                player[this.layer].colorPoint = player[this.layer].colorPoint.add(1)
+                player[this.layer].colors[1] = player[this.layer].colors[1].sub(1)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        },
+        123: {
+            title: "0",
+            canClick() {
+                return player[this.layer].colors[1].gt(0)
+            },
+            onClick() {
+                let value = player[this.layer].colors[1]
+                player[this.layer].colorPoint = player[this.layer].colorPoint.add(value)
+                player[this.layer].colors[1] = player[this.layer].colors[1].sub(value)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        },
+        131: {
+            title: "+",
+            canClick() {
+                return player[this.layer].colorPoint.gt(0) && player[this.layer].colors[2].lt(player[this.layer].maxColors[2])
+            },
+            onClick() {
+                player[this.layer].colorPoint = player[this.layer].colorPoint.sub(1)
+                player[this.layer].colors[2] = player[this.layer].colors[2].add(1)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        },
+        132: {
+            title: "-",
+            canClick() {
+                return player[this.layer].colors[2].gt(0)
+            },
+            onClick() {
+                player[this.layer].colorPoint = player[this.layer].colorPoint.add(1)
+                player[this.layer].colors[2] = player[this.layer].colors[2].sub(1)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        },
+        133: {
+            title: "0",
+            canClick() {
+                return player[this.layer].colors[2].gt(0)
+            },
+            onClick() {
+                let value = player[this.layer].colors[2]
+                player[this.layer].colorPoint = player[this.layer].colorPoint.add(value)
+                player[this.layer].colors[2] = player[this.layer].colors[2].sub(value)
+                player[this.layer].timeAfterChange = new Decimal(0.1)
+            },
+            style : ColorClickableStyle
+        }
+    },
+    bars: {
+        redBar: {
+            direction: UP,
+            width: 50,
+            height: 200,
+            progress() { 
+                return player[this.layer].colors[0] / player[this.layer].maxColors[0]
+            },
+            fillStyle : {
+                "background-color" : "#ff0000"
+            }
+        },
+        greenBar: {
+            direction: UP,
+            width: 50,
+            height: 200,
+            progress() { 
+                return player[this.layer].colors[1] / player[this.layer].maxColors[1]
+            },
+            fillStyle : {
+                "background-color" : "#00ff00"
+            }
+        },
+        blueBar: {
+            direction: UP,
+            width: 50,
+            height: 200,
+            progress() { 
+                return player[this.layer].colors[2] / player[this.layer].maxColors[2]
+            },
+            fillStyle : {
+                "background-color" : "#0000ff"
             }
         },
     }
