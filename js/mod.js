@@ -13,8 +13,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.2.1",
-	name: "Color area",
+	num: "0.2.2",
+	name: "Early Generator area",
 }
 
 let changelog = `<h1>Changelog:</h1><br><br>
@@ -34,7 +34,7 @@ let changelog = `<h1>Changelog:</h1><br><br>
 		- Added Info Layer.<br>
 		- Rebalance Upgrade layer.<br>
 		- Added 4 Upgrades.<br>
-		- Added 2 selection row.<br>
+		- Added 1 selection row.<br>
 		<br>
 
 	<h3>v0.2.1</h3><br>
@@ -42,7 +42,16 @@ let changelog = `<h1>Changelog:</h1><br><br>
 		- Added Color Upgrades.<br>
 		- Added 2 Prestige Upgrades.<br>
 		- Added 1 Upgrade.<br>
-		- Upgrade Bug fix.<br>`
+		- Upgrade Bug fix.<br>
+		<br>
+		
+	<h3>v0.2.2</h3><br>
+	    - Added Generator Layer.<br>
+		- Added Generator Upgrades.<br>
+		- Rebalance Color layer.<br>
+		- Added 1 selection row.<br>
+		- Added 1 Upgrade.<br>
+		- Auto Tree Point Bug fix.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -107,7 +116,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player["g"].unlocked
+	return player["g"].points.gte(4)
 }
 
 
