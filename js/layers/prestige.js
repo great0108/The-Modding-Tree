@@ -353,7 +353,7 @@ addLayer("p", {
             description: "Boost prestige point gain based on points.",
             cost: new Decimal(10),
             effect() {
-                value = Decimal.log10(player.points.add(1)).div(20).add(1)
+                let value = Decimal.log10(player.points.add(1)).div(20).add(1)
                 return value
             },
             effectDisplay() {
