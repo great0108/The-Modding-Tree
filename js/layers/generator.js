@@ -37,7 +37,7 @@ addLayer("g", {
         return "which are generating " + format(this.effect()) + " generator power/sec"
     },
     powerEffect() {
-        let value = player["g"].power.add(1).log10().add(1).pow(30)
+        let value = player["g"].power.add(1).log10().add(1).pow(20)
         if(getClickableState("u", 72)) value = value.pow(clickableEffect("u", 72))
         return value
     },

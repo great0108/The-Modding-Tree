@@ -95,7 +95,7 @@ addLayer("p", {
         return value
     },
     redEffect() {
-        let value = new Decimal(3)
+        let value = new Decimal(3.5)
         if(hasUpgrade("p", 111)) value = value.mul(upgradeEffect("p", 111))
         return value.pow(player[this.layer].colors[0])
     },
@@ -104,7 +104,7 @@ addLayer("p", {
         return value.pow(player[this.layer].colors[1])
     },
     blueEffect() {
-        let value = player[this.layer].timeAfterChange.log10().div(Decimal.log10(5)).add(2)
+        let value = player[this.layer].timeAfterChange.log10().div(Decimal.log10(4)).add(2)
         return value.pow(player[this.layer].colors[2])
     },
     yellowEffect() {
@@ -175,8 +175,10 @@ addLayer("p", {
                 spellTime[id] = new Decimal(0)
             }
         }
-        player[this.layer].energy = player[this.layer].energy.add(tmp.p.energyGain.mul(diff))
-        player[this.layer].timeAfterChange = player[this.layer].timeAfterChange.add(diff)
+        if(hasUpgrade("p", 23)) {
+            player[this.layer].energy = player[this.layer].energy.add(tmp.p.energyGain.mul(diff))
+            player[this.layer].timeAfterChange = player[this.layer].timeAfterChange.add(diff)
+        }
     },
     unlocked() {
         return hasUpgrade("u", 1071)
@@ -436,7 +438,7 @@ addLayer("p", {
         24: {
             title: "Longer Spell",
             description: "Increase duration of the spells",
-            cost: new Decimal(1e19),
+            cost: new Decimal(1e20),
             effect() {
                 let value = new Decimal(3)
                 return value
@@ -451,7 +453,7 @@ addLayer("p", {
         25: {
             title: "Row 7 Selection",
             description: "You can activate all row 7 selection.",
-            cost: new Decimal(1e20),
+            cost: new Decimal(1e21),
             unlocked() {
                 return hasUpgrade("u", 54)
             }

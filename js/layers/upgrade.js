@@ -467,7 +467,7 @@ addLayer("u", {
         53: {
             title: "Buyable Power 5",
             description: "Boost fifth buyable effect.",
-            cost: new Decimal(1e190),
+            cost: new Decimal(1e185),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -483,13 +483,13 @@ addLayer("u", {
         55: {
             title: "Color Boost",
             description: "Multiply point gain based on total color points",
-            cost: new Decimal(1e270),
+            cost: new Decimal(1e280),
             unlocked() {
                 return player["p"].unlocked
             },
             effect() {
                 let value = player["p"].colorPoint.add(player["p"].colors[0]).add(player["p"].colors[1]).add(player["p"].colors[2])
-                return new Decimal(2).pow(value)
+                return new Decimal(1.5).pow(value)
             },
             effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -498,7 +498,7 @@ addLayer("u", {
         61: {
             title: "New Layer Upgrade",
             description: "Unlock 5 generator upgrades.",
-            cost: new Decimal("1e290"),
+            cost: new Decimal("1e300"),
             unlocked() {
                 return player["u"].unlocked
             }
