@@ -13,8 +13,7 @@ function PointBuyMax() {
 
     let cost = this.cost(x.add(amount).sub(1))
     if (player.points.lte(cost)) return
-    player.points = player.points.sub(cost)
-    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
+    this.buyMulti(amount, cost)
 }
 function UpgradePointBuyMax() {
     if (!this.canAfford()) return
@@ -28,8 +27,7 @@ function UpgradePointBuyMax() {
 
     let cost = this.cost(x.add(amount).sub(1))
     if (player[this.layer].points.lte(cost)) return
-    player[this.layer].points = player[this.layer].points.sub(cost)
-    setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
+    this.buyMulti(amount, cost)
 }
 
 function SelectionStyle() {
@@ -110,6 +108,8 @@ addLayer("u", {
         if (player["p"].unlocked) mult = mult.mul(layers["p"].effect())
         if(getClickableState("u", 62)) mult = mult.mul(clickableEffect("u", 62))
         if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 12))
+
+        if (hasUpgrade("g", 11)) mult = mult.mul(upgradeEffect("g", 11))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -126,7 +126,7 @@ addLayer("u", {
         // Stage 2, track which specific subfeatures you want to keep, e.g. Upgrade 11, Challenge 32, Buyable 12
         let keptUpgrades = []
         if (hasMilestone("p", 1)) {
-            for(let i = 1; i <= 5; i++) {
+            for(let i = 1; i <= 6; i++) {
                 for(let j = 1; j <= 5; j++) {
                     let id = i * 10 + j
                     if (hasUpgrade("u", id)) keptUpgrades.push(id)
@@ -192,7 +192,8 @@ addLayer("u", {
                 ["row", [["upgrade", 21], ["upgrade", 22], ["upgrade", 23], ["upgrade", 24], ["upgrade", 25]]],
                 ["row", [["upgrade", 31], ["upgrade", 32], ["upgrade", 33], ["upgrade", 34], ["upgrade", 35]]],
                 ["row", [["upgrade", 41], ["upgrade", 42], ["upgrade", 43], ["upgrade", 44], ["upgrade", 45]]],
-                ["row", [["upgrade", 51], ["upgrade", 52], ["upgrade", 53], ["upgrade", 54], ["upgrade", 55]]]
+                ["row", [["upgrade", 51], ["upgrade", 52], ["upgrade", 53], ["upgrade", 54], ["upgrade", 55]]],
+                ["row", [["upgrade", 61], ["upgrade", 62], ["upgrade", 63], ["upgrade", 64], ["upgrade", 65]]]
             ],
         },
         "Buyables": {
@@ -466,7 +467,7 @@ addLayer("u", {
         53: {
             title: "Buyable Power 5",
             description: "Boost fifth buyable effect.",
-            cost: new Decimal(1e190),
+            cost: new Decimal(1e185),
             unlocked() {
                 return player["p"].unlocked
             }
@@ -482,9 +483,56 @@ addLayer("u", {
         55: {
             title: "Color Boost",
             description: "Multiply point gain based on total color points",
-            cost: new Decimal(1e270),
+            cost: new Decimal(1e280),
             unlocked() {
                 return player["p"].unlocked
+            },
+            effect() {
+                let value = player["p"].colorPoint.add(player["p"].colors[0]).add(player["p"].colors[1]).add(player["p"].colors[2])
+                return new Decimal(1.5).pow(value)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x" 
+            }, 
+        },
+        61: {
+            title: "New Layer Upgrade",
+            description: "Unlock 5 generator upgrades.",
+            cost: new Decimal("1e300"),
+            unlocked() {
+                return player["u"].unlocked
+            }
+        },
+        62: {
+            title: "Extend Selection",
+            description: "Unlock new 2 selection.",
+            cost: new Decimal("1e400"),
+            unlocked() {
+                return player["u"].unlocked
+            }
+        },
+        63: {
+            title: "Buyable Power 5",
+            description: "Boost fifth buyable effect.",
+            cost: new Decimal("1e500"),
+            unlocked() {
+                return player["u"].unlocked
+            }
+        },
+        64: {
+            title: "Extend Prestige Upgrade",
+            description: "Unlock 5 more prestige upgrades.",
+            cost: new Decimal("1e600"),
+            unlocked() {
+                return player["u"].unlocked
+            }
+        },
+        65: {
+            title: "Color Boost",
+            description: "Multiply point gain based on total color points",
+            cost: new Decimal("1e700"),
+            unlocked() {
+                return player["u"].unlocked
             },
             effect() {
                 let value = player["p"].colorPoint.add(player["p"].colors[0]).add(player["p"].colors[1]).add(player["p"].colors[2])
@@ -741,8 +789,12 @@ addLayer("u", {
             },
             canAfford() { return player.points.gte(this.cost()) },
             buy() {
-                player.points = player.points.sub(this.cost())
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player.points = player.points.sub(cost)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : PointBuyMax,
             style: BuyableStyle
@@ -771,8 +823,12 @@ addLayer("u", {
             },
             canAfford() { return player.points.gte(this.cost()) },
             buy() {
-                player.points = player.points.sub(this.cost())
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player.points = player.points.sub(cost)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : PointBuyMax,
             style: BuyableStyle
@@ -801,8 +857,12 @@ addLayer("u", {
             },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player[this.layer].points = player[this.layer].points.sub(cost)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : UpgradePointBuyMax,
             style: BuyableStyle
@@ -833,8 +893,12 @@ addLayer("u", {
             },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player[this.layer].points = player[this.layer].points.sub(cost)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : UpgradePointBuyMax,
             style: BuyableStyle
@@ -861,8 +925,12 @@ addLayer("u", {
             },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player[this.layer].points = player[this.layer].points.sub(cost)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : UpgradePointBuyMax,
             unlocked() {
@@ -891,8 +959,12 @@ addLayer("u", {
             },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player[this.layer].points = player[this.layer].points.sub(cost)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : UpgradePointBuyMax,
             unlocked() {
@@ -913,9 +985,13 @@ addLayer("u", {
             },
             canAfford() { return player.points.gte(this.cost()) },
             buy() {
-                player.points = player.points.sub(this.cost())
-                player[this.layer].treePoint = player[this.layer].treePoint.add(1)
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player.points = player.points.sub(cost)
+                player[this.layer].treePoint = player[this.layer].treePoint.add(amount)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : PointBuyMax,
             unlocked() {
@@ -936,9 +1012,13 @@ addLayer("u", {
             },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost())
-                player[this.layer].treePoint = player[this.layer].treePoint.add(1)
-                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player[this.layer].points = player[this.layer].points.sub(cost)
+                player[this.layer].treePoint = player[this.layer].treePoint.add(amount)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : UpgradePointBuyMax,
             unlocked() {
@@ -1549,7 +1629,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "The effect of prestige points are stronger\n" +
+                return "The effects of prestige points are stronger\n" +
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
@@ -1646,6 +1726,102 @@ addLayer("u", {
                 if (!hasUpgrade(this.layer, 52)) return false
                 if (player[this.layer].clickablesUnlock.includes(this.id)) return true
                 if (player[this.layer].points.gte(tmp.u.unlockCost[4])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        71: {
+            title: "Reverse Generator Power",
+            effect() {
+                let value = player.points.add(1).log10().div(10).add(1)
+                return value
+            },
+            display() { 
+                return "Generator power gain is boosted by points\n" +
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 71) ||
+                   getClickableState(this.layer, 72) ||
+                   getClickableState(this.layer, 73)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[5])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        72: {
+            title: "Empower Generator Power",
+            effect() {
+                let value = new Decimal(1.5)
+                return value
+            },
+            display() { 
+                return "The effect of generator power is stronger\n" +
+                "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 71) ||
+                   getClickableState(this.layer, 72) ||
+                   getClickableState(this.layer, 73)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[5])) {
+                    player[this.layer].clickablesUnlock.push(this.id)
+                    return true
+                }
+                return false
+            }
+        },
+        73: {
+            title: "Generator Synergy",
+            effect() {
+                let value = player["g"].points.add(1).pow(1.5)
+                return value
+            },
+            display() { 
+                return "Generator power gain is boosted by generators\n" +
+                "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
+            },
+            canClick() {
+                if(getClickableState(this.layer, this.id)) return true
+                if(getClickableState(this.layer, 71) ||
+                   getClickableState(this.layer, 72) ||
+                   getClickableState(this.layer, 73)) return false
+                return true
+            },
+            onClick() {
+                setClickableState(this.layer, this.id, !getClickableState(this.layer, this.id))
+                if (!getClickableState(this.layer, this.id)) doReset(this.layer)
+            },
+            style : SelectionStyle,
+            unlocked() {
+                if (!hasUpgrade(this.layer, 52)) return false
+                if (player[this.layer].clickablesUnlock.includes(this.id)) return true
+                if (player[this.layer].points.gte(tmp.u.unlockCost[5])) {
                     player[this.layer].clickablesUnlock.push(this.id)
                     return true
                 }

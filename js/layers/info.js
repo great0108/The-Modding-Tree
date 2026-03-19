@@ -99,7 +99,7 @@ addLayer("i", {
         },
         lateColor: {
             title: "Late Color",
-            body() { return "After 13 color points, assign 6 blue, 6 red and the rest for green. Don't forget to change to cheap color points setting. If you fill up the green, allocate the remaining points to red. After 25 color points, assigning 9 blue and 9 red makes color points more cheaper. Collect at least 29 color points and then buy remaining upgrades. If you are short on points, farming magic by spamming the spell." },
+            body() { return "After 13 color points, assign 6 blue, 6 red and the rest for green. Don't forget to change to cheap color points setting. If you fill up the green, allocate the remaining points to red. After 26 color points, assigning 9 blue and 9 red makes color points more cheaper. Collect at least 29 color points and then buy remaining upgrades. If you are short on points, farming magic by spamming the spell." },
             unlocked() { return hasUpgrade("p", 23)}
         }
     },
