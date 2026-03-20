@@ -115,6 +115,29 @@ addLayer("g", {
             unlocked() {
                 return hasUpgrade("u", 61)
             }
+        },
+        14: {
+            title: "Prestige to Generate",
+            description: "Prestige points boost generator power gain.",
+            cost: new Decimal(5),
+            effect() {
+                let value = player["p"].points.add(1).log10().add(1)
+                return value
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id)) + "x"
+            },
+            unlocked() {
+                return hasUpgrade("u", 61)
+            }
+        },
+        15: {
+            title: "New Type Generator",
+            description: "Unlock matter tab.",
+            cost: new Decimal(6),
+            unlocked() {
+                return hasUpgrade("u", 61)
+            }
         }
     }
 })

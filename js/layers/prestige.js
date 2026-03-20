@@ -55,7 +55,7 @@ addLayer("p", {
         mult = new Decimal(1)
         if (hasUpgrade("p", 11)) mult = mult.mul(upgradeEffect("p", 11))
         if (hasUpgrade("p", 14)) mult = mult.mul(upgradeEffect("p", 14))
-        if(getClickableState("u", 63)) mult = mult.mul(clickableEffect("u", 63))
+        if (getClickableState("u", 63)) mult = mult.mul(clickableEffect("u", 63))
         if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 13))
         return mult
     },

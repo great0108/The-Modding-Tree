@@ -58,16 +58,13 @@ function TreePay() {
     player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
     player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
 }
-function TreeUnlock(ids) {
-    function a() {
-        if (player[this.layer].treeUnlock.includes(this.id)) return true
-        if (ids.some(id => hasUpgrade(this.layer, id))) {
-            player[this.layer].treeUnlock.push(this.id)
-            return true
-        }
-        return false
+function TreeUnlock(curId, ids) {
+    if (player["u"].treeUnlock.includes(curId)) return true
+    if (ids.some(id => hasUpgrade("u", id))) {
+        player["u"].treeUnlock.push(curId)
+        return true
     }
-    return a
+    return false
 }
 
 
@@ -262,6 +259,9 @@ addLayer("u", {
                 ["row", [["upgrade", 1051], ["upgrade", 1052], ["upgrade", 1053]]],
                 ["row", [["upgrade", 1061]]],
                 ["row", [["upgrade", 1071]]],
+                ["row", [["upgrade", 1081], ["upgrade", 1082]]],
+                ["row", [["upgrade", 1091], ["upgrade", 1092], ["upgrade", 1093], ["upgrade", 1094]]],
+                ["row", [["upgrade", 1101]]],
             ],
             unlocked() {
                 return hasUpgrade("u", 45)
@@ -500,15 +500,15 @@ addLayer("u", {
             description: "Unlock 5 generator upgrades.",
             cost: new Decimal("1e300"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             }
         },
         62: {
-            title: "Extend Selection",
-            description: "Unlock new 2 selection.",
-            cost: new Decimal("1e400"),
+            title: "Extend Tree",
+            description: "Unlock new tree upgrades.",
+            cost: new Decimal("1e330"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             }
         },
         63: {
@@ -516,7 +516,7 @@ addLayer("u", {
             description: "Boost fifth buyable effect.",
             cost: new Decimal("1e500"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             }
         },
         64: {
@@ -524,7 +524,7 @@ addLayer("u", {
             description: "Unlock 5 more prestige upgrades.",
             cost: new Decimal("1e600"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             }
         },
         65: {
@@ -532,7 +532,7 @@ addLayer("u", {
             description: "Multiply point gain based on total color points",
             cost: new Decimal("1e700"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             },
             effect() {
                 let value = player["p"].colorPoint.add(player["p"].colors[0]).add(player["p"].colors[1]).add(player["p"].colors[2])
@@ -550,7 +550,9 @@ addLayer("u", {
             req : [],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([45]),
+            unlocked() {
+                return TreeUnlock(this.id, [45])
+            },
             branches : [1021, 1022],
             style: TreeStyle
         },
@@ -562,7 +564,9 @@ addLayer("u", {
             req : [1011],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1011]),
+            unlocked() {
+                return TreeUnlock(this.id, [1011])
+            },
             effect() {
                 return Decimal.log10(player.points.add(1)).add(1).pow(2)
             },
@@ -580,7 +584,9 @@ addLayer("u", {
             req : [1011],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1011]),
+            unlocked() {
+                return TreeUnlock(this.id, [1011])
+            },
             effect() {
                 return Decimal.log10(player.points.add(1)).add(1).pow(1.5)
             },
@@ -598,7 +604,9 @@ addLayer("u", {
             req : [1021],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1021]),
+            unlocked() {
+                return TreeUnlock(this.id, [1021])
+            },
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
                 return total.add(2).pow(4).div(16)
@@ -617,7 +625,9 @@ addLayer("u", {
             req : [1022],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1022]),
+            unlocked() {
+                return TreeUnlock(this.id, [1022])
+            },
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
                 return total.add(2).pow(4).div(16)
@@ -636,7 +646,9 @@ addLayer("u", {
             req : [1031],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1031]),
+            unlocked() {
+                return TreeUnlock(this.id, [1031])
+            },
             branches : [1051],
             style: TreeStyle
         },
@@ -648,7 +660,9 @@ addLayer("u", {
             req : [[1031], [1032]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1031, 1032]),
+            unlocked() {
+                return TreeUnlock(this.id, [1031, 1032])
+            },
             branches : [1052],
             style: TreeStyle
         },
@@ -660,7 +674,9 @@ addLayer("u", {
             req : [1032],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1032]),
+            unlocked() {
+                return TreeUnlock(this.id, [1032])
+            },
             effect() {
                 return player[this.layer].treePoint.pow(0.5)
             },
@@ -678,7 +694,9 @@ addLayer("u", {
             req : [1041],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1041]),
+            unlocked() {
+                return TreeUnlock(this.id, [1041])
+            },
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(1)
             },
@@ -693,7 +711,9 @@ addLayer("u", {
             req : [1042],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1042]),
+            unlocked() {
+                return TreeUnlock(this.id, [1042])
+            },
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(2)
             },
@@ -708,7 +728,9 @@ addLayer("u", {
             req : [1043],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1043]),
+            unlocked() {
+                return TreeUnlock(this.id, [1043])
+            },
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(3)
             },
@@ -723,7 +745,9 @@ addLayer("u", {
             req : [[1051], [1052], [1053]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1051, 1052, 1053]),
+            unlocked() {
+                return TreeUnlock(this.id, [1051, 1052, 1053])
+            },
             effect() {
                 return new Decimal(1e4)
             },
@@ -740,7 +764,105 @@ addLayer("u", {
             req : [1061],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1061]),
+            unlocked() {
+                return TreeUnlock(this.id, [1061])
+            },
+            branches : [1081, 1082],
+            style: TreeStyle
+        },
+        1081: {
+            title: "Upgrade Prestige",
+            description: "Upgrade points boost prestige effect.",
+            cost: new Decimal(30),
+            currencyDisplayName: "tree points",
+            req : [1071],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1071])
+            },
+            branches : [1091, 1092],
+            style: TreeStyle
+        },
+        1082: {
+            title: "Upgrade Generator",
+            description: "Upgrade points boost generator effect.",
+            cost: new Decimal(30),
+            currencyDisplayName: "tree points",
+            req : [1071],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1071])
+            },
+            branches : [1093, 1094],
+            style: TreeStyle
+        },
+        1091: {
+            title: "Buyable Spell",
+            description: "Unlock next layer.",
+            cost: new Decimal(100),
+            currencyDisplayName: "tree points",
+            req : [1081],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1081])
+            },
+            style: TreeStyle
+        },
+        1092: {
+            title: "More More Prestige",
+            description: "Unlock next layer.",
+            cost: new Decimal(20),
+            currencyDisplayName: "tree points",
+            req : [1081],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1081])
+            },
+            branches : [1101],
+            style: TreeStyle
+        },
+        1093: {
+            title: "Next Layer",
+            description: "Unlock next layer.",
+            cost: new Decimal(20),
+            currencyDisplayName: "tree points",
+            req : [1082],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1082])
+            },
+            branches : [1101],
+            style: TreeStyle
+        },
+        1094: {
+            title: "Next Layer",
+            description: "Unlock next layer.",
+            cost: new Decimal(20),
+            currencyDisplayName: "tree points",
+            req : [1082],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1082])
+            },
+            style: TreeStyle
+        },
+        1101: {
+            title: "Next Layer",
+            description: "Unlock next layer.",
+            cost: new Decimal(20),
+            currencyDisplayName: "tree points",
+            req : [[1092], [1093]],
+            canAfford : TreeMultiAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1092, 1093])
+            },
             style: TreeStyle
         },
     },
