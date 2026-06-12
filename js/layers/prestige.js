@@ -451,8 +451,8 @@ addLayer("p", {
             }
         },
         25: {
-            title: "Row 7 Selection",
-            description: "You can activate all row 7 selection.",
+            title: "Row 6 Selection",
+            description: "You can activate all row 6 selection.",
             cost: new Decimal(1e21),
             unlocked() {
                 return hasUpgrade("u", 54)

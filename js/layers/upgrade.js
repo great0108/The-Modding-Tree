@@ -781,6 +781,12 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1071])
             },
+            effect() {
+                return player[this.layer].points.add(1).log10().add(1).log10().div(10)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
+            },
             branches : [1091, 1092],
             style: TreeStyle
         },
@@ -795,12 +801,18 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1071])
             },
+            effect() {
+                return player[this.layer].points.add(1).log10().add(1).log10().div(10)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
+            },
             branches : [1093, 1094],
             style: TreeStyle
         },
         1091: {
-            title: "Buyable Spell",
-            description: "Unlock next layer.",
+            title: "Tree Spell",
+            description: "Total tree points boost the spell power.",
             cost: new Decimal(100),
             currencyDisplayName: "tree points",
             req : [1081],
@@ -809,11 +821,18 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1081])
             },
+            effect() {
+                let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
+                return total.div(200)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
+            },
             style: TreeStyle
         },
         1092: {
             title: "More More Prestige",
-            description: "Unlock next layer.",
+            description: "Square \"More Prestige\" upgrade effect. (prestige upgrade 14).",
             cost: new Decimal(20),
             currencyDisplayName: "tree points",
             req : [1081],
@@ -826,8 +845,8 @@ addLayer("u", {
             style: TreeStyle
         },
         1093: {
-            title: "Next Layer",
-            description: "Unlock next layer.",
+            title: "Generator Power^2",
+            description: "Generator power boost generator power gain.",
             cost: new Decimal(20),
             currencyDisplayName: "tree points",
             req : [1082],
@@ -836,13 +855,19 @@ addLayer("u", {
             unlocked() {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1082])
             },
+            effect() {
+                return player["g"].power.pow(0.3)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return format(upgradeEffect(this.layer, this.id))+"x" 
+            },
             branches : [1101],
             style: TreeStyle
         },
         1094: {
-            title: "Next Layer",
-            description: "Unlock next layer.",
-            cost: new Decimal(20),
+            title: "Row 7 Selection",
+            description: "You can activate all row 7 selection.",
+            cost: new Decimal(50),
             currencyDisplayName: "tree points",
             req : [1082],
             canAfford : TreeAffold,
@@ -853,8 +878,8 @@ addLayer("u", {
             style: TreeStyle
         },
         1101: {
-            title: "Next Layer",
-            description: "Unlock next layer.",
+            title: "Second Row Synergy",
+            description: "prestige points and generator points boost each other.",
             cost: new Decimal(20),
             currencyDisplayName: "tree points",
             req : [[1092], [1093]],
@@ -862,6 +887,14 @@ addLayer("u", {
             pay : TreePay,
             unlocked() {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1092, 1093])
+            },
+            effect() {
+                return [player["g"].points, player["p"].points.log10()]
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                let [eff1, eff2] = upgradeEffect(this.layer, this.id)
+                return "prestige points " + format(eff1)+"x\n" +
+                "generator power " + format(eff2)+"x\n"
             },
             style: TreeStyle
         },
@@ -900,8 +933,9 @@ addLayer("u", {
             effect() {
                 let value = getBuyableAmount(this.layer, this.id)
                 if (hasUpgrade(this.layer, 33)) value = value.add(buyableEffect(this.layer, 21))
-                if (getClickableState('u', 13)) value = value.times(clickableEffect('u', 13))
                 if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
+
+                if (getClickableState('u', 13)) value = value.times(clickableEffect('u', 13))
                 return value
             },
             display() { 
@@ -990,7 +1024,7 @@ addLayer("u", {
             style: BuyableStyle
         },
         14: {
-            title: "Devide Upgrade Point Cost",
+            title: "Divide Upgrade Point Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).add(x)
                 let cost = new Decimal(1000).mul(value.pow(x))
@@ -1026,7 +1060,7 @@ addLayer("u", {
             style: BuyableStyle
         },
         21: {
-            title: "Add First Row",
+            title: "Free First 4 Buyables",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).pow(x.add(1).pow(0.8))
                 let cost = new Decimal(1e7).mul(value.pow(x))
@@ -1061,7 +1095,7 @@ addLayer("u", {
             style: BuyableStyle
         },
         22: {
-            title: "Devide Buyable Cost",
+            title: "Divide Buyable Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).add(x).pow(2)
                 let cost = new Decimal(1e7).mul(value.pow(x))
@@ -1250,7 +1284,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "Multiply the number of first buyable you have\n" +
+                return "Multiply effect of first buyable\n" +
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {

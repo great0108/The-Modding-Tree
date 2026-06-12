@@ -46,6 +46,7 @@ addLayer("g", {
         {key: "g", description: "G: Reset for generator points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     update(diff) {
+        // player[this.layer].power = new Decimal(0)
         player[this.layer].power = player[this.layer].power.add(tmp.g.effect.mul(diff))
     },
     unlocked() {
@@ -117,8 +118,8 @@ addLayer("g", {
             }
         },
         14: {
-            title: "Prestige to Generate",
-            description: "Prestige points boost generator power gain.",
+            title: "Generator Flow",
+            description: "Unlock generator flow.",
             cost: new Decimal(5),
             effect() {
                 let value = player["p"].points.add(1).log10().add(1)
