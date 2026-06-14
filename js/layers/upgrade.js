@@ -107,6 +107,7 @@ addLayer("u", {
         if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 12))
 
         if (hasUpgrade("g", 11)) mult = mult.mul(upgradeEffect("g", 11))
+        if (hasUpgrade("g", 14)) mult = mult.mul(layers["g"].flowEffect())
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -782,10 +783,10 @@ addLayer("u", {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1071])
             },
             effect() {
-                return player[this.layer].points.add(1).log10().add(1).log10().div(10)
+                return player[this.layer].points.add(1).log10().add(1).log10().div(10).add(1)
             },
             effectDisplay() {  // Add formatting to the effect 
-                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
+                return "+" + format(upgradeEffect(this.layer, this.id).sub(1).mul(100))+"%" 
             },
             branches : [1091, 1092],
             style: TreeStyle
@@ -802,10 +803,10 @@ addLayer("u", {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1071])
             },
             effect() {
-                return player[this.layer].points.add(1).log10().add(1).log10().div(10)
+                return player[this.layer].points.add(1).log10().add(1).log10().div(10).add(1)
             },
             effectDisplay() {  // Add formatting to the effect 
-                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
+                return "+" + format(upgradeEffect(this.layer, this.id).sub(1).mul(100))+"%" 
             },
             branches : [1093, 1094],
             style: TreeStyle
@@ -813,7 +814,7 @@ addLayer("u", {
         1091: {
             title: "Tree Spell",
             description: "Total tree points boost the spell power.",
-            cost: new Decimal(100),
+            cost: new Decimal(50),
             currencyDisplayName: "tree points",
             req : [1081],
             canAfford : TreeAffold,
@@ -856,7 +857,7 @@ addLayer("u", {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1082])
             },
             effect() {
-                return player["g"].power.pow(0.3)
+                return player["g"].power.pow(0.3).add(1)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -1899,6 +1900,10 @@ addLayer("u", {
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
+                if (hasUpgrade("u", 1094)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 71) ||
                    getClickableState(this.layer, 72) ||
@@ -1931,6 +1936,10 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
+                if (hasUpgrade("u", 1094)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 71) ||
                    getClickableState(this.layer, 72) ||
@@ -1963,6 +1972,10 @@ addLayer("u", {
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
+                if (hasUpgrade("u", 1094)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 71) ||
                    getClickableState(this.layer, 72) ||

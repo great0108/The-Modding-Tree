@@ -57,6 +57,7 @@ addLayer("p", {
         if (hasUpgrade("p", 14)) mult = mult.mul(upgradeEffect("p", 14))
         if (getClickableState("u", 63)) mult = mult.mul(clickableEffect("u", 63))
         if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 13))
+        if (hasUpgrade("u", 1101)) mult = mult.mul(upgradeEffect("u", 1101)[0])
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -67,6 +68,7 @@ addLayer("p", {
         let mult = player["p"].points.add(1).log10().mul(2).add(1).pow(5)
         if(hasUpgrade("p", 21)) mult = mult.pow(1.2)
         if(getClickableState("u", 61)) mult = mult.pow(clickableEffect("u", 61))
+        if(hasUpgrade("u", 1081)) mult = mult.pow(upgradeEffect("u", 1081))
         return mult
     },
     effectDescription() { // Optional text to describe the effects
@@ -81,6 +83,7 @@ addLayer("p", {
         let mult = new Decimal(1)
         mult = mult.add(this.magicEffect().div(100))
         if(hasUpgrade("p", 22)) mult = mult.add(upgradeEffect("p", 22))
+        if(hasUpgrade("u", 1091)) mult = mult.add(upgradeEffect("u", 1091))
         return mult
     },
     energyGain() {
@@ -387,6 +390,7 @@ addLayer("p", {
             cost: new Decimal(1e9),
             effect() {
                 let value = Decimal.log10(player[this.layer].points.add(1)).add(1)
+                if(hasUpgrade("u", 1092)) mult = mult.pow(2)
                 return value
             },
             effectDisplay() {
