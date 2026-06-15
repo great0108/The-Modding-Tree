@@ -1,3 +1,18 @@
+function GemBuyMax() {
+    if (!this.canAfford()) return
+    let x = getBuyableAmount(this.layer, this.id)
+    let amount = new Decimal(1)
+    while (true) {
+        let cost = this.cost(x.add(amount.mul(10)).sub(1))
+        if (player.points.lte(cost)) break
+        amount = amount.mul(10)
+    }
+
+    let cost = this.cost(x.add(amount).sub(1))
+    if (player.points.lte(cost)) return
+    this.buyMulti(amount, cost)
+}
+
 addLayer("g", {
     name: "generator", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "G", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -6,7 +21,13 @@ addLayer("g", {
         unlocked: false,
 		points: new Decimal(0),
         power: new Decimal(0),
-        flow: new Decimal(0)
+        flow: new Decimal(0),
+        gem: {
+            11: new Decimal(0),
+            12: new Decimal(0),
+            13: new Decimal(0),
+            14: new Decimal(0)
+        }
     }},
     color: "#31aeb0",
     requires() {return new Decimal(1e200)}, // Can be a function that takes requirement increases into account
@@ -53,14 +74,21 @@ addLayer("g", {
         let mult = player["g"].flow.add(1).pow(3)
         return mult
     },
+    T1GemGain() {
+        return new Decimal(1)
+    },
     branches: ["u"],
     hotkeys: [
         {key: "g", description: "G: Reset for generator points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     update(diff) {
         // player[this.layer].power = new Decimal(0)
+        
         player[this.layer].power = player[this.layer].power.add(tmp.g.effect.mul(diff))
-        player[this.layer].flow = player[this.layer].flow.add(tmp.g.flowGain.mul(diff))
+        if(hasUpgrade("g", 14)) player[this.layer].flow = player[this.layer].flow.add(tmp.g.flowGain.mul(diff))
+        if(hasUpgrade("g", 15)) {
+            player[this.layer].gem[11] = player[this.layer].gem[11].add(tmp.g.T1GemGain.mul(diff))
+        }
     },
     unlocked() {
         return player.points.gte(1e200)
@@ -79,7 +107,7 @@ addLayer("g", {
                     return "You have " + format(player["g"].power) + " generator power, which boosts point gain by " + format(tmp.g.powerEffect)
                 }],
                 ["display-text", function() {
-                    return "Generator power also generate " +  format(tmp.g.flowGain) + " generator flow/sec"
+                    return hasUpgrade("g", 14) ? "Generator power also generates " +  format(tmp.g.flowGain) + " generator flow/sec" : ""
                 }],
                 "blank",
                 ["display-text", function() {
@@ -88,6 +116,24 @@ addLayer("g", {
                 "blank",
                 "upgrades"
             ],
+        },
+        "Gem": {
+            content: [
+                "main-display",
+                "prestige-button",
+                "blank",
+                "blank",
+                ["row", [
+                    ["display-text", 
+                        function () { return true ? "Tier 1 Gem : " + format(player[this.layer].gem[11]) + " (+" + format(tmp.g.T1GemGain) + "/s)" : ""},
+                        {width: "400px", display: "inline-block"}
+                    ], 
+                    ["buyable", 11]
+                ]],
+            ],
+            unlocked() {
+                return hasUpgrade("u", 25)
+            },
         },
     },
     upgrades: {
@@ -146,11 +192,38 @@ addLayer("g", {
         },
         15: {
             title: "New Type Generator",
-            description: "Unlock matter tab.",
+            description: "Unlock gem tab.",
             cost: new Decimal(6),
             unlocked() {
                 return hasUpgrade("u", 61)
             }
         }
+    },
+    buyables: {
+        11: {
+            cost(x=getBuyableAmount(this.layer, this.id)) { 
+                let value = new Decimal(3)
+                let cost = new Decimal(10).mul(value.pow(x))
+                return cost
+            },
+            effect() {
+                let value = getBuyableAmount(this.layer, this.id)
+                return value.pow(0.5)
+            },
+            display() { 
+                return "Cost: " + format(tmp[this.layer].buyables[this.id].cost) + "\nTier 1 Gem"
+            },
+            canAfford() { return player[this.layer].gem[this.id].gte(this.cost()) },
+            buy() {
+                this.buyMulti(1, this.cost())
+            },
+            buyMulti(amount, cost) {
+                if(!amount) return
+                player.points = player.points.sub(cost)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
+            },
+            buyMax : GemBuyMax,
+            style: { width: '175px', height: '50px', borderRadius: '10px', "font-size": "16px" }
+        },
     }
 })

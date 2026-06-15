@@ -1,5 +1,5 @@
 // const ColorBuyableStyle = {'height':'150px', 'width':'150px'}
-const SpellStyle = { margin: "7px", 'height':'150px', 'width':'150px' }
+const BoosterStyle = { margin: "7px", 'height':'150px', 'width':'150px' }
 
 function ColorBuyableStyle() {
     let css = {}
@@ -27,13 +27,13 @@ addLayer("p", {
         unlocked: false,
 		points: new Decimal(0),
         milestoneCond : [],
-        magic : new Decimal(0),
-        spellTime : {
+        experience : new Decimal(0),
+        BoosterTime : {
             11: new Decimal(0),
             12: new Decimal(0),
             13: new Decimal(0)
         },
-        spellInput : {
+        BoosterInput : {
             11: new Decimal(0),
             12: new Decimal(0),
             13: new Decimal(0)
@@ -74,14 +74,14 @@ addLayer("p", {
     effectDescription() { // Optional text to describe the effects
         return "which are boosting points and upgrade points by "+format(this.effect())
     },
-    magicEffect() {
-        let value = player[this.layer].magic
+    experienceEffect() {
+        let value = player[this.layer].experience
         value = value.add(1).log10().div(2).add(1).pow(2)
         return value
     },
-    spellPower() {
+    BoosterPower() {
         let mult = new Decimal(1)
-        mult = mult.add(this.magicEffect().div(100))
+        mult = mult.add(this.experienceEffect().div(100))
         if(hasUpgrade("p", 22)) mult = mult.add(upgradeEffect("p", 22))
         if(hasUpgrade("u", 1091)) mult = mult.add(upgradeEffect("u", 1091))
         return mult
@@ -170,12 +170,12 @@ addLayer("p", {
         }
     },
     update(diff) {
-        let spellTime = player[this.layer].spellTime
-        for(let id in spellTime) {
-            if(spellTime[id].gt(diff)) {
-                spellTime[id] = spellTime[id].sub(diff)
+        let BoosterTime = player[this.layer].BoosterTime
+        for(let id in BoosterTime) {
+            if(BoosterTime[id].gt(diff)) {
+                BoosterTime[id] = BoosterTime[id].sub(diff)
             } else {
-                spellTime[id] = new Decimal(0)
+                BoosterTime[id] = new Decimal(0)
             }
         }
         if(hasUpgrade("p", 23)) {
@@ -200,27 +200,28 @@ addLayer("p", {
                 "blank",
                 ["row", [["upgrade", 11], ["upgrade", 12], ["upgrade", 13], ["upgrade", 14], ["upgrade", 15]]],
                 ["row", [["upgrade", 21], ["upgrade", 22], ["upgrade", 23], ["upgrade", 24], ["upgrade", 25]]],
+                ["row", [["upgrade", 31], ["upgrade", 32], ["upgrade", 33], ["upgrade", 34], ["upgrade", 35]]],
             ],
         },
-        "Spell": {
+        "Booster": {
             content: [
                 "main-display",
                 "prestige-button",
                 "blank",
                 "blank",
                 ["display-text", function() {
-                    return "When activate any spell, insert 10% of your prestige points into the spell"
+                    return "When activate any booster, insert 10% of your prestige points into the Booster"
                 }],
                 "blank",
                 ["display-text", function() {
-                    return "Spell Power : " + format(tmp.p.spellPower.mul(100)) + "%"
+                    return "Booster Power : " + format(tmp.p.BoosterPower.mul(100)) + "%"
                 }],
                 "blank",
                 ["row", [["clickable", 11], ["clickable", 12], ["clickable", 13]]],
                 "blank",
                 ["display-text", function() {
-                    return "You have " + format(player[this.layer].magic) +
-                    " magic, which are boosting spells +" + format(tmp.p.magicEffect) + "%"
+                    return "You have " + format(player[this.layer].experience) +
+                    " experience, which makes boosters more efficient +" + format(tmp.p.experienceEffect) + "%"
                 }]
             ],
             unlocked() {
@@ -402,7 +403,7 @@ addLayer("p", {
         },
         15: {
             title: "New Type Boost",
-            description: "Unlock spell tab.",
+            description: "Unlock Booster tab.",
             cost: new Decimal(1e10),
             unlocked() {
                 return hasUpgrade("u", 51)
@@ -417,8 +418,8 @@ addLayer("p", {
             }
         },
         22: {
-            title: "Spell Power",
-            description: "Spells are more effective.",
+            title: "Booster Power",
+            description: "Boosters are more effective.",
             cost: new Decimal(1e16),
             effect() {
                 let value = new Decimal(0.6)
@@ -440,8 +441,8 @@ addLayer("p", {
             }
         },
         24: {
-            title: "Longer Spell",
-            description: "Increase duration of the spells",
+            title: "Longer Booster",
+            description: "Increase duration of the boosters",
             cost: new Decimal(1e20),
             effect() {
                 let value = new Decimal(3)
@@ -460,6 +461,60 @@ addLayer("p", {
             cost: new Decimal(1e21),
             unlocked() {
                 return hasUpgrade("u", 54)
+            }
+        },
+        31: {
+            title: "Prestige Power",
+            description: "Raise the effect of prestige points and sixth selection row ^1.2.",
+            cost: new Decimal(1e31),
+            unlocked() {
+                return hasUpgrade("u", 63)
+            }
+        },
+        32: {
+            title: "Booster Power",
+            description: "Boosters are more effective.",
+            cost: new Decimal(1e35),
+            effect() {
+                let value = new Decimal(0.6)
+                return value
+            },
+            effectDisplay() {
+                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
+            },
+            unlocked() {
+                return hasUpgrade("u", 63)
+            }
+        },
+        33: {
+            title: "New Type Boost Again",
+            description: "Unlock color tab.",
+            cost: new Decimal(1e50),
+            unlocked() {
+                return hasUpgrade("u", 63)
+            }
+        },
+        34: {
+            title: "Longer Booster",
+            description: "Increase duration of the boosters",
+            cost: new Decimal(1e50),
+            effect() {
+                let value = new Decimal(3)
+                return value
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id)) + "x" 
+            },
+            unlocked() {
+                return hasUpgrade("u", 63)
+            }
+        },
+        35: {
+            title: "Row 6 Selection",
+            description: "You can activate all row 6 selection.",
+            cost: new Decimal(1e50),
+            unlocked() {
+                return hasUpgrade("u", 63)
             }
         },
         111: {
@@ -573,17 +628,17 @@ addLayer("p", {
         11: {
             title: "Replicate Point",
             effect() {
-                if (player[this.layer].spellTime[11].eq(0)) {
-                    player[this.layer].spellInput[11] = new Decimal(0)
+                if (player[this.layer].BoosterTime[11].eq(0)) {
+                    player[this.layer].BoosterInput[11] = new Decimal(0)
                 }
-                let value = player[this.layer].spellInput[11]
+                let value = player[this.layer].BoosterInput[11]
                 value = value.add(1).log10().div(2).add(1).pow(5)
-                value = value.pow(tmp.p.spellPower)
+                value = value.pow(tmp.p.BoosterPower)
                 return value
             },
             display() { 
                 return "Effect : point x" + format(clickableEffect(this.layer, this.id)) + "\n" +
-                "Time : " + format(player[this.layer].spellTime[11]) + "s"
+                "Time : " + format(player[this.layer].BoosterTime[11]) + "s"
             },
             canClick() {
                 return player[this.layer].points.gt(0)
@@ -593,12 +648,12 @@ addLayer("p", {
                 let time = input.log10()
                 if(hasUpgrade("p", 24)) time = time.mul(3)
 
-                player[this.layer].spellInput[11] = input
-                player[this.layer].spellTime[11] = time
-                player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
+                player[this.layer].BoosterInput[11] = input
+                player[this.layer].BoosterTime[11] = time
+                player[this.layer].experience = player[this.layer].experience.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SpellStyle,
+            style : BoosterStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
             }
@@ -606,17 +661,17 @@ addLayer("p", {
         12: {
             title: "Replicate Upgrade Point",
             effect() {
-                if (player[this.layer].spellTime[12].eq(0)) {
-                    player[this.layer].spellInput[12] = new Decimal(0)
+                if (player[this.layer].BoosterTime[12].eq(0)) {
+                    player[this.layer].BoosterInput[12] = new Decimal(0)
                 }
-                let value = player[this.layer].spellInput[12]
+                let value = player[this.layer].BoosterInput[12]
                 value = value.add(1).log10().div(2.5).add(1).pow(5)
-                value = value.pow(tmp.p.spellPower)
+                value = value.pow(tmp.p.BoosterPower)
                 return value
             },
             display() { 
                 return "Effect : upgrade point x" + format(clickableEffect(this.layer, this.id)) + "\n" +
-                "Time : " + format(player[this.layer].spellTime[12]) + "s"
+                "Time : " + format(player[this.layer].BoosterTime[12]) + "s"
             },
             canClick() {
                 return player[this.layer].points.gt(0)
@@ -626,12 +681,12 @@ addLayer("p", {
                 let time = input.log10()
                 if(hasUpgrade("p", 24)) time = time.mul(3)
 
-                player[this.layer].spellInput[12] = input
-                player[this.layer].spellTime[12] = time
-                player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
+                player[this.layer].BoosterInput[12] = input
+                player[this.layer].BoosterTime[12] = time
+                player[this.layer].experience = player[this.layer].experience.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SpellStyle,
+            style : BoosterStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
             }
@@ -639,17 +694,17 @@ addLayer("p", {
         13: {
             title: "Replicate Prestige Point",
             effect() {
-                if (player[this.layer].spellTime[13].eq(0)) {
-                    player[this.layer].spellInput[13] = new Decimal(0)
+                if (player[this.layer].BoosterTime[13].eq(0)) {
+                    player[this.layer].BoosterInput[13] = new Decimal(0)
                 }
-                let value = player[this.layer].spellInput[13]
+                let value = player[this.layer].BoosterInput[13]
                 value = value.add(1).log10().div(2.5).add(1).pow(0.5)
-                value = value.pow(tmp.p.spellPower)
+                value = value.pow(tmp.p.BoosterPower)
                 return value
             },
             display() { 
                 return "Effect : prestige point x" + format(clickableEffect(this.layer, this.id)) + "\n" +
-                "Time : " + format(player[this.layer].spellTime[13]) + "s"
+                "Time : " + format(player[this.layer].BoosterTime[13]) + "s"
             },
             canClick() {
                 return player[this.layer].points.gt(0)
@@ -659,12 +714,12 @@ addLayer("p", {
                 let time = input.log10()
                 if(hasUpgrade("p", 24)) time = time.mul(3)
 
-                player[this.layer].spellInput[13] = input
-                player[this.layer].spellTime[13] = time
-                player[this.layer].magic = player[this.layer].magic.add(input.pow(0.5))
+                player[this.layer].BoosterInput[13] = input
+                player[this.layer].BoosterTime[13] = time
+                player[this.layer].experience = player[this.layer].experience.add(input.pow(0.5))
                 player[this.layer].points = player[this.layer].points.sub(input)
             },
-            style : SpellStyle,
+            style : BoosterStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
             }

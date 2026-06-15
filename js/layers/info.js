@@ -38,7 +38,7 @@ addLayer("i", {
                 ["infobox", "lateMilestone"],
                 "blank",
                 "blank",
-                ["infobox", "spell"],
+                ["infobox", "Booster"],
                 "blank",
                 "blank",
                 ["infobox", "earlyColor"],
@@ -87,9 +87,9 @@ addLayer("i", {
             body() { return "Third milestone is achieved naturally when you buy prestige upgrade 13. You can get fourth milestone easily with over 1e8 prestige points. You also unlock sixth selection row. Recommend selection 62 for upgrade points and change to 63 just before getting the prestige points." },
             unlocked() { return hasMilestone("p", 2)}
         },
-        spell: {
-            title: "Spell",
-            body() { return "Activate first two spells and farm upgrade points. Then activate third spell and get prestige points. Don't forget to change selection between farming upgrade points and getting prestige points. If you don't have enough upgrade points, You can farm magic by activating the spell multiple times. Selection 61 is better than 62 after buying prestige upgrade 21." },
+        Booster: {
+            title: "Booster",
+            body() { return "Activate first two boosters and farm upgrade points. Then activate third booster and get prestige points. Don't forget to change selection between farming upgrade points and getting prestige points. If you don't have enough upgrade points, You can farm experience by activating the booster multiple times. Selection 61 is better than 62 after buying prestige upgrade 21." },
             unlocked() { return hasUpgrade("p", 15)}
         },
         earlyColor: {
@@ -99,7 +99,7 @@ addLayer("i", {
         },
         lateColor: {
             title: "Late Color",
-            body() { return "After 13 color points, assign 6 blue, 6 red and the rest for green. Don't forget to change to cheap color points setting. If you fill up the green, allocate the remaining points to red. After 26 color points, assigning 9 blue and 9 red makes color points more cheaper. Collect at least 29 color points and then buy remaining upgrades. If you are short on points, farming magic by spamming the spell." },
+            body() { return "After 13 color points, assign 6 blue, 6 red and the rest for green. Don't forget to change to cheap color points setting. If you fill up the green, allocate the remaining points to red. After 26 color points, assigning 9 blue and 9 red makes color points more cheaper. Collect at least 29 color points and then buy remaining upgrades. If you are short on points, farming experience by spamming the booster." },
             unlocked() { return hasUpgrade("p", 23)}
         }
     },

@@ -497,7 +497,7 @@ addLayer("u", {
             }, 
         },
         61: {
-            title: "New Layer Upgrade",
+            title: "New Layer Upgrade Again",
             description: "Unlock 5 generator upgrades.",
             cost: new Decimal("1e300"),
             unlocked() {
@@ -513,7 +513,7 @@ addLayer("u", {
             }
         },
         63: {
-            title: "Buyable Power 5",
+            title: "Extend Prestige Upgrade Again",
             description: "Boost fifth buyable effect.",
             cost: new Decimal("1e500"),
             unlocked() {
@@ -521,7 +521,7 @@ addLayer("u", {
             }
         },
         64: {
-            title: "Extend Prestige Upgrade",
+            title: "Extend Generator Upgrade",
             description: "Unlock 5 more prestige upgrades.",
             cost: new Decimal("1e600"),
             unlocked() {
@@ -812,8 +812,8 @@ addLayer("u", {
             style: TreeStyle
         },
         1091: {
-            title: "Tree Spell",
-            description: "Total tree points boost the spell power.",
+            title: "Tree Booster",
+            description: "Total tree points boost the booster power.",
             cost: new Decimal(50),
             currencyDisplayName: "tree points",
             req : [1081],
