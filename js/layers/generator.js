@@ -4,12 +4,12 @@ function GemBuyMax() {
     let amount = new Decimal(1)
     while (true) {
         let cost = this.cost(x.add(amount.mul(10)).sub(1))
-        if (player.points.lte(cost)) break
+        if (player[this.layer].gem[this.id].lte(cost)) break
         amount = amount.mul(10)
     }
 
     let cost = this.cost(x.add(amount).sub(1))
-    if (player.points.lte(cost)) return
+    if (player[this.layer].gem[this.id].lte(cost)) return
     this.buyMulti(amount, cost)
 }
 
@@ -27,6 +27,12 @@ addLayer("g", {
             12: new Decimal(0),
             13: new Decimal(0),
             14: new Decimal(0)
+        },
+        gemUpgrade: {
+            11: [new Decimal(0), new Decimal(0), new Decimal(0)],
+            12: [new Decimal(0)],
+            13: [new Decimal(0)],
+            14: [new Decimal(0)]
         }
     }},
     color: "#31aeb0",
@@ -75,7 +81,23 @@ addLayer("g", {
         return mult
     },
     T1GemGain() {
-        return new Decimal(1)
+        let mult = this.T1GemBoost()
+        return mult
+    },
+    boostBase(num=new Decimal(0)) {
+        return num.mul(2).add(0.25).pow(0.5).sub(0.5)
+    },
+    T1GemBoost() {
+        let value = this.boostBase(player["g"].gemUpgrade[11][0])
+        return new Decimal(10).pow(value)
+    },
+    prestigeBoost() {
+        let value = this.boostBase(player["g"].gemUpgrade[11][1])
+        return new Decimal(5).pow(value)
+    },
+    boosterBoost() {
+        let value = this.boostBase(player["g"].gemUpgrade[11][2])
+        return new Decimal(0.1).mul(value)
     },
     branches: ["u"],
     hotkeys: [
@@ -123,17 +145,50 @@ addLayer("g", {
                 "prestige-button",
                 "blank",
                 "blank",
-                ["row", [
-                    ["display-text", 
-                        function () { return true ? "Tier 1 Gem : " + format(player[this.layer].gem[11]) + " (+" + format(tmp.g.T1GemGain) + "/s)" : ""},
-                        {width: "400px", display: "inline-block"}
-                    ], 
-                    ["buyable", 11]
-                ]],
+                ["microtabs", "stuff", { 'border-width': '0px' }],
             ],
             unlocked() {
                 return hasUpgrade("u", 25)
             },
+        },
+    },
+    microtabs: {
+        stuff: {
+            gem: {
+                content: [
+                    "blank",
+                    ["row", [
+                        ["display-text", 
+                            function () { return "Tier 1 Gem : " + format(player[this.layer].gem[11]) + " (+" + format(tmp.g.T1GemGain) + "/s)"},
+                            {width: "400px", display: "inline-block"}
+                        ], 
+                        ["buyable", 11]
+                    ]],
+                    "blank",
+                    "blank",
+                    ["buyable", 21]
+                ]
+            },
+            effect: {
+                content: [
+                    "blank",
+                    ["display-text", function() {
+                        if(player[this.layer].gemUpgrade[11][0].eq(0)) return ""
+                        return "Tier 1 Gem Boost [" + format(player[this.layer].gemUpgrade[11][0]) + "] : Multiply Tier 1 Gem gain by " + format(tmp.g.T1GemBoost)
+                    }],
+                    ["display-text", function() {
+                        if(player[this.layer].gemUpgrade[11][1].eq(0)) return ""
+                        return "Prestige Point Boost [" + format(player[this.layer].gemUpgrade[11][1]) + "] : Multiply prestige points gain by " + format(tmp.g.prestigeBoost)
+                    }],
+                    ["display-text", function() {
+                        if(player[this.layer].gemUpgrade[11][2].eq(0)) return ""
+                        return "Booster Boost [" + format(player[this.layer].gemUpgrade[11][2]) + "] : Add booster power by " + format(tmp.g.boosterBoost.mul(100)) + "%"
+                    }],
+                ]
+            },
+            automation: {
+
+            }
         },
     },
     upgrades: {
@@ -215,15 +270,58 @@ addLayer("g", {
             },
             canAfford() { return player[this.layer].gem[this.id].gte(this.cost()) },
             buy() {
-                this.buyMulti(1, this.cost())
+                this.buyMulti(new Decimal(1), this.cost())
             },
             buyMulti(amount, cost) {
                 if(!amount) return
-                player.points = player.points.sub(cost)
+                console.log(amount)
+                let index = getBuyableAmount(this.layer, this.id).toNumber() % 3
+                let count = amount.toNumber() % 3
+                let upgradeAmount = Math.floor(amount.div(3).toNumber())
+                for(let i = index; i < index+3; i++) {
+                    let idx = i % 3
+                    if(count > 0) {
+                        player[this.layer].gemUpgrade[this.id][idx] = player[this.layer].gemUpgrade[this.id][idx].add(upgradeAmount+1)
+                        count--
+                    } else {
+                        player[this.layer].gemUpgrade[this.id][idx] = player[this.layer].gemUpgrade[this.id][idx].add(upgradeAmount)
+                    }
+                }
+                player[this.layer].gem[this.id] = player[this.layer].gem[this.id].sub(cost)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(amount))
             },
             buyMax : GemBuyMax,
             style: { width: '175px', height: '50px', borderRadius: '10px', "font-size": "16px" }
+        },
+        21: {
+            title : "Unlock New Tier Gem",
+            cost(x=getBuyableAmount(this.layer, this.id)) { 
+                return new Decimal(1e4)
+            },
+            currency() {
+                if(getBuyableAmount(this.layer, this.id).eq(0)) return 11
+                if(getBuyableAmount(this.layer, this.id).eq(1)) return 12
+                if(getBuyableAmount(this.layer, this.id).eq(2)) return 13
+                if(getBuyableAmount(this.layer, this.id).eq(3)) return 14
+                return 14
+            },
+            effect() {
+                let value = getBuyableAmount(this.layer, this.id)
+                return value.pow(0.5)
+            },
+            display() { 
+                return "Cost: " + format(tmp[this.layer].buyables[this.id].cost) + " Tier 1 Gem"
+            },
+            canAfford() { 
+                if(getBuyableAmount(this.layer, this.id).eq(4)) return false
+                return player[this.layer].gem[this.currency()].gte(this.cost()) 
+            },
+            buy() {
+                let cost = this.cost()
+                player[this.layer].gem[this.currency()] = player[this.layer].gem[this.currency()].sub(cost)
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+            style: {height: '100px', borderRadius: '10px' }
         },
     }
 })

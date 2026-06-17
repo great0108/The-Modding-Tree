@@ -58,6 +58,7 @@ addLayer("p", {
         if (getClickableState("u", 63)) mult = mult.mul(clickableEffect("u", 63))
         if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 13))
         if (hasUpgrade("u", 1101)) mult = mult.mul(upgradeEffect("u", 1101)[0])
+        if (hasUpgrade("g", 15)) mult = mult.mul(layers["g"].prestigeBoost())
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -84,6 +85,7 @@ addLayer("p", {
         mult = mult.add(this.experienceEffect().div(100))
         if(hasUpgrade("p", 22)) mult = mult.add(upgradeEffect("p", 22))
         if(hasUpgrade("u", 1091)) mult = mult.add(upgradeEffect("u", 1091))
+        if (hasUpgrade("g", 15)) mult = mult.add(layers["g"].boosterBoost())
         return mult
     },
     energyGain() {
