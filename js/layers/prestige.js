@@ -97,6 +97,7 @@ addLayer("p", {
             value = value.mul(upgradeEffect("p", 112)[1])
             value = value.pow(upgradeEffect("p", 112)[0])
         }
+        if(hasUpgrade("g", 15)) value = value.mul(layers["g"].colorBoost())
         return value
     },
     redEffect() {

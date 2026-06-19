@@ -1,7 +1,7 @@
 upgrade(upgrade, buyable+building, tree, select)
 
 prestige(upgrade+goals+prestige bonus, booster, color, meta-prestige)
-generator(upgrade+darkness, quantum form + antimatter dimension, ???, chroma)
+generator(upgrade+darkness, quantum form + antimatter dimension, mass, chroma)
 
 challenge(challenge+repeatable, exploration, hadronic challenge, dark run)  
 time(time upgrade+time reverse, blackhole, time dimension, overclock)

@@ -513,25 +513,25 @@ addLayer("u", {
             }
         },
         63: {
-            title: "Extend Prestige Upgrade Again",
-            description: "Boost fifth buyable effect.",
-            cost: new Decimal("1e500"),
+            title: "Extend Generator Upgrade",
+            description: "Unlock 5 more generator upgrades.",
+            cost: new Decimal("1e360"),
             unlocked() {
                 return player["g"].unlocked
             }
         },
         64: {
-            title: "Extend Generator Upgrade",
+            title: "Extend Prestige Upgrade Again",
             description: "Unlock 5 more prestige upgrades.",
-            cost: new Decimal("1e600"),
+            cost: new Decimal("1e380"),
             unlocked() {
                 return player["g"].unlocked
             }
         },
         65: {
-            title: "Color Boost",
-            description: "Multiply point gain based on total color points",
-            cost: new Decimal("1e700"),
+            title: "???",
+            description: "not decided",
+            cost: new Decimal("1e500"),
             unlocked() {
                 return player["g"].unlocked
             },
