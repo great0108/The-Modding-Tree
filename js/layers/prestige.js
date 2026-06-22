@@ -31,12 +31,14 @@ addLayer("p", {
         BoosterTime : {
             11: new Decimal(0),
             12: new Decimal(0),
-            13: new Decimal(0)
+            13: new Decimal(0),
+            14: new Decimal(0)
         },
         BoosterInput : {
             11: new Decimal(0),
             12: new Decimal(0),
-            13: new Decimal(0)
+            13: new Decimal(0),
+            14: new Decimal(0)
         },
         energy : new Decimal(0),
         colors : [new Decimal(0), new Decimal(0), new Decimal(0)],
@@ -220,7 +222,7 @@ addLayer("p", {
                     return "Booster Power : " + format(tmp.p.BoosterPower.mul(100)) + "%"
                 }],
                 "blank",
-                ["row", [["clickable", 11], ["clickable", 12], ["clickable", 13]]],
+                ["row", [["clickable", 11], ["clickable", 12], ["clickable", 13], ["clickable", 14]]],
                 "blank",
                 ["display-text", function() {
                     return "You have " + format(player[this.layer].experience) +
@@ -467,40 +469,33 @@ addLayer("p", {
             }
         },
         31: {
-            title: "Prestige Power",
-            description: "Raise the effect of prestige points and sixth selection row ^1.2.",
-            cost: new Decimal(1e31),
+            title: "New Booster",
+            description: "Unlock new booster",
+            cost: new Decimal(1e37),
             unlocked() {
-                return hasUpgrade("u", 63)
+                return hasUpgrade("u", 64)
             }
         },
         32: {
-            title: "Booster Power",
-            description: "Boosters are more effective.",
-            cost: new Decimal(1e35),
-            effect() {
-                let value = new Decimal(0.6)
-                return value
-            },
-            effectDisplay() {
-                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
-            },
+            title: "Extend Color",
+            description: "Color's limit is extended to 15.",
+            cost: new Decimal(1e45),
             unlocked() {
-                return hasUpgrade("u", 63)
+                return hasUpgrade("u", 64)
             }
         },
         33: {
-            title: "New Type Boost Again",
-            description: "Unlock color tab.",
+            title: "Last Type Boost",
+            description: "Unlock meta tab.",
             cost: new Decimal(1e50),
             unlocked() {
-                return hasUpgrade("u", 63)
+                return hasUpgrade("u", 64)
             }
         },
         34: {
-            title: "Longer Booster",
-            description: "Increase duration of the boosters",
-            cost: new Decimal(1e50),
+            title: "???",
+            description: "Not decided yet.",
+            cost: new Decimal(1e70),
             effect() {
                 let value = new Decimal(3)
                 return value
@@ -509,15 +504,15 @@ addLayer("p", {
                 return format(upgradeEffect(this.layer, this.id)) + "x" 
             },
             unlocked() {
-                return hasUpgrade("u", 63)
+                return hasUpgrade("u", 64)
             }
         },
         35: {
-            title: "Row 6 Selection",
-            description: "You can activate all row 6 selection.",
-            cost: new Decimal(1e50),
+            title: "???",
+            description: "Not decided yet.",
+            cost: new Decimal(1e70),
             unlocked() {
-                return hasUpgrade("u", 63)
+                return hasUpgrade("u", 64)
             }
         },
         111: {
@@ -629,7 +624,7 @@ addLayer("p", {
         rows: 1,
 		cols: 6,
         11: {
-            title: "Replicate Point",
+            title: "Point Booster",
             effect() {
                 if (player[this.layer].BoosterTime[11].eq(0)) {
                     player[this.layer].BoosterInput[11] = new Decimal(0)
@@ -662,7 +657,7 @@ addLayer("p", {
             }
         },
         12: {
-            title: "Replicate Upgrade Point",
+            title: "Upgrade Point Booster",
             effect() {
                 if (player[this.layer].BoosterTime[12].eq(0)) {
                     player[this.layer].BoosterInput[12] = new Decimal(0)
@@ -695,7 +690,7 @@ addLayer("p", {
             }
         },
         13: {
-            title: "Replicate Prestige Point",
+            title: "Prestige Point Booster",
             effect() {
                 if (player[this.layer].BoosterTime[13].eq(0)) {
                     player[this.layer].BoosterInput[13] = new Decimal(0)
@@ -725,6 +720,39 @@ addLayer("p", {
             style : BoosterStyle,
             unlocked() {
                 return hasUpgrade("p", 15)
+            }
+        },
+        14: {
+            title: "Generator Power Booster",
+            effect() {
+                if (player[this.layer].BoosterTime[14].eq(0)) {
+                    player[this.layer].BoosterInput[14] = new Decimal(0)
+                }
+                let value = player[this.layer].BoosterInput[14]
+                value = value.add(1).log10().add(1)
+                value = value.pow(tmp.p.BoosterPower)
+                return value
+            },
+            display() { 
+                return "Effect : generator power x" + format(clickableEffect(this.layer, this.id)) + "\n" +
+                "Time : " + format(player[this.layer].BoosterTime[14]) + "s"
+            },
+            canClick() {
+                return player[this.layer].points.gt(0)
+            },
+            onClick() {
+                let input = player[this.layer].points.div(10).ceil()
+                let time = input.log10()
+                if(hasUpgrade("p", 24)) time = time.mul(3)
+
+                player[this.layer].BoosterInput[14] = input
+                player[this.layer].BoosterTime[14] = time
+                player[this.layer].experience = player[this.layer].experience.add(input.pow(0.5))
+                player[this.layer].points = player[this.layer].points.sub(input)
+            },
+            style : BoosterStyle,
+            unlocked() {
+                return hasUpgrade("p", 31)
             }
         },
         111: {

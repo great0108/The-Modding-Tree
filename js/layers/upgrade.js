@@ -178,6 +178,10 @@ addLayer("u", {
             }
         }
     },
+    passiveGeneration() {
+        if(hasUpgrade("g", 22)) return 1
+        return 0
+    },
     layerShown(){return true},
     tabFormat: {
         "Upgrades": {
@@ -515,7 +519,7 @@ addLayer("u", {
         63: {
             title: "Extend Generator Upgrade",
             description: "Unlock 5 more generator upgrades.",
-            cost: new Decimal("1e360"),
+            cost: new Decimal("1e370"),
             unlocked() {
                 return player["g"].unlocked
             }
@@ -523,7 +527,7 @@ addLayer("u", {
         64: {
             title: "Extend Prestige Upgrade Again",
             description: "Unlock 5 more prestige upgrades.",
-            cost: new Decimal("1e380"),
+            cost: new Decimal("1e390"),
             unlocked() {
                 return player["g"].unlocked
             }
