@@ -51,7 +51,7 @@ function achievementStyle(layer, id){
 
 function updateWidth() {
 	let screenWidth = window.innerWidth
-	let splitScreen = screenWidth >= 1024
+	let splitScreen = screenWidth >= 512
 	if (options.forceOneTab) splitScreen = false
 	if (player.navTab == "none") splitScreen = true
 	tmp.other.screenWidth = screenWidth
