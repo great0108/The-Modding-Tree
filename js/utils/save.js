@@ -272,8 +272,38 @@ function exportSave() {
 	document.body.removeChild(el);
 }
 function importSave(imported = undefined, forced = false) {
-	if (imported === undefined)
-		imported = prompt("Paste your save here");
+	if (imported === undefined) {
+		// imported = prompt("Paste your save here");
+		let modal = document.createElement("div");
+        modal.setAttribute("style", "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:Inconsolata, sans-serif;");
+        
+        modal.innerHTML = `
+            <div style="background:#222; padding:20px; border-radius:10px; width:85%; max-width:500px; text-align:center; border:2px solid #555; box-sizing:border-box;">
+                <h3 style="margin-top:0;">Paste your save here</h3>
+                <textarea id="mobileSaveInput" style="width:100%; height:150px; margin:15px 0; background:#111; color:#fff; border:1px solid #444; padding:10px; box-sizing:border-box; word-break:break-all; font-size:12px; resize:none;"></textarea>
+                <br>
+                <button id="modalImportBtn" class="btn" style="padding:10px 20px; margin-right:10px; background:#4CAF50; color:white; border:none; cursor:pointer; font-weight:bold;">Import</button>
+                <button id="modalCancelBtn" class="btn" style="padding:10px 20px; background:#f44336; color:white; border:none; cursor:pointer; font-weight:bold;">Cancel</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // 텍스트 창에 자동으로 포커스 주기
+        document.getElementById("mobileSaveInput").focus();
+        
+        // Import 버튼 클릭 시 실행
+        document.getElementById("modalImportBtn").onclick = function() {
+            let code = document.getElementById("mobileSaveInput").value.trim();
+            document.body.removeChild(modal);
+            if (code) importSave(code, forced); // 입력된 코드를 가지고 함수 재귀 호출
+        };
+        
+        // Cancel 버튼 클릭 시 실행
+        document.getElementById("modalCancelBtn").onclick = function() {
+            document.body.removeChild(modal);
+        };
+        return; // 모달 창이 떴을 때는 아래 로직이 실행되지 않도록 중단
+	}
 	try {
 		tempPlr = Object.assign(getStartPlayer(), JSON.parse(atob(imported)));
 		if (tempPlr.versionType != getModID() && !forced && !confirm("This save appears to be for a different mod! Are you sure you want to import?")) // Wrong save (use "Forced" to force it to accept.)
