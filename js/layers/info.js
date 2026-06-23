@@ -38,13 +38,28 @@ addLayer("i", {
                 ["infobox", "lateMilestone"],
                 "blank",
                 "blank",
-                ["infobox", "spell"],
+                ["infobox", "Booster"],
                 "blank",
                 "blank",
                 ["infobox", "earlyColor"],
                 "blank",
                 "blank",
                 ["infobox", "lateColor"],
+            ],
+        },
+        "Generator Layer": {
+            unlocked() { return player["p"].unlocked},
+            content: [
+                ["infobox", "Generator"],
+                "blank",
+                "blank",
+                ["infobox", "earlyGem"],
+                "blank",
+                "blank",
+                ["infobox", "lateGem"],
+                "blank",
+                "blank",
+                ["infobox", "extendedColor"],
             ],
         },
     },
@@ -79,7 +94,7 @@ addLayer("i", {
         },
         earlyMilestone: {
             title: "Early Milestone",
-            body() { return "After you have over 10 prestige points, You can get milestone 1 without upgrades 12, 13, 23, 24, 31. Then buy upgrade 51 and prestige upgrades. After buying prestige upgrade 12, You can get milestone 2." },
+            body() { return "Just collect prestige points and keep playing as before. After you have over 10 prestige points, You can get milestone 1 without upgrades 12, 13, 23, 24, 31. Then buy upgrade 51 and prestige upgrades. After buying prestige upgrade 12, You can get milestone 2." },
             unlocked() { return player["p"].unlocked}
         },
         lateMilestone: {
@@ -87,9 +102,9 @@ addLayer("i", {
             body() { return "Third milestone is achieved naturally when you buy prestige upgrade 13. You can get fourth milestone easily with over 1e8 prestige points. You also unlock sixth selection row. Recommend selection 62 for upgrade points and change to 63 just before getting the prestige points." },
             unlocked() { return hasMilestone("p", 2)}
         },
-        spell: {
-            title: "Spell",
-            body() { return "Activate first two spells and farm upgrade points. Then activate third spell and get prestige points. Don't forget to change selection between farming upgrade points and getting prestige points. If you don't have enough upgrade points, You can farm magic by activating the spell multiple times. Selection 61 is better than 62 after buying prestige upgrade 21." },
+        Booster: {
+            title: "Booster",
+            body() { return "Activate first two boosters and farm upgrade points. Then activate third booster and get prestige points. Don't forget to change selection between farming upgrade points and getting prestige points. If you don't have enough upgrade points, You can farm experience by activating the booster multiple times. Selection 61 is better than 62 after buying prestige upgrade 21." },
             unlocked() { return hasUpgrade("p", 15)}
         },
         earlyColor: {
@@ -99,9 +114,29 @@ addLayer("i", {
         },
         lateColor: {
             title: "Late Color",
-            body() { return "After 13 color points, assign 6 blue, 6 red and the rest for green. Don't forget to change to cheap color points setting. If you fill up the green, allocate the remaining points to red. After 26 color points, assigning 9 blue and 9 red makes color points more cheaper. Collect at least 29 color points and then buy remaining upgrades. If you are short on points, farming magic by spamming the spell." },
+            body() { return "After 13 color points, assign 6 blue, 6 red and the rest for green. Don't forget to change to cheap color points setting. If you fill up the green, allocate the remaining points to red. After 26 color points, assigning 9 blue and 9 red makes color points more cheaper. Collect at least 29 color points and then buy remaining upgrades. If you are short on points, farming experience by spamming the booster." },
             unlocked() { return hasUpgrade("p", 23)}
-        }
+        },
+        Generator: {
+            title: "Generator",
+            body() { return "Just collect generators and buy upgrades. You can unlock seventh selection row at 2 generators. Use selection 71 or 73 to collect generator power then change to 72 for prestige points and generator. You also unlock some tree upgrades at 4 generators. Recommend 82, 93, 94, 101 for generator power and 81, 82, 92, 101 for prestige points or generator. You can't buy everything right now, just buy as much as you can." },
+            unlocked() { return player["g"].unlocked}
+        },
+        earlyGem: {
+            title: "Early Gem",
+            body() { return "Just collect gems and buy upgrades. Don't forget to change selection between farming generator power and getting prestige points or generator. If you buy tree upgrade 94 and reset tree upgrade, row 7 selection will be reset. so select selection again. Use 81, 82, 91 tree upgrades to reach 9 generator." },
+            unlocked() { return hasUpgrade("g", 15)}
+        },
+        lateGem: {
+            title: "Late Gem",
+            body() { return "After unlock 4 tier gem, you can automate tier 1 gem upgrade(even tier 2 gem upgrade). To reach 1e430 upgrade points, Use 81, 82, 91, 92, 101 tree upgrade. Then farming generator power and buy 11 generators with new booster." },
+            unlocked() { return hasUpgrade("g", 15)}
+        },
+        extendedColor: {
+            title: "Extended Color",
+            body() { return "Assign 9 red, 9 blue and the rest for green. You can lower the price of color points by allocating 9 red and distributing the rest equally to green and blue. If you fill up the green, allocate the remaining points to red. You can buy color upgrades at 42 and 45 color points." },
+            unlocked() { return hasUpgrade("p", 32)}
+        },
     },
 }, 
 )

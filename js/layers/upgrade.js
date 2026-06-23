@@ -58,16 +58,13 @@ function TreePay() {
     player[this.layer].treePoint = player[this.layer].treePoint.sub(cost) 
     player[this.layer].treePointSpent = player[this.layer].treePointSpent.add(cost) 
 }
-function TreeUnlock(ids) {
-    function a() {
-        if (player[this.layer].treeUnlock.includes(this.id)) return true
-        if (ids.some(id => hasUpgrade(this.layer, id))) {
-            player[this.layer].treeUnlock.push(this.id)
-            return true
-        }
-        return false
+function TreeUnlock(curId, ids) {
+    if (player["u"].treeUnlock.includes(curId)) return true
+    if (ids.some(id => hasUpgrade("u", id))) {
+        player["u"].treeUnlock.push(curId)
+        return true
     }
-    return a
+    return false
 }
 
 
@@ -110,6 +107,7 @@ addLayer("u", {
         if (hasUpgrade("p", 15)) mult = mult.mul(clickableEffect("p", 12))
 
         if (hasUpgrade("g", 11)) mult = mult.mul(upgradeEffect("g", 11))
+        if (hasUpgrade("g", 14)) mult = mult.mul(layers["g"].flowEffect())
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -179,6 +177,10 @@ addLayer("u", {
                 this.buyables[id].buyMax()
             }
         }
+    },
+    passiveGeneration() {
+        if(hasUpgrade("g", 22)) return 1
+        return 0
     },
     layerShown(){return true},
     tabFormat: {
@@ -262,6 +264,9 @@ addLayer("u", {
                 ["row", [["upgrade", 1051], ["upgrade", 1052], ["upgrade", 1053]]],
                 ["row", [["upgrade", 1061]]],
                 ["row", [["upgrade", 1071]]],
+                ["row", [["upgrade", 1081], ["upgrade", 1082]]],
+                ["row", [["upgrade", 1091], ["upgrade", 1092], ["upgrade", 1093], ["upgrade", 1094]]],
+                ["row", [["upgrade", 1101]]],
             ],
             unlocked() {
                 return hasUpgrade("u", 45)
@@ -496,43 +501,43 @@ addLayer("u", {
             }, 
         },
         61: {
-            title: "New Layer Upgrade",
+            title: "New Layer Upgrade Again",
             description: "Unlock 5 generator upgrades.",
             cost: new Decimal("1e300"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             }
         },
         62: {
-            title: "Extend Selection",
-            description: "Unlock new 2 selection.",
-            cost: new Decimal("1e400"),
+            title: "Extend Tree",
+            description: "Unlock new tree upgrades and keep previous tree upgrades.",
+            cost: new Decimal("1e327"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             }
         },
         63: {
-            title: "Buyable Power 5",
-            description: "Boost fifth buyable effect.",
-            cost: new Decimal("1e500"),
+            title: "Extend Generator Upgrade",
+            description: "Unlock 5 more generator upgrades.",
+            cost: new Decimal("1e380"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             }
         },
         64: {
-            title: "Extend Prestige Upgrade",
+            title: "Extend Prestige Upgrade Again",
             description: "Unlock 5 more prestige upgrades.",
-            cost: new Decimal("1e600"),
+            cost: new Decimal("1e430"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             }
         },
         65: {
-            title: "Color Boost",
-            description: "Multiply point gain based on total color points",
-            cost: new Decimal("1e700"),
+            title: "???",
+            description: "not decided",
+            cost: new Decimal("1e500"),
             unlocked() {
-                return player["u"].unlocked
+                return player["g"].unlocked
             },
             effect() {
                 let value = player["p"].colorPoint.add(player["p"].colors[0]).add(player["p"].colors[1]).add(player["p"].colors[2])
@@ -550,7 +555,9 @@ addLayer("u", {
             req : [],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([45]),
+            unlocked() {
+                return TreeUnlock(this.id, [45])
+            },
             branches : [1021, 1022],
             style: TreeStyle
         },
@@ -562,7 +569,9 @@ addLayer("u", {
             req : [1011],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1011]),
+            unlocked() {
+                return TreeUnlock(this.id, [1011])
+            },
             effect() {
                 return Decimal.log10(player.points.add(1)).add(1).pow(2)
             },
@@ -580,7 +589,9 @@ addLayer("u", {
             req : [1011],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1011]),
+            unlocked() {
+                return TreeUnlock(this.id, [1011])
+            },
             effect() {
                 return Decimal.log10(player.points.add(1)).add(1).pow(1.5)
             },
@@ -598,7 +609,9 @@ addLayer("u", {
             req : [1021],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1021]),
+            unlocked() {
+                return TreeUnlock(this.id, [1021])
+            },
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
                 return total.add(2).pow(4).div(16)
@@ -617,7 +630,9 @@ addLayer("u", {
             req : [1022],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1022]),
+            unlocked() {
+                return TreeUnlock(this.id, [1022])
+            },
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
                 return total.add(2).pow(4).div(16)
@@ -636,7 +651,9 @@ addLayer("u", {
             req : [1031],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1031]),
+            unlocked() {
+                return TreeUnlock(this.id, [1031])
+            },
             branches : [1051],
             style: TreeStyle
         },
@@ -648,7 +665,9 @@ addLayer("u", {
             req : [[1031], [1032]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1031, 1032]),
+            unlocked() {
+                return TreeUnlock(this.id, [1031, 1032])
+            },
             branches : [1052],
             style: TreeStyle
         },
@@ -660,7 +679,9 @@ addLayer("u", {
             req : [1032],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1032]),
+            unlocked() {
+                return TreeUnlock(this.id, [1032])
+            },
             effect() {
                 return player[this.layer].treePoint.pow(0.5)
             },
@@ -678,7 +699,9 @@ addLayer("u", {
             req : [1041],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1041]),
+            unlocked() {
+                return TreeUnlock(this.id, [1041])
+            },
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(1)
             },
@@ -693,7 +716,9 @@ addLayer("u", {
             req : [1042],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1042]),
+            unlocked() {
+                return TreeUnlock(this.id, [1042])
+            },
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(2)
             },
@@ -708,7 +733,9 @@ addLayer("u", {
             req : [1043],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1043]),
+            unlocked() {
+                return TreeUnlock(this.id, [1043])
+            },
             onPurchase() {
                 player[this.layer].resetSelectionRows.push(3)
             },
@@ -723,7 +750,9 @@ addLayer("u", {
             req : [[1051], [1052], [1053]],
             canAfford : TreeMultiAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1051, 1052, 1053]),
+            unlocked() {
+                return TreeUnlock(this.id, [1051, 1052, 1053])
+            },
             effect() {
                 return new Decimal(1e4)
             },
@@ -740,7 +769,141 @@ addLayer("u", {
             req : [1061],
             canAfford : TreeAffold,
             pay : TreePay,
-            unlocked : TreeUnlock([1061]),
+            unlocked() {
+                return TreeUnlock(this.id, [1061])
+            },
+            branches : [1081, 1082],
+            style: TreeStyle
+        },
+        1081: {
+            title: "Upgrade Prestige",
+            description: "Upgrade points boost prestige effect.",
+            cost: new Decimal(30),
+            currencyDisplayName: "tree points",
+            req : [1071],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1071])
+            },
+            effect() {
+                return player[this.layer].points.add(1).log10().add(1).log10().div(10).add(1)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return "+" + format(upgradeEffect(this.layer, this.id).sub(1).mul(100))+"%" 
+            },
+            branches : [1091, 1092],
+            style: TreeStyle
+        },
+        1082: {
+            title: "Upgrade Generator",
+            description: "Upgrade points boost generator effect.",
+            cost: new Decimal(30),
+            currencyDisplayName: "tree points",
+            req : [1071],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1071])
+            },
+            effect() {
+                return player[this.layer].points.add(1).log10().add(1).log10().div(10).add(1)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return "+" + format(upgradeEffect(this.layer, this.id).sub(1).mul(100))+"%" 
+            },
+            branches : [1093, 1094],
+            style: TreeStyle
+        },
+        1091: {
+            title: "Tree Booster",
+            description: "Total tree points boost the booster power.",
+            cost: new Decimal(40),
+            currencyDisplayName: "tree points",
+            req : [1081],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1081])
+            },
+            effect() {
+                let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
+                return total.div(400)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
+            },
+            style: TreeStyle
+        },
+        1092: {
+            title: "More More Prestige",
+            description: "Square \"More Prestige\" upgrade effect. (prestige upgrade 14).",
+            cost: new Decimal(20),
+            currencyDisplayName: "tree points",
+            req : [1081],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1081])
+            },
+            branches : [1101],
+            style: TreeStyle
+        },
+        1093: {
+            title: "Generator Power^2",
+            description: "Generator power boost generator power gain.",
+            cost: new Decimal(20),
+            currencyDisplayName: "tree points",
+            req : [1082],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1082])
+            },
+            effect() {
+                return player["g"].power.pow(0.3).add(1)
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                return format(upgradeEffect(this.layer, this.id))+"x" 
+            },
+            branches : [1101],
+            style: TreeStyle
+        },
+        1094: {
+            title: "Row 7 Selection",
+            description: "You can activate all row 7 selection.",
+            cost: new Decimal(40),
+            currencyDisplayName: "tree points",
+            req : [1082],
+            canAfford : TreeAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1082])
+            },
+            onPurchase() {
+                player[this.layer].resetSelectionRows.push(7)
+            },
+            style: TreeStyle
+        },
+        1101: {
+            title: "Second Row Synergy",
+            description: "prestige points and generator points boost each other.",
+            cost: new Decimal(20),
+            currencyDisplayName: "tree points",
+            req : [[1092], [1093]],
+            canAfford : TreeMultiAffold,
+            pay : TreePay,
+            unlocked() {
+                return hasUpgrade("u", 62) && TreeUnlock(this.id, [1092, 1093])
+            },
+            effect() {
+                return [player["g"].points, player["p"].points.log10()]
+            },
+            effectDisplay() {  // Add formatting to the effect 
+                let [eff1, eff2] = upgradeEffect(this.layer, this.id)
+                return "prestige points " + format(eff1)+"x\n" +
+                "generator power " + format(eff2)+"x\n"
+            },
             style: TreeStyle
         },
     },
@@ -749,9 +912,17 @@ addLayer("u", {
             return true
         },
         respec() {
-            player[this.layer].upgrades = player[this.layer].upgrades.filter(x => +x < 1000)
-            player[this.layer].treePoint = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-            player[this.layer].treePointSpent = new Decimal(0)
+            if(hasUpgrade("u", 62)) {
+                // sum cost 1011 ~ 1071 = 31
+                player[this.layer].upgrades = player[this.layer].upgrades.filter(x => +x < 1080)
+                player[this.layer].treePoint = player[this.layer].treePoint.add(player[this.layer].treePointSpent.sub(31))
+                player[this.layer].treePointSpent = new Decimal(31)
+                player[this.layer].resetSelectionRows = player[this.layer].resetSelectionRows.filter(v => !([1, 2, 3].includes(v)))
+            } else {
+                player[this.layer].upgrades = player[this.layer].upgrades.filter(x => +x < 1000)
+                player[this.layer].treePoint = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
+                player[this.layer].treePointSpent = new Decimal(0)
+            }
 
             let rows = player[this.layer].resetSelectionRows
             for(let row of rows) {
@@ -778,8 +949,9 @@ addLayer("u", {
             effect() {
                 let value = getBuyableAmount(this.layer, this.id)
                 if (hasUpgrade(this.layer, 33)) value = value.add(buyableEffect(this.layer, 21))
-                if (getClickableState('u', 13)) value = value.times(clickableEffect('u', 13))
                 if (hasUpgrade(this.layer, 1043)) value = value.add(upgradeEffect(this.layer, 1043))
+
+                if (getClickableState('u', 13)) value = value.times(clickableEffect('u', 13))
                 return value
             },
             display() { 
@@ -868,7 +1040,7 @@ addLayer("u", {
             style: BuyableStyle
         },
         14: {
-            title: "Devide Upgrade Point Cost",
+            title: "Divide Upgrade Point Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).add(x)
                 let cost = new Decimal(1000).mul(value.pow(x))
@@ -904,7 +1076,7 @@ addLayer("u", {
             style: BuyableStyle
         },
         21: {
-            title: "Add First Row",
+            title: "Free First 4 Buyables",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).pow(x.add(1).pow(0.8))
                 let cost = new Decimal(1e7).mul(value.pow(x))
@@ -939,7 +1111,7 @@ addLayer("u", {
             style: BuyableStyle
         },
         22: {
-            title: "Devide Buyable Cost",
+            title: "Divide Buyable Cost",
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let value = new Decimal(5).add(x).pow(2)
                 let cost = new Decimal(1e7).mul(value.pow(x))
@@ -977,6 +1149,7 @@ addLayer("u", {
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let cost = new Decimal(1e40).mul(new Decimal(1e5).pow(x))
                 if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.95)
+                if (getBuyableAmount("g", 21).gte(2)) cost = cost.div(layers["g"].treeCostBoost())
                 return cost
             },
             display() { 
@@ -1004,6 +1177,7 @@ addLayer("u", {
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let cost = new Decimal(1e40).mul(new Decimal(1e5).pow(x))
                 if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.95)
+                    if (getBuyableAmount("g", 21).gte(2)) cost = cost.div(layers["g"].treeCostBoost())
                 return cost
             },
             display() { 
@@ -1128,7 +1302,7 @@ addLayer("u", {
                 return value
             },
             display() { 
-                return "Multiply the number of first buyable you have\n" +
+                return "Multiply effect of first buyable\n" +
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
@@ -1735,7 +1909,7 @@ addLayer("u", {
         71: {
             title: "Reverse Generator Power",
             effect() {
-                let value = player.points.add(1).log10().div(10).add(1)
+                let value = player.points.add(1).log10().div(20).add(1)
                 return value
             },
             display() { 
@@ -1743,6 +1917,10 @@ addLayer("u", {
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
+                if (hasUpgrade("u", 1094)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 71) ||
                    getClickableState(this.layer, 72) ||
@@ -1775,6 +1953,10 @@ addLayer("u", {
                 "currently : +" + format(clickableEffect(this.layer, this.id).sub(1).times(100)) + "%"
             },
             canClick() {
+                if (hasUpgrade("u", 1094)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 71) ||
                    getClickableState(this.layer, 72) ||
@@ -1807,6 +1989,10 @@ addLayer("u", {
                 "currently : " + format(clickableEffect(this.layer, this.id)) + "x"
             },
             canClick() {
+                if (hasUpgrade("u", 1094)) {
+                    setClickableState(this.layer, this.id, true)
+                    return false
+                }
                 if(getClickableState(this.layer, this.id)) return true
                 if(getClickableState(this.layer, 71) ||
                    getClickableState(this.layer, 72) ||

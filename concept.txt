@@ -1,20 +1,20 @@
 upgrade(upgrade, buyable+building, tree, select)
 
-prestige(upgrade+goals+prestige bonus, spell, color, meta-prestige)
-generator(electron, darkness + antimatter dimention, quantum form, chroma)
+prestige(upgrade+goals+prestige bonus, booster, color, meta-prestige)
+generator(upgrade+darkness, quantum form + antimatter dimension, mass, chroma)
 
 challenge(challenge+repeatable, exploration, hadronic challenge, dark run)  
-time(time upgrade+time reverse, blackhole, time dimention, overclock)
+time(time upgrade+time reverse, blackhole, time dimension, overclock)
 milestone(milestone, extra milestone, meta milestone, challenge milestone)
 
 research  
-energy  
+electric
 skill  
 rune
 
 mastery  
-super-prestige  - 미정
-super-generator  - 미정
+explore
+loop
 rpg  
 resource
 

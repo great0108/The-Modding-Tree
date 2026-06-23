@@ -13,8 +13,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.2.2",
-	name: "Early Generator area",
+	num: "0.3",
+	name: "Generator area",
 }
 
 let changelog = `<h1>Changelog:</h1><br><br>
@@ -48,10 +48,24 @@ let changelog = `<h1>Changelog:</h1><br><br>
 	<h3>v0.2.2</h3><br>
 	    - Added Generator Layer.<br>
 		- Added Generator Upgrades.<br>
-		- Rebalance Color layer.<br>
-		- Added 1 selection row.<br>
+		- Rebalance Color.<br>
+		- Added 1 Selection row.<br>
 		- Added 1 Upgrade.<br>
-		- Auto Tree Point Bug fix.<br>`
+		- Auto Tree Point Bug fix.<br>
+		<br>
+		
+	<h3>v0.3</h3><br>
+	    - Added Gem.<br>
+		- Added Gem Upgrades.<br>
+		- Added Gem Automation.<br>
+		- Added 7 Generator Upgrades.<br>
+		- Added 2 Prestige Upgrades.<br>
+		- Added 4 Upgrades.<br>
+		- Added 1 Booster.<br>
+		- Extend Color.<br>
+		- Added 2 Color Upgrades.<br>
+		- Typo fix.<br>
+	`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -102,6 +116,7 @@ function getPointGen() {
 	if (hasUpgrade('u', 55)) gain = gain.mul(upgradeEffect('u', 55))
 
 	if (player["g"].unlocked) gain = gain.mul(layers["g"].powerEffect())
+	if (hasUpgrade("p", 115)) gain = gain.mul(upgradeEffect("p", 115))
 
 	return gain
 }
@@ -116,7 +131,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player["g"].points.gte(4)
+	return hasUpgrade("g", 25)
 }
 
 
