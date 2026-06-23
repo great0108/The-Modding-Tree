@@ -185,8 +185,13 @@ addLayer("p", {
         }
         if(hasUpgrade("p", 23)) {
             player[this.layer].energy = player[this.layer].energy.add(tmp.p.energyGain.mul(diff))
-            player[this.layer].timeAfterChange = player[this.layer].timeAfterChange.add(diff)
+            let timebase = hasUpgrade("p", 114) ? upgradeEffect("p", 114) : new Decimal(1)
+            player[this.layer].timeAfterChange = player[this.layer].timeAfterChange.add(timebase.mul(diff))
         }
+    },
+    passiveGeneration() {
+        if(hasUpgrade("g", 24)) return 1
+        return 0
     },
     unlocked() {
         return hasUpgrade("u", 1071)
@@ -285,7 +290,11 @@ addLayer("p", {
                     ["display-text", function() {return "Purple"}],
                     ["display-text", function() {return "unlock upgrades"}],
                     ["display-text", function() {
-                        if(tmp.p.nextPurpleUnlock.gt(10)) return "all unlocked"
+                        if(tmp.p.nextPurpleUnlock.gt(10)) {
+                            if(tmp.p.nextPurpleUnlock.gt(15) || !hasUpgrade("p", 32)) {
+                                return "all unlocked"
+                            }
+                        }
                         return "next : " + format(tmp.p.nextPurpleUnlock, 0)
                     }]
                  ]],
@@ -298,7 +307,7 @@ addLayer("p", {
                 ]],
                 "blank",
                 "blank",
-                ["row", [["upgrade", 111], ["upgrade", 112], ["upgrade", 113]]]
+                ["row", [["upgrade", 111], ["upgrade", 112], ["upgrade", 113], ["upgrade", 114], ["upgrade", 115]]]
             ],
             unlocked() {
                 return hasUpgrade("p", 23)
@@ -395,9 +404,9 @@ addLayer("p", {
             description: "Boost Prestige point gain based on itself.",
             cost: new Decimal(1e9),
             effect() {
-                let value = Decimal.log10(player[this.layer].points.add(1)).add(1)
+                let mult = Decimal.log10(player[this.layer].points.add(1)).add(1)
                 if(hasUpgrade("u", 1092)) mult = mult.pow(2)
-                return value
+                return mult
             },
             effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x" 
@@ -471,15 +480,18 @@ addLayer("p", {
         31: {
             title: "New Booster",
             description: "Unlock new booster",
-            cost: new Decimal(1e37),
+            cost: new Decimal(1e45),
             unlocked() {
                 return hasUpgrade("u", 64)
             }
         },
         32: {
             title: "Extend Color",
-            description: "Color's limit is extended to 15.",
-            cost: new Decimal(1e45),
+            description: "Color's limit is raised to 15.",
+            cost: new Decimal(1e48),
+            onPurchase() {
+                player["p"].maxColors = [new Decimal(15), new Decimal(15), new Decimal(15)]
+            },
             unlocked() {
                 return hasUpgrade("u", 64)
             }
@@ -487,7 +499,7 @@ addLayer("p", {
         33: {
             title: "Last Type Boost",
             description: "Unlock meta tab.",
-            cost: new Decimal(1e50),
+            cost: new Decimal(1e60),
             unlocked() {
                 return hasUpgrade("u", 64)
             }
@@ -583,6 +595,57 @@ addLayer("p", {
             unlocked() {
                 let value = Decimal.min(player[this.layer].colors[0], player[this.layer].colors[2])
                 return value.gte(9)
+            },
+            canAfford() { 
+                return player[this.layer].energy.gte(this.cost) 
+            },
+            buy() {
+                player[this.layer].energy = player[this.layer].energy.sub(this.cost())
+            },
+        },
+        114: {
+            title: "Boost Blue",
+            description: "Time flows five times faster",
+            cost: new Decimal(1e57),
+            effect() {
+                if(!this.unlocked()) return new Decimal(1)
+                return new Decimal(5)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id)) + "x"
+            },
+            currencyDisplayName: "energy",
+            currencyInternalName: "energy",
+            currencyLayer: "p",
+            unlocked() {
+                let value = Decimal.min(player[this.layer].colors[0], player[this.layer].colors[2])
+                return value.gte(12)
+            },
+            canAfford() { 
+                return player[this.layer].energy.gte(this.cost) 
+            },
+            buy() {
+                player[this.layer].energy = player[this.layer].energy.sub(this.cost())
+            },
+        },
+        115: {
+            title: "Bright White",
+            description: "White also boost point gain",
+            cost: new Decimal(1e64),
+            effect() {
+                if(!this.unlocked()) return new Decimal(1)
+                let value = player[this.layer].colors[0].min(player[this.layer].colors[1]).min(player[this.layer].colors[2])
+                return new Decimal(100).mul(value).max(1)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id)) + "x"
+            },
+            currencyDisplayName: "energy",
+            currencyInternalName: "energy",
+            currencyLayer: "p",
+            unlocked() {
+                let value = Decimal.min(player[this.layer].colors[0], player[this.layer].colors[2])
+                return value.gte(15)
             },
             canAfford() { 
                 return player[this.layer].energy.gte(this.cost) 

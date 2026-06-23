@@ -102,6 +102,7 @@ function getPointGen() {
 	if (hasUpgrade('u', 55)) gain = gain.mul(upgradeEffect('u', 55))
 
 	if (player["g"].unlocked) gain = gain.mul(layers["g"].powerEffect())
+	if (hasUpgrade("p", 115)) gain = gain.mul(upgradeEffect("p", 115))
 
 	return gain
 }

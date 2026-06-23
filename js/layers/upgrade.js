@@ -510,8 +510,8 @@ addLayer("u", {
         },
         62: {
             title: "Extend Tree",
-            description: "Unlock new tree upgrades.",
-            cost: new Decimal("1e330"),
+            description: "Unlock new tree upgrades and keep previous tree upgrades.",
+            cost: new Decimal("1e327"),
             unlocked() {
                 return player["g"].unlocked
             }
@@ -519,7 +519,7 @@ addLayer("u", {
         63: {
             title: "Extend Generator Upgrade",
             description: "Unlock 5 more generator upgrades.",
-            cost: new Decimal("1e370"),
+            cost: new Decimal("1e380"),
             unlocked() {
                 return player["g"].unlocked
             }
@@ -527,7 +527,7 @@ addLayer("u", {
         64: {
             title: "Extend Prestige Upgrade Again",
             description: "Unlock 5 more prestige upgrades.",
-            cost: new Decimal("1e390"),
+            cost: new Decimal("1e430"),
             unlocked() {
                 return player["g"].unlocked
             }
@@ -818,7 +818,7 @@ addLayer("u", {
         1091: {
             title: "Tree Booster",
             description: "Total tree points boost the booster power.",
-            cost: new Decimal(50),
+            cost: new Decimal(40),
             currencyDisplayName: "tree points",
             req : [1081],
             canAfford : TreeAffold,
@@ -828,7 +828,7 @@ addLayer("u", {
             },
             effect() {
                 let total = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-                return total.div(200)
+                return total.div(400)
             },
             effectDisplay() {  // Add formatting to the effect 
                 return "+" + format(upgradeEffect(this.layer, this.id).mul(100))+"%" 
@@ -872,13 +872,16 @@ addLayer("u", {
         1094: {
             title: "Row 7 Selection",
             description: "You can activate all row 7 selection.",
-            cost: new Decimal(50),
+            cost: new Decimal(40),
             currencyDisplayName: "tree points",
             req : [1082],
             canAfford : TreeAffold,
             pay : TreePay,
             unlocked() {
                 return hasUpgrade("u", 62) && TreeUnlock(this.id, [1082])
+            },
+            onPurchase() {
+                player[this.layer].resetSelectionRows.push(7)
             },
             style: TreeStyle
         },
@@ -909,9 +912,17 @@ addLayer("u", {
             return true
         },
         respec() {
-            player[this.layer].upgrades = player[this.layer].upgrades.filter(x => +x < 1000)
-            player[this.layer].treePoint = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
-            player[this.layer].treePointSpent = new Decimal(0)
+            if(hasUpgrade("u", 62)) {
+                // sum cost 1011 ~ 1071 = 31
+                player[this.layer].upgrades = player[this.layer].upgrades.filter(x => +x < 1080)
+                player[this.layer].treePoint = player[this.layer].treePoint.add(player[this.layer].treePointSpent.sub(31))
+                player[this.layer].treePointSpent = new Decimal(31)
+                player[this.layer].resetSelectionRows = player[this.layer].resetSelectionRows.filter(v => !([1, 2, 3].includes(v)))
+            } else {
+                player[this.layer].upgrades = player[this.layer].upgrades.filter(x => +x < 1000)
+                player[this.layer].treePoint = player[this.layer].treePoint.add(player[this.layer].treePointSpent)
+                player[this.layer].treePointSpent = new Decimal(0)
+            }
 
             let rows = player[this.layer].resetSelectionRows
             for(let row of rows) {
@@ -1138,6 +1149,7 @@ addLayer("u", {
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let cost = new Decimal(1e40).mul(new Decimal(1e5).pow(x))
                 if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.95)
+                if (getBuyableAmount("g", 21).gte(2)) cost = cost.div(layers["g"].treeCostBoost())
                 return cost
             },
             display() { 
@@ -1165,6 +1177,7 @@ addLayer("u", {
             cost(x=getBuyableAmount(this.layer, this.id)) { 
                 let cost = new Decimal(1e40).mul(new Decimal(1e5).pow(x))
                 if (hasUpgrade(this.layer, 1041)) cost = cost.pow(0.95)
+                    if (getBuyableAmount("g", 21).gte(2)) cost = cost.div(layers["g"].treeCostBoost())
                 return cost
             },
             display() { 
@@ -1896,7 +1909,7 @@ addLayer("u", {
         71: {
             title: "Reverse Generator Power",
             effect() {
-                let value = player.points.add(1).log10().div(10).add(1)
+                let value = player.points.add(1).log10().div(20).add(1)
                 return value
             },
             display() { 
