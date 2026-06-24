@@ -531,10 +531,6 @@ addLayer("g", {
             currencyLocation() {
                 return player[this.layer].gem
             },
-            canAfford() { return player[this.layer].gem[11].gte(this.cost) },
-            pay() {
-                player[this.layer].gem[11] = player[this.layer].gem[11].sub(this.cost)
-            },
             unlocked() {
                 return hasUpgrade("g", 15)
             }
@@ -548,10 +544,6 @@ addLayer("g", {
             currencyLocation() {
                 return player[this.layer].gem
             },
-            canAfford() { return player[this.layer].gem[12].gte(this.cost) },
-            pay() {
-                player[this.layer].gem[12] = player[this.layer].gem[12].sub(this.cost)
-            },
             unlocked() {
                 return hasUpgrade("g", 111)
             }
@@ -561,9 +553,9 @@ addLayer("g", {
             description: "Auto tier 3 gem upgrade without spending gem.",
             cost: new Decimal(1e20),
             currencyDisplayName: "tier 3 gem",
-            canAfford() { return player[this.layer].gem[13].gte(this.cost) },
-            pay() {
-                player[this.layer].gem[13] = player[this.layer].gem[13].sub(this.cost)
+            currencyInternalName: "13",
+            currencyLocation() {
+                return player[this.layer].gem
             },
             unlocked() {
                 return hasUpgrade("g", 112)
@@ -574,6 +566,10 @@ addLayer("g", {
             description: "Auto tier 4 gem upgrade without spending gem.",
             cost: new Decimal(1e20),
             currencyDisplayName: "tier 4 gem",
+            currencyInternalName: "14",
+            currencyLocation() {
+                return player[this.layer].gem
+            },
             canAfford() { return player[this.layer].gem[14].gte(this.cost) },
             pay() {
                 player[this.layer].gem[14] = player[this.layer].gem[14].sub(this.cost)

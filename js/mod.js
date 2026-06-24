@@ -42,7 +42,7 @@ let changelog = `<h1>Changelog:</h1><br><br>
 		- Added Color Upgrades.<br>
 		- Added 2 Prestige Upgrades.<br>
 		- Added 1 Upgrade.<br>
-		- Upgrade Bug fix.<br>
+		- Upgrade bug fix.<br>
 		<br>
 		
 	<h3>v0.2.2</h3><br>
@@ -65,6 +65,9 @@ let changelog = `<h1>Changelog:</h1><br><br>
 		- Extend Color.<br>
 		- Added 2 Color Upgrades.<br>
 		- Typo fix.<br>
+		- Gem Automation bug fix<br>
+		- add mobile support<br>
+		<br>
 	`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
